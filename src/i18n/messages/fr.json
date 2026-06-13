@@ -1,0 +1,153 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "fma": "La FMA",
+    "news": "Actualités",
+    "publications": "Publications",
+    "discover": "Découvrir le secteur",
+    "individuals": "Particuliers",
+    "businesses": "Entreprises & Professionnels",
+    "contact": "Contact",
+    "search": "Recherche",
+    "keyFigures": "Chiffres clés",
+    "highlights": "Faits marquants",
+    "newsletter_magazine": "Le courrier de l'assurance",
+    "conventions": "Conventions professionnelles",
+    "usefulLinks": "Liens utiles",
+    "formations": "Formations",
+    "vocabulary": "Vocabulaire utile"
+  },
+  "home": {
+    "hero": {
+      "title": "Fédération Marocaine de l'Assurance",
+      "subtitle": "L'organe représentatif du secteur de l'assurance au Maroc depuis 1958",
+      "cta_discover": "Découvrir la FMA",
+      "cta_publications": "Nos publications"
+    },
+    "keyFigures": {
+      "title": "Le secteur en chiffres",
+      "subtitle": "Données clés du marché marocain de l'assurance"
+    },
+    "latestNews": {
+      "title": "Dernières actualités",
+      "subtitle": "Restez informé des dernières nouvelles du secteur",
+      "viewAll": "Voir toutes les actualités"
+    },
+    "publications": {
+      "title": "Publications récentes",
+      "subtitle": "Rapports, études et revues du secteur",
+      "viewAll": "Voir toutes les publications"
+    },
+    "quickAccess": {
+      "title": "Accès rapide",
+      "individuals": "Particuliers",
+      "businesses": "Entreprises",
+      "formations": "Formations"
+    },
+    "newsletter": {
+      "title": "Restez informé",
+      "subtitle": "Inscrivez-vous à notre newsletter pour recevoir les dernières actualités",
+      "placeholder": "Votre adresse email",
+      "button": "S'inscrire",
+      "success": "Inscription confirmée ! Vérifiez votre boîte email.",
+      "error": "Une erreur s'est produite. Veuillez réessayer."
+    }
+  },
+  "fma": {
+    "title": "La FMA",
+    "presentation": "Présentation",
+    "missions": "Nos missions",
+    "organization": "Organisation",
+    "board": "Comité Directeur",
+    "management": "Direction Générale",
+    "team": "Équipe opérationnelle",
+    "members": "Nos membres"
+  },
+  "news": {
+    "title": "Actualités",
+    "search": "Rechercher une actualité...",
+    "allCategories": "Toutes les catégories",
+    "readMore": "Lire la suite",
+    "publishedOn": "Publié le",
+    "noResults": "Aucune actualité trouvée"
+  },
+  "publications": {
+    "title": "Publications",
+    "keyFigures": "Chiffres clés",
+    "highlights": "Faits marquants",
+    "magazine": "Le courrier de l'assurance",
+    "download": "Télécharger",
+    "year": "Année",
+    "allYears": "Toutes les années"
+  },
+  "individuals": {
+    "title": "Particuliers",
+    "subtitle": "Tout ce que vous devez savoir sur vos assurances",
+    "auto": "Assurance Automobile",
+    "accident": "Individuel Accident",
+    "health": "Assurance Maladie",
+    "life": "Assurance Décès & Emprunteur",
+    "savings": "Épargne & Retraite",
+    "assistance": "Assistance",
+    "home": "Multirisque Habitation"
+  },
+  "businesses": {
+    "title": "Entreprises & Professionnels",
+    "subtitle": "Des solutions d'assurance adaptées aux besoins de votre entreprise",
+    "faq": "Foire aux questions"
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Notre équipe est à votre écoute",
+    "name": "Nom complet",
+    "email": "Adresse email",
+    "phone": "Téléphone",
+    "subject": "Objet",
+    "message": "Message",
+    "send": "Envoyer le message",
+    "success": "Votre message a été envoyé avec succès !",
+    "error": "Une erreur s'est produite. Veuillez réessayer.",
+    "address": "Adresse",
+    "phone_label": "Téléphone",
+    "email_label": "Email",
+    "hours": "Horaires d'ouverture"
+  },
+  "footer": {
+    "description": "La Fédération Marocaine de l'Assurance représente les compagnies d'assurance et de réassurance au Maroc.",
+    "quickLinks": "Liens rapides",
+    "usefulLinks": "Liens utiles",
+    "followUs": "Nous suivre",
+    "rights": "Tous droits réservés",
+    "privacy": "Politique de confidentialité",
+    "legal": "Mentions légales"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "notFound": "Page non trouvée",
+    "backHome": "Retour à l'accueil",
+    "seeAll": "Voir tout",
+    "close": "Fermer",
+    "open": "Ouvrir",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "reset": "Réinitialiser",
+    "submit": "Soumettre",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "page": "Page",
+    "of": "sur",
+    "results": "résultats",
+    "noResults": "Aucun résultat",
+    "draft": "Brouillon",
+    "published": "Publié",
+    "yes": "Oui",
+    "no": "Non"
+  }
+}

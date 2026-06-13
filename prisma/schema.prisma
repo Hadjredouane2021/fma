@@ -1,0 +1,324 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Locale {
+  fr
+  en
+  ar
+}
+
+enum Status {
+  DRAFT
+  PUBLISHED
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(EDITOR)
+  avatar    String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Page {
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  locale         Locale    @default(fr)
+  title          String
+  content        String    @db.LongText
+  excerpt        String?   @db.Text
+  status         Status    @default(DRAFT)
+  seoTitle       String?
+  seoDescription String?
+  ogImage        String?
+  parentSlug     String?
+  order          Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  @@index([slug, locale])
+  @@map("pages")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  nameFr    String
+  nameEn    String?
+  nameAr    String?
+  color     String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts     Post[]
+
+  @@map("categories")
+}
+
+model Post {
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  titleFr        String
+  titleEn        String?
+  titleAr        String?
+  contentFr      String    @db.LongText
+  contentEn      String?   @db.LongText
+  contentAr      String?   @db.LongText
+  excerptFr      String?   @db.Text
+  excerptEn      String?   @db.Text
+  excerptAr      String?   @db.Text
+  featuredImage  String?
+  status         Status    @default(DRAFT)
+  featured       Boolean   @default(false)
+  publishedAt    DateTime?
+  seoTitle       String?
+  seoDescription String?
+  ogImage        String?
+  categoryId     String?
+  category       Category? @relation(fields: [categoryId], references: [id])
+  views          Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  @@index([slug])
+  @@index([status, publishedAt])
+  @@map("posts")
+}
+
+model Publication {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  type          String
+  titleFr       String
+  titleEn       String?
+  titleAr       String?
+  descriptionFr String?   @db.Text
+  descriptionEn String?   @db.Text
+  descriptionAr String?   @db.Text
+  pdfFile       String?
+  coverImage    String?
+  readMoreUrl   String?
+  year          Int?
+  status        Status    @default(DRAFT)
+  featured      Boolean   @default(false)
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@index([type, year])
+  @@map("publications")
+}
+
+model Media {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  altFr        String?
+  altEn        String?
+  altAr        String?
+  folder       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("media")
+}
+
+model Member {
+  id            String   @id @default(cuid())
+  nameFr        String
+  nameEn        String?
+  nameAr        String?
+  logo          String?
+  website       String?
+  descriptionFr String?  @db.Text
+  descriptionEn String?  @db.Text
+  descriptionAr String?  @db.Text
+  category      String?
+  active        Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("members")
+}
+
+model TeamMember {
+  id         String   @id @default(cuid())
+  nameFr     String
+  nameEn     String?
+  nameAr     String?
+  titleFr    String?
+  titleEn    String?
+  titleAr    String?
+  photo      String?
+  email      String?
+  department String?
+  bioFr      String?  @db.Text
+  bioEn      String?  @db.Text
+  bioAr      String?  @db.Text
+  order      Int      @default(0)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("team_members")
+}
+
+model Formation {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  titleFr         String
+  titleEn         String?
+  titleAr         String?
+  descriptionFr   String?   @db.Text
+  descriptionEn   String?   @db.Text
+  descriptionAr   String?   @db.Text
+  organizer       String?
+  duration        String?
+  format          String?
+  level           String?
+  price           String?
+  startDate       DateTime?
+  endDate         DateTime?
+  location        String?
+  registrationUrl String?
+  status          Status    @default(PUBLISHED)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("formations")
+}
+
+model UsefulLink {
+  id            String   @id @default(cuid())
+  titleFr       String
+  titleEn       String?
+  titleAr       String?
+  url           String
+  descriptionFr String?  @db.Text
+  descriptionEn String?  @db.Text
+  descriptionAr String?  @db.Text
+  category      String?
+  icon          String?
+  order         Int      @default(0)
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("useful_links")
+}
+
+model GlossaryTerm {
+  id           String   @id @default(cuid())
+  termFr       String
+  termEn       String?
+  termAr       String?
+  definitionFr String   @db.Text
+  definitionEn String?  @db.Text
+  definitionAr String?  @db.Text
+  letter       String
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([letter])
+  @@map("glossary_terms")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String   @db.Text
+  status    String   @default("unread")
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contact_messages")
+}
+
+model NewsletterSubscriber {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  name        String?
+  locale      Locale    @default(fr)
+  active      Boolean   @default(true)
+  confirmedAt DateTime?
+  token       String?   @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("newsletter_subscribers")
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.LongText
+  group     String   @default("general")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model Translation {
+  id        String   @id @default(cuid())
+  key       String
+  locale    Locale
+  value     String   @db.Text
+  namespace String   @default("common")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, locale, namespace])
+  @@map("translations")
+}
+
+model Convention {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  titleFr       String
+  titleEn       String?
+  titleAr       String?
+  descriptionFr String?   @db.Text
+  descriptionEn String?   @db.Text
+  descriptionAr String?   @db.Text
+  pdfFile       String?
+  category      String?
+  signedAt      DateTime?
+  status        Status    @default(PUBLISHED)
+  order         Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("conventions")
+}

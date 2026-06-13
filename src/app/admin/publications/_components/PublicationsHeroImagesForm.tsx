@@ -1,0 +1,152 @@
+"use client";
+import Image from "next/image";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ImageIcon, Loader2, Save, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
+import { buttonUploadLabel } from "@/lib/button-styles";
+import { GALLERY_CATEGORIES, GALLERY_CONFIG, type GalleryCategory } from "@/lib/galleries";
+
+const TYPES = [
+  { key: "chiffres-cles",   label: "Chiffres clés" },
+  { key: "faits-marquants", label: "Faits marquants" },
+  { key: "courrier",        label: "Le Courrier de l'assurance" },
+  ...GALLERY_CATEGORIES.map((category) => ({ key: category, label: GALLERY_CONFIG[category].title.fr })),
+] as const;
+
+type PubType = "chiffres-cles" | "faits-marquants" | "courrier" | GalleryCategory;
+
+const inputBase =
+  "w-full px-3 py-2 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text-1)] placeholder-[var(--text-3)] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors";
+
+export default function PublicationsHeroImagesForm({
+  initial,
+}: {
+  initial: Record<PubType, string>;
+}) {
+  const router = useRouter();
+  const [images, setImages] = useState<Record<PubType, string>>({ ...initial });
+  const [uploading, setUploading] = useState<PubType | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, typeKey: PubType) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploading(typeKey);
+    setError("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "publications-hero");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setError(data.message || "Échec de l'upload"); return; }
+      if (typeof data.url === "string") setImages((prev) => ({ ...prev, [typeKey]: data.url }));
+    } catch {
+      setError("Erreur réseau lors de l'upload");
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError("");
+    setSuccess(false);
+    try {
+      const res = await fetch("/api/admin/site/publications-hero", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(images),
+      });
+      if (res.ok) { setSuccess(true); router.refresh(); }
+      else { const d = await res.json().catch(() => ({})); setError(d.message || "Erreur"); }
+    } catch {
+      setError("Erreur réseau");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] p-6 mb-8 space-y-5">
+      <h2 className="text-sm font-bold text-primary flex items-center gap-2">
+        <ImageIcon className="w-4 h-4" />
+        Images hero par type de publication
+      </h2>
+      <p className="text-xs text-[var(--text-3)]">
+        Chaque type de publication peut avoir une photo affichée en hero quand le filtre est actif.
+        L&apos;image <strong className="text-[var(--text-2)]">Chiffres clés</strong> est aussi modifiable dans{" "}
+        <a href="/admin/chiffres-cles" className="font-semibold text-primary hover:underline">Admin → Chiffres clés</a>.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {TYPES.map(({ key: typeKey, label }) => {
+          const url = images[typeKey];
+          const isUploading = uploading === typeKey;
+          return (
+            <div key={typeKey} className="space-y-2">
+              <p className="text-xs font-semibold text-[var(--text-2)] uppercase tracking-wide">{label}</p>
+
+              {/* Preview */}
+              <div className={cn(
+                "relative rounded-xl overflow-hidden border border-[var(--border)] w-full h-36",
+                !url && "bg-[var(--bg-alt)] flex items-center justify-center"
+              )}>
+                {url ? (
+                  <>
+                    <Image src={url} alt={label} fill className="object-cover" unoptimized={url.startsWith("/uploads")} />
+                    <button
+                      type="button"
+                      onClick={() => setImages((p) => ({ ...p, [typeKey]: "" }))}
+                      className="absolute top-2 right-2 bg-red-600 text-white rounded-lg p-1.5 hover:bg-red-700 transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </>
+                ) : (
+                  <ImageIcon className="w-8 h-8 text-[var(--text-3)]" />
+                )}
+              </div>
+
+              {/* URL input */}
+              <input
+                type="text"
+                value={url}
+                onChange={(e) => setImages((p) => ({ ...p, [typeKey]: e.target.value }))}
+                className={inputBase}
+                placeholder="/uploads/publications-hero/…"
+                disabled={isUploading}
+              />
+
+              {/* Upload button */}
+              <label className={cn(buttonUploadLabel, "flex items-center gap-2 justify-center w-full", isUploading && "opacity-60 pointer-events-none")}>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => handleUpload(e, typeKey)}
+                  disabled={isUploading}
+                />
+                {isUploading ? <><Loader2 className="w-4 h-4 animate-spin" />Envoi…</> : "Importer une photo"}
+              </label>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center gap-4 pt-2">
+        <Button type="button" variant="primary" shape="rounded" size="md" onClick={handleSave} disabled={saving || !!uploading} isLoading={saving}>
+          {!saving && <Save className="w-4 h-4" />}
+          Enregistrer
+        </Button>
+        {success && <span className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Enregistré ✓</span>}
+        {error && <span className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</span>}
+      </div>
+    </div>
+  );
+}

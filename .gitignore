@@ -23,12 +23,14 @@
 # misc
 .DS_Store
 *.pem
+*.exe
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -39,3 +41,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# Fichiers déposés via l’admin (images, PDF, etc.)
+/public/uploads/posts/*
+!/public/uploads/posts/.gitkeep
+/public/uploads/publications/*
+!/public/uploads/publications/.gitkeep
+/public/uploads/publications-covers/*
+!/public/uploads/publications-covers/.gitkeep

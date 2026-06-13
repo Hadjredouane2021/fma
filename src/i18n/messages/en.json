@@ -1,0 +1,153 @@
+{
+  "nav": {
+    "home": "Home",
+    "fma": "The FMA",
+    "news": "News",
+    "publications": "Publications",
+    "discover": "Discover the Sector",
+    "individuals": "Individuals",
+    "businesses": "Businesses & Professionals",
+    "contact": "Contact",
+    "search": "Search",
+    "keyFigures": "Key Figures",
+    "highlights": "Highlights",
+    "newsletter_magazine": "Insurance Newsletter",
+    "conventions": "Professional Conventions",
+    "usefulLinks": "Useful Links",
+    "formations": "Training",
+    "vocabulary": "Useful Vocabulary"
+  },
+  "home": {
+    "hero": {
+      "title": "Moroccan Insurance Federation",
+      "subtitle": "The representative body of the insurance sector in Morocco since 1958",
+      "cta_discover": "Discover FMA",
+      "cta_publications": "Our Publications"
+    },
+    "keyFigures": {
+      "title": "Sector in Figures",
+      "subtitle": "Key data from the Moroccan insurance market"
+    },
+    "latestNews": {
+      "title": "Latest News",
+      "subtitle": "Stay informed about the latest industry news",
+      "viewAll": "View all news"
+    },
+    "publications": {
+      "title": "Recent Publications",
+      "subtitle": "Reports, studies and sector reviews",
+      "viewAll": "View all publications"
+    },
+    "quickAccess": {
+      "title": "Quick Access",
+      "individuals": "Individuals",
+      "businesses": "Businesses",
+      "formations": "Training"
+    },
+    "newsletter": {
+      "title": "Stay Informed",
+      "subtitle": "Subscribe to our newsletter to receive the latest news",
+      "placeholder": "Your email address",
+      "button": "Subscribe",
+      "success": "Subscription confirmed! Check your email.",
+      "error": "An error occurred. Please try again."
+    }
+  },
+  "fma": {
+    "title": "The FMA",
+    "presentation": "Presentation",
+    "missions": "Our Missions",
+    "organization": "Organization",
+    "board": "Board of Directors",
+    "management": "General Management",
+    "team": "Operational Team",
+    "members": "Our Members"
+  },
+  "news": {
+    "title": "News",
+    "search": "Search news...",
+    "allCategories": "All categories",
+    "readMore": "Read more",
+    "publishedOn": "Published on",
+    "noResults": "No news found"
+  },
+  "publications": {
+    "title": "Publications",
+    "keyFigures": "Key Figures",
+    "highlights": "Highlights",
+    "magazine": "Insurance Newsletter",
+    "download": "Download",
+    "year": "Year",
+    "allYears": "All years"
+  },
+  "individuals": {
+    "title": "Individuals",
+    "subtitle": "Everything you need to know about your insurance",
+    "auto": "Car Insurance",
+    "accident": "Individual Accident",
+    "health": "Health Insurance",
+    "life": "Life & Borrower Insurance",
+    "savings": "Savings & Retirement",
+    "assistance": "Assistance",
+    "home": "Home Insurance"
+  },
+  "businesses": {
+    "title": "Businesses & Professionals",
+    "subtitle": "Insurance solutions tailored to your business needs",
+    "faq": "Frequently Asked Questions"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Our team is here for you",
+    "name": "Full name",
+    "email": "Email address",
+    "phone": "Phone",
+    "subject": "Subject",
+    "message": "Message",
+    "send": "Send message",
+    "success": "Your message has been sent successfully!",
+    "error": "An error occurred. Please try again.",
+    "address": "Address",
+    "phone_label": "Phone",
+    "email_label": "Email",
+    "hours": "Opening hours"
+  },
+  "footer": {
+    "description": "The Moroccan Insurance Federation represents insurance and reinsurance companies in Morocco.",
+    "quickLinks": "Quick Links",
+    "usefulLinks": "Useful Links",
+    "followUs": "Follow Us",
+    "rights": "All rights reserved",
+    "privacy": "Privacy Policy",
+    "legal": "Legal Notice"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "notFound": "Page not found",
+    "backHome": "Back to home",
+    "seeAll": "See all",
+    "close": "Close",
+    "open": "Open",
+    "search": "Search",
+    "filter": "Filter",
+    "reset": "Reset",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "page": "Page",
+    "of": "of",
+    "results": "results",
+    "noResults": "No results",
+    "draft": "Draft",
+    "published": "Published",
+    "yes": "Yes",
+    "no": "No"
+  }
+}
