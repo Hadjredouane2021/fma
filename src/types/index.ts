@@ -42,6 +42,7 @@ export interface Post {
   featuredImage?: string | null;
   status: Status;
   featured: boolean;
+  announcePopup: boolean;
   publishedAt?: Date | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
@@ -157,6 +158,7 @@ export interface UsefulLink {
   descriptionEn?: string | null;
   descriptionAr?: string | null;
   category?: string | null;
+  /** URL du logo de l'organisme (champ `icon` en base). */
   icon?: string | null;
   order: number;
   active: boolean;
@@ -233,4 +235,8 @@ export interface KeyFigure {
   label: string;
   suffix?: string;
   prefix?: string;
+  description?: string;
+  /** Titre de groupe — cartes consécutives avec la même clé FR s'empilent verticalement. */
+  stackGroup?: string;
+  stackGroupTitle?: string;
 }

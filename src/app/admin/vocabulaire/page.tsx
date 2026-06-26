@@ -1,13 +1,19 @@
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { DB_KEYS } from "@/lib/db-keys";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import DeleteGlossaryTermButton from "./_components/DeleteGlossaryTermButton";
+import VocabulaireHeroImageForm from "./_components/VocabulaireHeroImageForm";
 
 export default async function AdminVocabulairePage() {
-  const terms = await prisma.glossaryTerm
-    .findMany({ orderBy: [{ letter: "asc" }, { order: "asc" }, { termFr: "asc" }] })
-    .catch(() => []);
+  const [terms, heroRow] = await Promise.all([
+    prisma.glossaryTerm
+      .findMany({ orderBy: [{ letter: "asc" }, { order: "asc" }, { termFr: "asc" }] })
+      .catch(() => []),
+    prisma.setting.findUnique({ where: { key: DB_KEYS.VOCABULAIRE_HERO } }).catch(() => null),
+  ]);
+  const heroImage = heroRow?.value ?? "";
 
   return (
     <>
@@ -18,6 +24,7 @@ export default async function AdminVocabulairePage() {
       />
 
       <main className="p-8">
+        <VocabulaireHeroImageForm initial={heroImage} />
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] shadow-sm dark:shadow-none">
           <table className="w-full text-sm">
             <thead>

@@ -1,6 +1,3 @@
-import { prisma } from "@/lib/prisma";
-import { DB_KEYS } from "@/lib/db-keys";
-
 export interface MenuLabel {
   fr: string;
   en: string;
@@ -78,16 +75,4 @@ export function createEmptyMenuChild(): MenuChild {
 
 export function resolveHref(href: string, locale: string): string {
   return href.replace(/\[locale\]/g, locale);
-}
-
-export async function getMenuContent(): Promise<MenuContent> {
-  const row = await prisma.setting.findUnique({ where: { key: DB_KEYS.MENU_CONTENT } }).catch(() => null);
-  if (!row) return DEFAULT_MENU_CONTENT;
-  try {
-    const d = JSON.parse(row.value) as Partial<MenuContent>;
-    if (!Array.isArray(d.items) || d.items.length === 0) return DEFAULT_MENU_CONTENT;
-    return d as MenuContent;
-  } catch {
-    return DEFAULT_MENU_CONTENT;
-  }
 }

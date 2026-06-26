@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { ADMIN_IMAGE_ACCEPT } from "@/lib/admin-upload";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -34,6 +36,7 @@ export default function UsefulLinkForm({ initial, defaultOrder = 0 }: UsefulLink
   const router = useRouter();
   const isEdit = Boolean(initial?.id);
   const [loading, setLoading] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
@@ -49,6 +52,30 @@ export default function UsefulLinkForm({ initial, defaultOrder = 0 }: UsefulLink
     order: initial?.order ?? defaultOrder,
     active: initial?.active ?? true,
   });
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploadingLogo(true);
+    setError("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "liens-utiles-logos");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError((data.message as string) || "Échec de l’upload du logo");
+        return;
+      }
+      if (typeof data.url === "string") setForm((p) => ({ ...p, icon: data.url }));
+    } catch {
+      setError("Erreur réseau lors de l’upload du logo");
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,14 +151,39 @@ export default function UsefulLinkForm({ initial, defaultOrder = 0 }: UsefulLink
           <p className="mt-1 text-xs text-[var(--text-3)]">Regroupe les liens sur la page publique (titre de section capitalisé).</p>
         </div>
         <div>
-          <label className={labelCls}>Icône (optionnel)</label>
+          <label className={labelCls}>Logo de l&apos;organisme</label>
           <input
             type="text"
             value={form.icon}
             onChange={(e) => setForm((p) => ({ ...p, icon: e.target.value }))}
             className={inputBase}
-            placeholder="Emoji ou caractère — réservé usage futur"
+            placeholder="/uploads/liens-utiles-logos/…"
           />
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-alt)] px-3 py-2 text-xs font-semibold text-primary hover:bg-[var(--bg-surface)]">
+              <input
+                type="file"
+                accept={ADMIN_IMAGE_ACCEPT}
+                className="hidden"
+                onChange={handleLogoUpload}
+                disabled={uploadingLogo || loading}
+              />
+              {uploadingLogo ? "Envoi…" : "Téléverser un logo"}
+            </label>
+            {form.icon ? (
+              <div className="relative h-14 w-14 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg-alt)]">
+                <Image
+                  src={form.icon}
+                  alt=""
+                  fill
+                  className="object-contain p-1.5"
+                  sizes="56px"
+                  unoptimized={form.icon.startsWith("/uploads")}
+                />
+              </div>
+            ) : null}
+          </div>
+          <p className="mt-1 text-xs text-[var(--text-3)]">PNG ou JPG sur fond transparent de préférence. Affiché à gauche de chaque carte sur la page publique.</p>
         </div>
       </div>
 

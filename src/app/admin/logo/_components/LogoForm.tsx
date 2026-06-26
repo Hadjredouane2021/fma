@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { ADMIN_IMAGE_ACCEPT, ADMIN_IMAGE_FORMATS_LABEL } from "@/lib/admin-upload";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageIcon, Loader2, Save } from "lucide-react";
@@ -75,7 +76,7 @@ export default function LogoForm({ initial }: { initial: SiteLogoSettings }) {
         Logo du site (header & footer)
       </h2>
       <p className="relative z-10 mb-6 text-xs text-[var(--text-3)]">
-        Image officielle FMA (JPEG, PNG, WebP, GIF ou SVG). Affichée dans l&apos;en-tête et le pied de page.
+        Image officielle FMA ({ADMIN_IMAGE_FORMATS_LABEL}). Affichée dans l&apos;en-tête et le pied de page.
       </p>
 
       <div className="relative z-10 space-y-5">
@@ -95,7 +96,7 @@ export default function LogoForm({ initial }: { initial: SiteLogoSettings }) {
             <label className={cn(buttonUploadLabel, uploading && "pointer-events-none opacity-60")}>
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                accept={ADMIN_IMAGE_ACCEPT}
                 className="sr-only"
                 onChange={handleUpload}
                 disabled={uploading}

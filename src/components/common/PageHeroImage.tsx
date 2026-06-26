@@ -9,7 +9,7 @@ type PageHeroImageProps = {
   overlay?: boolean;
 };
 
-/** Bandeau image PageHero — ratio responsive, cadrage adapté */
+/** Bandeau image PageHero — ratio 37:10 (500 × 162 px) */
 export function PageHeroImage({
   src,
   alt,

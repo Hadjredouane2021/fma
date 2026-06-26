@@ -5,6 +5,7 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
+import { FontFamily, FontSize, TextStyle } from "@tiptap/extension-text-style";
 import { useEffect, useCallback, useState } from "react";
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
@@ -57,17 +58,42 @@ function wordCount(html: string): number {
   return html.replace(/<[^>]*>/g, "").trim().split(/\s+/).filter(Boolean).length;
 }
 
+const FONT_FAMILIES = [
+  { label: "Par défaut", value: "" },
+  { label: "Gotham", value: "Gotham, system-ui, sans-serif" },
+  { label: "IBM Plex Arabic", value: "var(--font-ibm-plex-arabic), Tahoma, Arial, sans-serif" },
+] as const;
+
+const FONT_SIZES = [
+  { label: "Par défaut", value: "" },
+  { label: "12 px", value: "12px" },
+  { label: "14 px", value: "14px" },
+  { label: "16 px", value: "16px" },
+  { label: "18 px", value: "18px" },
+  { label: "20 px", value: "20px" },
+  { label: "24 px", value: "24px" },
+  { label: "28 px", value: "28px" },
+  { label: "32 px", value: "32px" },
+] as const;
+
+const toolbarSelectClass =
+  "h-8 max-w-[9.5rem] rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2 text-xs font-medium text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-primary/20";
+
 export default function RichTextEditor({
   value, onChange, placeholder = "Rédigez votre contenu…", dir = "ltr", minHeight = "280px",
 }: RichTextEditorProps) {
   const [mode, setMode] = useState<"visual" | "html">("visual");
   const [htmlDraft, setHtmlDraft] = useState(value);
+  const [, setToolbarTick] = useState(0);
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
       }),
+      TextStyle,
+      FontFamily,
+      FontSize,
       Underline,
       Link.configure({
         openOnClick: false,
@@ -87,6 +113,12 @@ export default function RichTextEditor({
       const html = ed.getHTML();
       setHtmlDraft(html);
       onChange(html);
+    },
+    onSelectionUpdate() {
+      setToolbarTick((t) => t + 1);
+    },
+    onTransaction() {
+      setToolbarTick((t) => t + 1);
     },
     immediatelyRender: false,
   });
@@ -133,6 +165,8 @@ export default function RichTextEditor({
 
   const iconSize = "w-4 h-4";
   const currentHtml = mode === "html" ? htmlDraft : editor.getHTML();
+  const currentFontFamily = editor.getAttributes("textStyle").fontFamily ?? "";
+  const currentFontSize = editor.getAttributes("textStyle").fontSize ?? "";
 
   return (
     <div className="border border-[var(--border)] rounded-xl overflow-hidden bg-[var(--bg)] focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
@@ -188,6 +222,44 @@ export default function RichTextEditor({
 
             <Separator />
 
+            <select
+              value={currentFontFamily}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (!value) editor.chain().focus().unsetFontFamily().run();
+                else editor.chain().focus().setFontFamily(value).run();
+              }}
+              className={toolbarSelectClass}
+              title="Police"
+              aria-label="Police"
+            >
+              {FONT_FAMILIES.map((font) => (
+                <option key={font.label} value={font.value}>
+                  {font.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={currentFontSize}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (!value) editor.chain().focus().unsetFontSize().run();
+                else editor.chain().focus().setFontSize(value).run();
+              }}
+              className={cn(toolbarSelectClass, "max-w-[6.5rem]")}
+              title="Taille du texte"
+              aria-label="Taille du texte"
+            >
+              {FONT_SIZES.map((size) => (
+                <option key={size.label} value={size.value}>
+                  {size.label}
+                </option>
+              ))}
+            </select>
+
+            <Separator />
+
             <ToolbarBtn onClick={() => editor.chain().focus().setTextAlign("left").run()} active={editor.isActive({ textAlign: "left" })} title="Aligner à gauche">
               <AlignLeft className={iconSize} />
             </ToolbarBtn>
@@ -229,6 +301,14 @@ export default function RichTextEditor({
 
             <ToolbarBtn onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()} title="Effacer le formatage">
               <span className="text-xs font-bold px-0.5">T×</span>
+            </ToolbarBtn>
+            <ToolbarBtn
+              onClick={() => {
+                editor.chain().focus().unsetFontFamily().unsetFontSize().run();
+              }}
+              title="Réinitialiser police et taille"
+            >
+              <span className="text-[10px] font-bold px-0.5">Aa</span>
             </ToolbarBtn>
           </>
         ) : null}

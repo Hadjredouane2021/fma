@@ -17,14 +17,13 @@ export function LaFmaCardIcon({ icon }: { icon: string }) {
   }
 
   return (
-    <span className="la-fma-org-card__icon" aria-hidden>
+    <span className="la-fma-org-card__icon la-fma-org-card__icon--image" aria-hidden>
       <Image
         src={trimmed}
         alt=""
-        width={22}
-        height={22}
-        className="h-[1.35rem] w-[1.35rem] shrink-0 object-contain"
-        sizes="22px"
+        fill
+        className="object-contain"
+        sizes="64px"
         unoptimized={isLaFmaUploadIcon(trimmed)}
         onError={() => setFailed(true)}
       />

@@ -18,7 +18,7 @@ export function LaFmaPremiumCard({ icon, title, description }: LaFmaPremiumCardP
         {hasTitle && !hasDesc ? (
           <p className="la-fma-org-card__text la-fma-mission-card__solo">{title}</p>
         ) : hasTitle ? (
-          <h3 className="la-fma-org-card__title font-display">{title}</h3>
+          <h3 className="la-fma-org-card__title font-display text-pretty break-words">{title}</h3>
         ) : hasDesc ? (
           <p className="la-fma-org-card__text la-fma-mission-card__solo">{description}</p>
         ) : null}

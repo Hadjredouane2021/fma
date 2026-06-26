@@ -1,6 +1,5 @@
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { getSiteLogo } from "@/lib/site-logo";
-import { getSiteSpinner } from "@/lib/site-spinner";
+import { getSiteLogo, getSiteSpinner } from "@/lib/site-settings-cache";
 import LogoForm from "./_components/LogoForm";
 import SpinnerLogoForm from "./_components/SpinnerLogoForm";
 

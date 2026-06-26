@@ -8,18 +8,14 @@ import { LaFmaPresentationSection } from "@/components/common/LaFmaPresentationS
 import { LaFmaValeursSection } from "@/components/common/LaFmaValeursSection";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import { Section } from "@/components/ui/Section";
-import { prisma } from "@/lib/prisma";
-import { DB_KEYS } from "@/lib/db-keys";
 import { getLaFmaContent } from "@/lib/site-content";
+import { getLaFmaPageData } from "@/lib/la-fma-page-cache";
 import { DEFAULT_LA_FMA_CONTENT } from "@/lib/la-fma-site-public";
 import { cn } from "@/lib/utils";
 import type { Locale, TeamMember, Member } from "@/types";
 import type { Metadata } from "next";
 
-const laFmaFlatCard =
-  "rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] shadow-none";
-const laFmaFlatCardSm =
-  "rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] shadow-none";
+export const revalidate = 300;
 
 function OrgCard({ member, locale }: { member: TeamMember; locale: Locale }) {
   const name =
@@ -33,10 +29,14 @@ function OrgCard({ member, locale }: { member: TeamMember; locale: Locale }) {
 
   return (
     <div
-      className={cn(laFmaFlatCardSm, "flex min-h-[112px] w-[360px] shrink-0 flex-col items-center justify-center px-6 py-6 text-center")}
+      className={cn(
+        "la-fma-team-card flex min-h-[112px] w-[360px] shrink-0 flex-col items-center justify-center px-6 py-6 text-center"
+      )}
     >
-      <p className="text-[15px] font-bold leading-snug text-[var(--text-1)]">{name}</p>
-      {title ? <p className="mt-2.5 text-[14px] leading-snug text-[var(--blue)]">{title}</p> : null}
+      <div className="la-fma-team-card__content">
+        <p className="text-[15px] font-bold leading-snug text-[var(--text-1)]">{name}</p>
+        {title ? <p className="mt-2.5 text-[14px] leading-snug text-[var(--blue)]">{title}</p> : null}
+      </div>
     </div>
   );
 }
@@ -93,15 +93,8 @@ export default async function FMAPage({ params }: { params: Promise<{ locale: st
   const { locale } = await params;
   const l = locale as Locale;
 
-  const [members, allTeam, comiteDirecteur, content, statsImageRow] = await Promise.all([
-    prisma.member.findMany({ where: { active: true }, orderBy: { order: "asc" } }).catch(() => []),
-    prisma.teamMember.findMany({ where: { active: true, department: "direction" }, orderBy: { order: "asc" } }).catch(() => []),
-    prisma.teamMember.findMany({ where: { active: true, department: "comite_directeur" }, orderBy: [{ order: "asc" }, { nameFr: "asc" }] }).catch(() => []),
-    getLaFmaContent(),
-    prisma.setting.findUnique({ where: { key: DB_KEYS.LA_FMA_STATS_IMAGE } }).catch(() => null),
-  ]);
-
-  const statsImageUrl = statsImageRow?.value?.trim() || "/hero4.PNG";
+  const [pageData, content] = await Promise.all([getLaFmaPageData(), getLaFmaContent()]);
+  const { members, direction: allTeam, comiteDirecteur, statsImageUrl } = pageData;
 
   return (
     <div>
@@ -191,29 +184,40 @@ export default async function FMAPage({ params }: { params: Promise<{ locale: st
                     {hasCategories && (
                       <h3 className="text-sm font-bold text-primary uppercase tracking-widest mb-6 text-center">{cat}</h3>
                     )}
-                    <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
-                      {grouped[cat].map((member) => (
+                    <div className="la-fma-members-grid">
+                      {grouped[cat].map((member) => {
+                        const memberName =
+                          l === "ar"
+                            ? member.nameAr || member.nameFr
+                            : l === "en"
+                              ? member.nameEn || member.nameFr
+                              : member.nameFr;
+                        return (
                         <div
                           key={member.id}
-                          className={cn(laFmaFlatCardSm, "flex h-32 flex-col p-4")}
+                          className="la-fma-team-card la-fma-member-card"
                         >
+                          <div className="la-fma-team-card__content la-fma-member-card__content">
                           {member.logo ? (
-                            <div className="relative min-h-0 w-full flex-1">
+                            <div className="la-fma-member-card__logo">
                               <Image
                                 src={member.logo}
-                                alt={member.nameFr}
+                                alt={memberName}
                                 fill
                                 className="object-contain object-center"
-                                sizes="(max-width: 768px) 45vw, (max-width: 1024px) 30vw, 22vw"
+                                sizes="(max-width: 768px) 45vw, (max-width: 1024px) 33vw, 320px"
+                                unoptimized={member.logo.startsWith("/uploads")}
                               />
                             </div>
                           ) : (
                             <span className="flex flex-1 items-center justify-center text-center text-sm font-medium leading-tight text-[var(--text-3)]">
-                              {member.nameFr}
+                              {memberName}
                             </span>
                           )}
+                          </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 ))}

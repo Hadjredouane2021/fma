@@ -1,4 +1,5 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
+import { FMA_HEX } from "@/lib/fma-brand-colors";
 
 type AnimationMode = "auto-rotate" | "rotate-on-hover" | "stop-rotate-on-hover";
 
@@ -93,7 +94,7 @@ export function BorderRotate({
 
 /** Couleurs dégradé — charte FMA */
 export const FMA_BORDER_GRADIENT = {
-  primary: "#941f49",
-  secondary: "#b39988",
-  accent: "#f0dba0",
+  primary: FMA_HEX.burgundy,
+  secondary: FMA_HEX.taupe,
+  accent: FMA_HEX.pale,
 } as const;

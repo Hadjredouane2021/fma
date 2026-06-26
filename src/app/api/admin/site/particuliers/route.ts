@@ -6,6 +6,7 @@ import {
   normalizeParticuliersContent,
   PARTICULIERS_KEY,
 } from "@/lib/particuliers-site-public";
+import { revalidateParticuliersContent } from "@/lib/particuliers-cache";
 
 async function getSession() {
   try { return await auth(); } catch { return null; }
@@ -30,5 +31,6 @@ export async function PUT(req: NextRequest) {
     update: { value: JSON.stringify(normalized), group: "site" },
     create: { key: PARTICULIERS_KEY, value: JSON.stringify(normalized), group: "site" },
   });
+  revalidateParticuliersContent();
   return NextResponse.json(normalized);
 }

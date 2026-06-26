@@ -1,5 +1,5 @@
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { getMenuContent } from "@/lib/menu-site-public";
+import { getMenuContent } from "@/lib/site-settings-cache";
 import MenuForm from "./_components/MenuForm";
 
 export default async function AdminMenuPage() {

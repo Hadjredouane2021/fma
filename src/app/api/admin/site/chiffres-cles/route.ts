@@ -6,6 +6,7 @@ import {
   DEFAULT_CHIFFRES_CLES_CONTENT,
   normalizeChiffresClesContent,
 } from "@/lib/chiffres-cles-site-public";
+import { revalidateChiffresClesContent } from "@/lib/chiffres-cles-cache";
 
 async function getSession() {
   try { return await auth(); } catch { return null; }
@@ -33,5 +34,6 @@ export async function PUT(req: NextRequest) {
     update: { value: JSON.stringify(normalized), group: "site" },
     create: { key: CHIFFRES_CLES_KEY, value: JSON.stringify(normalized), group: "site" },
   });
+  revalidateChiffresClesContent();
   return NextResponse.json(normalized);
 }

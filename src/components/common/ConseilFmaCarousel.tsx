@@ -5,15 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { localPublicImageUnoptimized } from "@/lib/utils";
 
-export type ConseilFmaItem = { url: string; link?: string };
+export type ConseilFmaItem = { url: string; link?: string; title?: string };
 
-const DEFAULT_ITEMS: ConseilFmaItem[] = [
-  "040324.png", "040625.png", "040725.png", "050325.png", "060324.png",
-  "080825.png", "090425.png", "100724.png", "120824.png", "171025.png",
-  "180725.png", "220525.png", "220925.png", "240725.png", "260624.png",
-  "260724.png", "260825.png", "280225.png", "280825.png", "290725.png",
-].map((f) => ({ url: `/LE-CONSEIL-FMA/${f}` }));
+const DEFAULT_ITEMS: ConseilFmaItem[] = [];
 
 const AUTOPLAY_MS = 5000;
 
@@ -22,11 +18,13 @@ function SlideImage({
   index,
   priority,
   imageAltPrefix,
+  onAspectRatio,
 }: {
   item: ConseilFmaItem;
   index: number;
   priority?: boolean;
   imageAltPrefix: string;
+  onAspectRatio: (ratio: number) => void;
 }) {
   const link = item.link?.trim();
   const isExternal = !!link && /^https?:\/\//i.test(link);
@@ -40,7 +38,12 @@ function SlideImage({
         sizes="(max-width: 768px) 92vw, (max-width: 1024px) 70vw, 56rem"
         className="object-contain object-center p-3 sm:p-4 md:p-5"
         priority={priority}
-        unoptimized={item.url.startsWith("/uploads")}
+        unoptimized={localPublicImageUnoptimized(item.url)}
+        onLoadingComplete={(img) => {
+          if (img.naturalWidth && img.naturalHeight) {
+            onAspectRatio(img.naturalWidth / img.naturalHeight);
+          }
+        }}
       />
       <div className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-black/[0.04] dark:ring-white/[0.06]" />
 
@@ -83,6 +86,7 @@ export function ConseilFmaCarousel({
   const [direction, setDirection] = useState(1);
   const [paused, setPaused] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
+  const [aspectRatio, setAspectRatio] = useState(1);
 
   useEffect(() => {
     if (paused || ITEMS.length <= 1) return;
@@ -106,6 +110,10 @@ export function ConseilFmaCarousel({
     setDirection(i > index ? 1 : -1);
     setIndex(i);
     setProgressKey((k) => k + 1);
+  };
+
+  const handleAspectRatio = (slideIndex: number) => (ratio: number) => {
+    if (slideIndex === index) setAspectRatio(ratio);
   };
 
   const prevIdx = (index - 1 + ITEMS.length) % ITEMS.length;
@@ -133,7 +141,7 @@ export function ConseilFmaCarousel({
               fill
               sizes="14vw"
               className="object-contain object-center p-2 scale-105 transition-transform duration-700 group-hover:scale-100"
-              unoptimized={ITEMS[prevIdx].url.startsWith("/uploads")}
+              unoptimized={localPublicImageUnoptimized(ITEMS[prevIdx].url)}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg)]/40 to-transparent" />
           </button>
@@ -141,7 +149,10 @@ export function ConseilFmaCarousel({
 
         {/* Main stage */}
         <div className="relative w-full max-w-4xl lg:flex-1">
-          <div className="relative aspect-square overflow-hidden rounded-3xl border border-[var(--border)] shadow-card glass-panel">
+          <div
+            className="relative overflow-hidden rounded-3xl border border-[var(--border)] shadow-card glass-panel transition-[aspect-ratio] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            style={{ aspectRatio: Math.min(Math.max(aspectRatio, 0.6), 1.8) }}
+          >
             <AnimatePresence initial={false} custom={direction} mode="popLayout">
               <motion.div
                 key={index}
@@ -152,7 +163,13 @@ export function ConseilFmaCarousel({
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                 className="absolute inset-0"
               >
-                <SlideImage item={ITEMS[index]} index={index} priority={index === 0} imageAltPrefix={imageAltPrefix} />
+                <SlideImage
+                  item={ITEMS[index]}
+                  index={index}
+                  priority={index === 0}
+                  imageAltPrefix={imageAltPrefix}
+                  onAspectRatio={handleAspectRatio(index)}
+                />
               </motion.div>
             </AnimatePresence>
 
@@ -179,6 +196,11 @@ export function ConseilFmaCarousel({
               {index + 1} / {ITEMS.length}
             </div>
           </div>
+          {ITEMS[index].title?.trim() && (
+            <p className="mt-3 text-center text-sm font-semibold text-[var(--text-1)] sm:text-base">
+              {ITEMS[index].title}
+            </p>
+          )}
         </div>
 
         {/* Next preview (lg+) */}
@@ -195,7 +217,7 @@ export function ConseilFmaCarousel({
               fill
               sizes="14vw"
               className="object-contain object-center p-2 scale-105 transition-transform duration-700 group-hover:scale-100"
-              unoptimized={ITEMS[nextIdx].url.startsWith("/uploads")}
+              unoptimized={localPublicImageUnoptimized(ITEMS[nextIdx].url)}
             />
             <div className="absolute inset-0 bg-gradient-to-l from-[var(--bg)]/40 to-transparent" />
           </button>

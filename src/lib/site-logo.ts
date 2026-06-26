@@ -1,5 +1,3 @@
-import { DB_KEYS } from "@/lib/db-keys";
-
 export type SiteLogoSettings = {
   imageUrl: string;
   /** Lien au clic — vide = page d'accueil */
@@ -19,17 +17,6 @@ export function normalizeSiteLogo(input: unknown): SiteLogoSettings {
     imageUrl: str(d.imageUrl, DEFAULT_SITE_LOGO.imageUrl),
     linkUrl: str(d.linkUrl, DEFAULT_SITE_LOGO.linkUrl),
   };
-}
-
-export async function getSiteLogo(): Promise<SiteLogoSettings> {
-  const { prisma } = await import("@/lib/prisma");
-  const row = await prisma.setting.findUnique({ where: { key: DB_KEYS.SITE_LOGO } }).catch(() => null);
-  if (!row) return DEFAULT_SITE_LOGO;
-  try {
-    return normalizeSiteLogo(JSON.parse(row.value));
-  } catch {
-    return DEFAULT_SITE_LOGO;
-  }
 }
 
 export function resolveLogoHref(linkUrl: string, locale: string): string {

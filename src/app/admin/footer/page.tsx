@@ -1,5 +1,5 @@
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { getFooterContent } from "@/lib/footer-site-public";
+import { getFooterContent } from "@/lib/site-settings-cache";
 import FooterForm from "./_components/FooterForm";
 
 export default async function AdminFooterPage() {

@@ -5,15 +5,17 @@ import { prisma } from "@/lib/prisma";
 import { DB_KEYS } from "@/lib/db-keys";
 import { PublicationCard } from "@/components/common/PublicationCard";
 import { GalleryGrid } from "@/components/common/GalleryGrid";
+import { GalleryFolderList } from "@/components/common/GalleryFolderList";
 import { PageHero } from "@/components/common/PageHero";
 import { Section } from "@/components/ui/Section";
 import { Suspense } from "react";
-import { PublicationTypeFilter, PublicationYearFilter } from "@/components/common/PublicationTypeFilter";
+import { PublicationYearFilter } from "@/components/common/PublicationTypeFilter";
 import {
   GALLERY_CATEGORIES,
   GALLERY_CONFIG,
   dbKeyForGallery,
   isGalleryCategory,
+  isFolderGalleryCategory,
   parseGalleryData,
 } from "@/lib/galleries";
 import type { Locale, Publication } from "@/types";
@@ -122,20 +124,12 @@ export default async function PublicationsPage({ params, searchParams }: {
     : activeGalleryTab
       ? (gallery?.title[l] ?? activeGalleryTab[l])
       : TYPES[0][l === "ar" ? "ar" : l === "en" ? "en" : "fr"];
-  const typeFilterOptions = [
-    ...TYPES.map((t_) => ({
-      value: t_.value,
-      label: l === "ar" ? t_.ar : l === "en" ? t_.en : t_.fr,
-    })),
-    ...GALLERY_TABS.map((t_) => ({
-      value: t_.value,
-      label: l === "ar" ? t_.ar : l === "en" ? t_.en : t_.fr,
-    })),
-  ];
-
   const yearFilterOptions = years
     .filter((y) => y.year)
     .map((y) => ({ value: String(y.year), label: String(y.year) }));
+
+  const isFolderGallery = galleryCategory !== null && isFolderGalleryCategory(galleryCategory);
+  const showYearFilter = !galleryCategory && yearFilterOptions.length > 0;
 
   return (
     <div>
@@ -145,18 +139,15 @@ export default async function PublicationsPage({ params, searchParams }: {
         )}
       </PageHero>
 
-      <Section>
-        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-stretch sm:gap-4">
-          <Suspense fallback={null}>
-            <PublicationTypeFilter
-              options={typeFilterOptions}
-              allLabel=""
-              showAllOption={false}
-              ariaLabel={l === "ar" ? "أنواع المنشورات" : l === "en" ? "Publication types" : "Types de publications"}
-              className="w-full sm:min-w-0 sm:flex-1 sm:max-w-md"
-            />
-          </Suspense>
-          {!galleryCategory && yearFilterOptions.length > 0 && (
+      <Section padding={isFolderGallery ? "compact" : "default"}>
+        {showYearFilter ? (
+          <div
+            className={
+              isFolderGallery
+                ? "mb-6 flex flex-col gap-4 sm:flex-row sm:items-stretch sm:gap-4"
+                : "mb-10 flex flex-col gap-4 sm:flex-row sm:items-stretch sm:gap-4"
+            }
+          >
             <Suspense fallback={null}>
               <PublicationYearFilter
                 options={yearFilterOptions}
@@ -165,12 +156,16 @@ export default async function PublicationsPage({ params, searchParams }: {
                 className="w-full sm:min-w-0 sm:flex-1 sm:max-w-md"
               />
             </Suspense>
-          )}
-        </div>
+          </div>
+        ) : null}
 
         {galleryCategory ? (
-          gallery && gallery.items.length > 0 ? (
-            <GalleryGrid items={gallery.items} />
+          gallery && (gallery.folders?.some((f) => f.items.length > 0) || gallery.items.length > 0) ? (
+            isFolderGallery && gallery.folders && gallery.folders.length > 0 ? (
+              <GalleryFolderList folders={gallery.folders} locale={l} category={galleryCategory} />
+            ) : (
+              <GalleryGrid items={gallery.items} />
+            )
           ) : (
             <div className="text-center py-20 text-[var(--text-3)]">
               <div className="text-5xl mb-4">🖼️</div>

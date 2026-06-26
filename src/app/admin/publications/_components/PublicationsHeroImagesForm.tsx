@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { ADMIN_IMAGE_ACCEPT } from "@/lib/admin-upload";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageIcon, Loader2, Save, Trash2 } from "lucide-react";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { buttonUploadLabel } from "@/lib/button-styles";
 import { GALLERY_CATEGORIES, GALLERY_CONFIG, type GalleryCategory } from "@/lib/galleries";
+import { PAGE_HERO_PREVIEW_CLASS, PAGE_HERO_SIZE_HINT } from "@/lib/page-hero";
 
 const TYPES = [
   { key: "chiffres-cles",   label: "Chiffres clés" },
@@ -80,6 +82,7 @@ export default function PublicationsHeroImagesForm({
       </h2>
       <p className="text-xs text-[var(--text-3)]">
         Chaque type de publication peut avoir une photo affichée en hero quand le filtre est actif.
+        Taille recommandée&nbsp;: <span className="text-[var(--text-2)]">{PAGE_HERO_SIZE_HINT}</span>.
         L&apos;image <strong className="text-[var(--text-2)]">Chiffres clés</strong> est aussi modifiable dans{" "}
         <a href="/admin/chiffres-cles" className="font-semibold text-primary hover:underline">Admin → Chiffres clés</a>.
       </p>
@@ -94,7 +97,7 @@ export default function PublicationsHeroImagesForm({
 
               {/* Preview */}
               <div className={cn(
-                "relative rounded-xl overflow-hidden border border-[var(--border)] w-full h-36",
+                PAGE_HERO_PREVIEW_CLASS,
                 !url && "bg-[var(--bg-alt)] flex items-center justify-center"
               )}>
                 {url ? (
@@ -127,7 +130,7 @@ export default function PublicationsHeroImagesForm({
               <label className={cn(buttonUploadLabel, "flex items-center gap-2 justify-center w-full", isUploading && "opacity-60 pointer-events-none")}>
                 <input
                   type="file"
-                  accept="image/jpeg,image/png,image/webp"
+                  accept={ADMIN_IMAGE_ACCEPT}
                   className="hidden"
                   onChange={(e) => handleUpload(e, typeKey)}
                   disabled={isUploading}

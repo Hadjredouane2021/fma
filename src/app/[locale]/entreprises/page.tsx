@@ -5,32 +5,20 @@ import { PageHeroImage } from "@/components/common/PageHeroImage";
 import { EntreprisesProductCard } from "@/components/common/EntreprisesProductCard";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
-import { prisma } from "@/lib/prisma";
-import { DB_KEYS } from "@/lib/db-keys";
 import {
-  DEFAULT_ENTREPRISES_CONTENT,
-  ENTREPRISES_KEY,
   filterEntrepriseProductsByAudience,
-  normalizeEntreprisesContent,
-  type EntreprisesContent,
 } from "@/lib/entreprises-site-public";
+import { getEntreprisesPageData } from "@/lib/entreprises-cache";
+import type { EntreprisesContent } from "@/lib/entreprises-site-public";
 import type { Locale } from "@/types";
 import type { Metadata } from "next";
 
-async function getContent(): Promise<EntreprisesContent> {
-  const row = await prisma.setting.findUnique({ where: { key: ENTREPRISES_KEY } }).catch(() => null);
-  if (!row) return DEFAULT_ENTREPRISES_CONTENT;
-  try {
-    return normalizeEntreprisesContent(JSON.parse(row.value));
-  } catch {
-    return DEFAULT_ENTREPRISES_CONTENT;
-  }
-}
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const l = locale as Locale;
-  const c = await getContent();
+  const { content: c } = await getEntreprisesPageData();
   return { title: `${c.heroTitle[l]} | FMA`, description: c.heroSubtitle[l] };
 }
 
@@ -62,11 +50,7 @@ function ProductSection({
 export default async function EntreprisesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const l = locale as Locale;
-  const [c, heroRow] = await Promise.all([
-    getContent(),
-    prisma.setting.findUnique({ where: { key: DB_KEYS.ENTREPRISES_HERO } }).catch(() => null),
-  ]);
-  const heroImage = heroRow?.value?.trim() || null;
+  const { content: c, heroImage } = await getEntreprisesPageData();
   const entreprisesProducts = filterEntrepriseProductsByAudience(c.products, "entreprises");
   const professionnelsProducts = filterEntrepriseProductsByAudience(c.products, "professionnels");
 

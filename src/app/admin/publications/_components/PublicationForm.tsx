@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { ADMIN_IMAGE_ACCEPT, ADMIN_IMAGE_FORMATS_LABEL } from "@/lib/admin-upload";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
@@ -266,7 +267,7 @@ export default function PublicationForm({ initialData }: PublicationFormProps) {
 
           <div className="md:col-span-2">
             <label className={label}>Image de couverture</label>
-            <p className="text-xs text-[var(--text-3)] mb-2">URL ou import (JPEG, PNG, WebP, GIF — max 4&nbsp;Mo).</p>
+            <p className="text-xs text-[var(--text-3)] mb-2">URL ou import ({ADMIN_IMAGE_FORMATS_LABEL} — max 4&nbsp;Mo).</p>
             <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
@@ -279,7 +280,7 @@ export default function PublicationForm({ initialData }: PublicationFormProps) {
               <label className={`${importBtn} ${uploadingCover ? "opacity-60 pointer-events-none" : ""}`}>
                 <input
                   type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  accept={ADMIN_IMAGE_ACCEPT}
                   className="sr-only"
                   onChange={handleCoverUpload}
                   disabled={uploadingCover}

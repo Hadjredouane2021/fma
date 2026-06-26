@@ -1,11 +1,13 @@
 "use client";
 import Image from "next/image";
+import { ADMIN_IMAGE_ACCEPT } from "@/lib/admin-upload";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageIcon, Loader2, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { buttonUploadLabel } from "@/lib/button-styles";
+import { PAGE_HERO_PREVIEW_CLASS, PAGE_HERO_SIZE_HINT } from "@/lib/page-hero";
 
 const inputBase =
   "w-full px-4 py-3 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text-1)] placeholder-[var(--text-3)] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm font-mono";
@@ -60,10 +62,13 @@ export default function LaFmaStatsImageForm({ initial }: { initial: string }) {
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] p-6 mb-8">
-      <h2 className="text-sm font-bold text-primary mb-4 flex items-center gap-2">
+      <h2 className="text-sm font-bold text-primary mb-1 flex items-center gap-2">
         <ImageIcon className="w-4 h-4" />
         Image — section Chiffres clés (page La FMA)
       </h2>
+      <p className="text-xs text-[var(--text-3)] mb-4">
+        Taille recommandée&nbsp;: <span className="text-[var(--text-2)]">{PAGE_HERO_SIZE_HINT}</span>.
+      </p>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <input
@@ -75,14 +80,14 @@ export default function LaFmaStatsImageForm({ initial }: { initial: string }) {
           disabled={uploading}
         />
         <label className={cn(buttonUploadLabel, "inline-flex items-center gap-2", uploading && "opacity-60 pointer-events-none")}>
-          <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleUpload} disabled={uploading} />
+          <input type="file" accept={ADMIN_IMAGE_ACCEPT} className="hidden" onChange={handleUpload} disabled={uploading} />
           {uploading ? <><Loader2 className="w-4 h-4 animate-spin" />Envoi…</> : "Importer une photo"}
         </label>
       </div>
 
       {imageUrl && (
-        <div className="mb-4 relative rounded-xl overflow-hidden border border-[var(--border)] w-full h-48">
-          <Image src={imageUrl} alt="Aperçu" fill className="object-cover" unoptimized={imageUrl.startsWith("/uploads")} />
+        <div className={cn("mb-4", PAGE_HERO_PREVIEW_CLASS)}>
+          <Image src={imageUrl} alt="Aperçu" fill className="object-cover object-center" unoptimized={imageUrl.startsWith("/uploads")} />
           <button
             type="button"
             onClick={() => setImageUrl("")}

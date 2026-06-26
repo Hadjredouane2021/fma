@@ -3,6 +3,14 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import {
+  ADMIN_IMAGE_FORMATS_LABEL,
+  ADMIN_IMAGE_MIMES,
+  ADMIN_MAX_HERO_IMAGE_BYTES,
+  ADMIN_MAX_IMAGE_BYTES,
+  ADMIN_MAX_SVG_BYTES,
+  ADMIN_SVG_MIME,
+} from "@/lib/admin-upload";
 import { prisma } from "@/lib/prisma";
 
 /** Dossier → type de fichier autorisé */
@@ -13,9 +21,12 @@ const FOLDER_RULES: Record<string, "image" | "pdf"> = {
   conventions: "pdf",
   "conventions-hero": "image",
   "formations-hero": "image",
+  "formations-icons": "image",
   "publications-hero": "image",
   "actualites-hero": "image",
   "liens-utiles-hero": "image",
+  "vocabulaire-hero": "image",
+  "liens-utiles-logos": "image",
   "particuliers-hero": "image",
   "particuliers-icons": "image",
   "entreprises-hero": "image",
@@ -23,12 +34,6 @@ const FOLDER_RULES: Record<string, "image" | "pdf"> = {
   "contact-hero": "image",
   "la-fma-stats": "image",
   "la-fma-icons": "image",
-  "conseil-fma": "image",
-  "gallery-glossaire": "image",
-  "gallery-saviez-vous": "image",
-  "gallery-prevention": "image",
-  "gallery-quiz-time": "image",
-  "gallery-reglementation": "image",
   "gallery-interventions-fma": "image",
   "gallery-reseaux-sociaux": "image",
   "hero-backgrounds": "image",
@@ -39,30 +44,25 @@ const FOLDER_RULES: Record<string, "image" | "pdf"> = {
   "site-spinner": "image",
 };
 
-const SVG_IMAGE_FOLDERS = new Set(["site-logo", "site-spinner"]);
-
-const IMAGE_MIMES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
-const SVG_MIME = "image/svg+xml";
-const MAX_IMAGE = 4 * 1024 * 1024;
-const MAX_SVG = 512 * 1024;
-const MAX_HERO_IMAGE = 16 * 1024 * 1024;
+const IMAGE_MIMES = ADMIN_IMAGE_MIMES;
+const SVG_MIME = ADMIN_SVG_MIME;
+const MAX_IMAGE = ADMIN_MAX_IMAGE_BYTES;
+const MAX_SVG = ADMIN_MAX_SVG_BYTES;
+const MAX_HERO_IMAGE = ADMIN_MAX_HERO_IMAGE_BYTES;
 const MAX_PDF = 20 * 1024 * 1024;
 
-function allowedImageMimes(subfolder: string): Set<string> {
-  if (SVG_IMAGE_FOLDERS.has(subfolder)) return new Set([...IMAGE_MIMES, SVG_MIME]);
+function allowedImageMimes(): Set<string> {
   return IMAGE_MIMES;
 }
 
-function imageFormatsLabel(subfolder: string): string {
-  return SVG_IMAGE_FOLDERS.has(subfolder)
-    ? "JPEG, PNG, WebP, GIF, SVG"
-    : "JPEG, PNG, WebP, GIF";
+function imageFormatsLabel(): string {
+  return ADMIN_IMAGE_FORMATS_LABEL;
 }
 
-function resolveImageMime(file: File, subfolder: string): string {
+function resolveImageMime(file: File): string {
   const mime = file.type?.trim() ?? "";
   if (mime) return mime;
-  if (SVG_IMAGE_FOLDERS.has(subfolder) && file.name.toLowerCase().endsWith(".svg")) return SVG_MIME;
+  if (file.name.toLowerCase().endsWith(".svg")) return SVG_MIME;
   return mime;
 }
 
@@ -98,12 +98,12 @@ export async function POST(req: NextRequest) {
   }
 
   const rule = FOLDER_RULES[subfolder];
-  let mime = rule === "image" ? resolveImageMime(file, subfolder) : file.type;
+  let mime = rule === "image" ? resolveImageMime(file) : file.type;
 
   if (rule === "image") {
-    const allowed = allowedImageMimes(subfolder);
+    const allowed = allowedImageMimes();
     if (!mime || !allowed.has(mime)) {
-      return NextResponse.json({ message: `Formats image : ${imageFormatsLabel(subfolder)}` }, { status: 400 });
+      return NextResponse.json({ message: `Formats image : ${imageFormatsLabel()}` }, { status: 400 });
     }
     const maxSize =
       mime === SVG_MIME

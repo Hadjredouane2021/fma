@@ -68,7 +68,7 @@ export default function FooterForm({ initial }: { initial: FooterContent }) {
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>Téléphone</label>
-            <input type="text" value={form.phone} onChange={(e) => set("phone", e.target.value)} className={inputBase} placeholder="+212 5 22 …" />
+            <input type="text" value={form.phone} onChange={(e) => set("phone", e.target.value)} className={inputBase} placeholder="+212 5 22 … (plusieurs numéros séparés par |)" />
           </div>
           <div>
             <label className={labelCls}>Email</label>
@@ -91,6 +91,10 @@ export default function FooterForm({ initial }: { initial: FooterContent }) {
           <div>
             <label className={labelCls}>Twitter / X</label>
             <input type="url" value={form.twitter} onChange={(e) => set("twitter", e.target.value)} className={inputBase} placeholder="https://twitter.com/…" />
+          </div>
+          <div>
+            <label className={labelCls}>Instagram</label>
+            <input type="url" value={form.instagram} onChange={(e) => set("instagram", e.target.value)} className={inputBase} placeholder="https://instagram.com/…" />
           </div>
           <div>
             <label className={labelCls}>YouTube</label>

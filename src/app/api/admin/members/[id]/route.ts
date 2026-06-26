@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateLaFmaPageData } from "@/lib/la-fma-page-cache";
 
 async function getSession() {
   try {
@@ -55,6 +56,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (!parsed.ok) return NextResponse.json({ message: parsed.message }, { status: 400 });
 
     const updated = await prisma.member.update({ where: { id }, data: parsed.data });
+    revalidateLaFmaPageData();
     return NextResponse.json(updated);
   } catch (e: unknown) {
     console.error("PUT /api/admin/members/[id]:", e);
@@ -70,6 +72,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   try {
     const { id } = await params;
     await prisma.member.delete({ where: { id } });
+    revalidateLaFmaPageData();
     return NextResponse.json({ success: true });
   } catch (e) {
     console.error("DELETE /api/admin/members/[id]:", e);

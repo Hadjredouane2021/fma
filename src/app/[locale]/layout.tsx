@@ -7,11 +7,13 @@ import Footer from "@/components/layout/Footer";
 import { LocaleAttributes } from "@/components/common/LocaleAttributes";
 import { NavigationProgress } from "@/components/common/NavigationProgress";
 import { SpinnerLogoProvider } from "@/components/common/SpinnerLogoProvider";
-import { getFooterContent } from "@/lib/footer-site-public";
-import { getMenuContent } from "@/lib/menu-site-public";
-import { getSiteLogo } from "@/lib/site-logo";
-import { getSiteSpinner } from "@/lib/site-spinner";
+import { SiteThemeStyle } from "@/components/common/SiteThemeStyle";
+import { getLayoutSiteSettings } from "@/lib/site-settings-cache";
+import { getAnnouncementPost } from "@/lib/posts-cache";
+import { NewsAnnouncementPopup } from "@/components/common/NewsAnnouncementPopup";
 import type { Locale } from "@/types";
+
+export const revalidate = 300;
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -27,22 +29,23 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!routing.locales.includes(locale as "fr" | "en" | "ar")) notFound();
 
-  const [messages, footerContent, menuContent, siteLogo, siteSpinner] = await Promise.all([
+  const [messages, layoutSettings, announcement] = await Promise.all([
     getMessages(),
-    getFooterContent(),
-    getMenuContent(),
-    getSiteLogo(),
-    getSiteSpinner(),
+    getLayoutSiteSettings(),
+    getAnnouncementPost(),
   ]);
+  const { footer: footerContent, menu: menuContent, logo: siteLogo, spinner: siteSpinner } = layoutSettings;
 
   return (
     <NextIntlClientProvider messages={messages}>
       <SpinnerLogoProvider imageUrl={siteSpinner.imageUrl}>
+        <SiteThemeStyle />
         <LocaleAttributes locale={locale as Locale} />
         <NavigationProgress />
         <Header locale={locale as Locale} menuContent={menuContent} siteLogo={siteLogo} />
         <main className="flex-1">{children}</main>
         <Footer locale={locale as Locale} footerContent={footerContent} siteLogo={siteLogo} menuContent={menuContent} />
+        <NewsAnnouncementPopup locale={locale as Locale} announcement={announcement} />
       </SpinnerLogoProvider>
     </NextIntlClientProvider>
   );

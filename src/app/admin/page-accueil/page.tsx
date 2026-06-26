@@ -1,9 +1,9 @@
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { getHomeContent } from "@/lib/site-content";
 import { prisma } from "@/lib/prisma";
-import { getChiffresClesContent } from "@/lib/chiffres-cles-site-public";
-import GalleryAdminForm from "@/app/admin/publications/_components/GalleryAdminForm";
-import { dbKeyForGallery, parseGalleryData } from "@/lib/galleries";
+import { getChiffresClesContent } from "@/lib/chiffres-cles-cache";
+import FolderGalleryForm from "@/app/admin/publications/_components/FolderGalleryForm";
+import { dbKeyForGallery, isFolderGalleryCategory, parseGalleryData } from "@/lib/galleries";
 import HomeContentForm from "./_components/HomeContentForm";
 
 export const metadata = {
@@ -38,19 +38,19 @@ export default async function AdminHomePage() {
             label: r.category.fr || r.id,
           }))}
         />
-        <GalleryAdminForm
+        <FolderGalleryForm
           category="interventions-fma"
-          uploadFolder="gallery-interventions-fma"
           label="Carrousel — Interventions FMA (page d'accueil)"
-          initial={interventionsFma.items}
+          uploadFolder="gallery-interventions-fma"
           initialTitle={interventionsFma.title}
+          initialFolders={interventionsFma.folders ?? []}
         />
-        <GalleryAdminForm
+        <FolderGalleryForm
           category="reseaux-sociaux"
-          uploadFolder="gallery-reseaux-sociaux"
           label="Carrousel — Réseaux sociaux (page d'accueil)"
-          initial={reseauxSociaux.items}
+          uploadFolder="gallery-reseaux-sociaux"
           initialTitle={reseauxSociaux.title}
+          initialFolders={reseauxSociaux.folders ?? []}
         />
       </main>
     </>

@@ -6,35 +6,53 @@ import { useTranslations } from "next-intl";
 import { Mail, Phone, MapPin, ArrowUpRight, ChevronDown } from "lucide-react";
 import type { Locale } from "@/types";
 import type { FooterContent } from "@/lib/footer-site-public";
+import { footerPhoneTelHref, parseFooterPhones } from "@/lib/footer-site-public";
 import { resolveLogoHref, siteLogoImageUnoptimized, DEFAULT_SITE_LOGO, type SiteLogoSettings } from "@/lib/site-logo";
 import { resolveHref, type MenuContent, type MenuItem } from "@/lib/menu-site-public";
+import { cn } from "@/lib/utils";
 
 /* ── Social icons ── */
 const FbIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
   </svg>
 );
 const LiIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z" />
     <circle cx="4" cy="4" r="2" />
   </svg>
 );
 const TwIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
   </svg>
 );
 const YtIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.54C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
-    <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" />
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+  </svg>
+);
+const IgIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+    <path d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2zm0 1.9A3.9 3.9 0 0 0 3.9 7.8v8.4a3.9 3.9 0 0 0 3.9 3.9h8.4a3.9 3.9 0 0 0 3.9-3.9V7.8a3.9 3.9 0 0 0-3.9-3.9H7.8zm9.65 1.525a1.275 1.275 0 1 1 0 2.55 1.275 1.275 0 0 1 0-2.55zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10z" />
   </svg>
 );
 
 const socialIcons: Record<string, React.ReactNode> = {
-  f: <FbIcon />, in: <LiIcon />, X: <TwIcon />, "▶": <YtIcon />,
+  f: <FbIcon />,
+  in: <LiIcon />,
+  X: <TwIcon />,
+  ig: <IgIcon />,
+  "▶": <YtIcon />,
+};
+
+const socialBtnClass: Record<string, string> = {
+  f: "site-footer__icon-btn--facebook",
+  in: "site-footer__icon-btn--linkedin",
+  X: "site-footer__icon-btn--x",
+  ig: "site-footer__icon-btn--instagram",
+  "▶": "site-footer__icon-btn--youtube",
 };
 
 /* ── Accordion item for menu entries with children ── */
@@ -49,7 +67,7 @@ function FooterAccordion({ item, locale }: { item: MenuItem; locale: Locale }) {
       <li>
         <Link
           href={href}
-          className="site-footer__link group flex items-center gap-2 text-[13px] font-medium py-1"
+          className="site-footer__link site-footer__nav-link group flex items-center gap-2 font-medium"
         >
           <span className="site-footer__marker w-px h-3 flex-shrink-0 rounded-full opacity-40 group-hover:opacity-100 transition-opacity" />
           {label}
@@ -63,7 +81,7 @@ function FooterAccordion({ item, locale }: { item: MenuItem; locale: Locale }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="site-footer__link group flex items-center justify-between w-full gap-2 text-[13px] font-medium py-1"
+        className="site-footer__link site-footer__nav-link group flex items-center justify-between w-full gap-2 font-medium"
       >
         <span className="flex items-center gap-2">
           <span className={`site-footer__marker w-px h-3 flex-shrink-0 rounded-full transition-opacity duration-200 ${open ? "opacity-100" : "opacity-40 group-hover:opacity-100"}`} />
@@ -76,7 +94,7 @@ function FooterAccordion({ item, locale }: { item: MenuItem; locale: Locale }) {
 
       <div
         className="overflow-hidden transition-all duration-300 ease-in-out"
-        style={{ maxHeight: open ? `${item.children.length * 2.5}rem` : "0" }}
+        style={{ maxHeight: open ? `${item.children.length * 2.75}rem` : "0" }}
       >
         <ul className="site-footer__sub-border mt-1 ml-3 pl-3 border-l space-y-1 pb-1">
           {item.children.map((child) => {
@@ -86,7 +104,7 @@ function FooterAccordion({ item, locale }: { item: MenuItem; locale: Locale }) {
               <li key={child.id}>
                 <Link
                   href={childHref}
-                  className="site-footer__link group/sub flex items-center gap-2 text-[12px] font-medium py-0.5 opacity-80 hover:opacity-100"
+                  className="site-footer__link site-footer__nav-link site-footer__nav-link--sub group/sub flex items-center gap-2 font-medium py-0.5 opacity-80 hover:opacity-100"
                 >
                   <span className="site-footer__marker w-1 h-1 rounded-full flex-shrink-0 opacity-50 group-hover/sub:opacity-100 transition-opacity" />
                   {childLabel}
@@ -114,15 +132,11 @@ export default function Footer({
 }) {
   const t = useTranslations("footer");
 
-  const description =
-    locale === "ar" ? footerContent.descriptionAr
-    : locale === "en" ? footerContent.descriptionEn
-    : footerContent.descriptionFr;
-
   const social = [
     { key: "f",  label: "Facebook",  href: footerContent.facebook },
     { key: "in", label: "LinkedIn",  href: footerContent.linkedin },
     { key: "X",  label: "Twitter/X", href: footerContent.twitter },
+    { key: "ig", label: "Instagram", href: footerContent.instagram },
     { key: "▶",  label: "YouTube",   href: footerContent.youtube },
   ].filter((s) => s.href);
 
@@ -136,32 +150,30 @@ export default function Footer({
   const mid = Math.ceil(items.length / 2);
   const col1 = items.slice(0, mid);
   const col2 = items.slice(mid);
+  const phones = parseFooterPhones(footerContent.phone);
+
+  const logoImageClassName =
+    "site-footer__logo-img block h-10 w-auto max-w-full object-contain object-start transition-opacity duration-200 sm:h-11 lg:h-12 2xl:h-[3.25rem]";
 
   return (
     <footer className="site-footer">
-      <div className="site-footer__glow" aria-hidden />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.04] dark:opacity-[0.035]"
-        style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }}
-        aria-hidden
-      />
       <div className="site-footer__accent-line" aria-hidden />
 
       {/* ── Main grid ── */}
-      <div className="relative container-custom pt-16 pb-12 lg:pt-20 lg:pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-10 xl:gap-8">
+      <div className="relative container-custom site-footer__container">
+        <div className="site-footer__grid">
 
           {/* Brand col */}
-          <div className="xl:col-span-4 space-y-6">
-            <Link href={logoHref} className="block group/logo">
-              <span className="site-logo-plate p-2">
+          <div className="site-footer__brand site-footer__brand-col">
+            <Link href={logoHref} className="block group/logo w-full max-w-full">
+              <span className="site-logo-plate site-footer__logo-plate inline-flex max-w-full p-2.5 sm:p-3">
                 <Image
                   src={logoLightSrc}
                   alt="Fédération Marocaine de l'Assurance"
                   width={280}
                   height={96}
-                  className="block h-8 w-auto max-w-[9.5rem] object-contain object-left transition-opacity duration-200 sm:h-9 sm:max-w-[11rem] xl:h-10 xl:max-w-[13rem] 2xl:max-w-[15rem] group-hover/logo:opacity-90 dark:hidden"
-                  sizes="(max-width: 640px) 152px, (max-width: 1280px) 176px, 240px"
+                  className={`${logoImageClassName} dark:hidden`}
+                  sizes="(max-width: 640px) 176px, (max-width: 1280px) 208px, 288px"
                   unoptimized={siteLogoImageUnoptimized(logoLightSrc)}
                 />
                 <Image
@@ -169,18 +181,16 @@ export default function Footer({
                   alt="Fédération Marocaine de l'Assurance"
                   width={280}
                   height={96}
-                  className="hidden h-8 w-auto max-w-[9.5rem] object-contain object-left transition-opacity duration-200 sm:h-9 sm:max-w-[11rem] xl:h-10 xl:max-w-[13rem] 2xl:max-w-[15rem] group-hover/logo:opacity-90 dark:block"
-                  sizes="(max-width: 640px) 152px, (max-width: 1280px) 176px, 240px"
+                  className={`hidden ${logoImageClassName} dark:block`}
+                  sizes="(max-width: 640px) 176px, (max-width: 1280px) 208px, 288px"
                   unoptimized={siteLogoImageUnoptimized(logoDarkSrc)}
                 />
               </span>
             </Link>
 
-            <p className="site-footer__muted text-[13px] leading-[1.75] max-w-[28ch]">{description}</p>
-
             {/* Social */}
             {social.length > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="site-footer__social">
                 {social.map((s) => (
                   <a
                     key={s.key}
@@ -188,7 +198,7 @@ export default function Footer({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={s.label}
-                    className="site-footer__icon-btn"
+                    className={cn("site-footer__icon-btn", socialBtnClass[s.key])}
                   >
                     {socialIcons[s.key] ?? <span className="text-xs font-bold">{s.key}</span>}
                   </a>
@@ -198,11 +208,11 @@ export default function Footer({
           </div>
 
           {/* Navigation col 1 */}
-          <div className="xl:col-span-2">
-            <p className="site-footer__muted text-[10px] font-bold uppercase tracking-[0.2em] opacity-70 mb-5">
+          <div className="site-footer__nav-col site-footer__nav-col--primary">
+            <p className="site-footer__section-title">
               {locale === "ar" ? "التنقل" : locale === "en" ? "Navigation" : "Navigation"}
             </p>
-            <ul className="space-y-1">
+            <ul className="site-footer__nav-list">
               {col1.map((item) => (
                 <FooterAccordion key={item.id} item={item} locale={locale} />
               ))}
@@ -210,11 +220,11 @@ export default function Footer({
           </div>
 
           {/* Navigation col 2 */}
-          <div className="xl:col-span-3">
-            <p className="site-footer__muted text-[10px] font-bold uppercase tracking-[0.2em] opacity-70 mb-5">
+          <div className="site-footer__nav-col site-footer__nav-col--secondary">
+            <p className="site-footer__section-title">
               {locale === "ar" ? "روابط مفيدة" : locale === "en" ? "Useful links" : "Liens utiles"}
             </p>
-            <ul className="space-y-1">
+            <ul className="site-footer__nav-list">
               {col2.map((item) => (
                 <FooterAccordion key={item.id} item={item} locale={locale} />
               ))}
@@ -222,28 +232,36 @@ export default function Footer({
           </div>
 
           {/* Contact */}
-          <div className="xl:col-span-3">
-            <p className="site-footer__muted text-[10px] font-bold uppercase tracking-[0.2em] opacity-70 mb-5">Contact</p>
-            <ul className="space-y-4">
+          <div className="site-footer__contact site-footer__contact-col min-w-0">
+            <p className="site-footer__section-title">Contact</p>
+            <ul className="site-footer__contact-list">
               {footerContent.address && (
-                <li className="flex gap-3">
-                  <MapPin className="w-4 h-4 text-[var(--footer-accent)] flex-shrink-0 mt-0.5" />
-                  <span className="site-footer__muted text-[13px] leading-relaxed" style={{ whiteSpace: "pre-line" }}>{footerContent.address}</span>
+                <li className="site-footer__contact-item">
+                  <MapPin className="site-footer__contact-icon" />
+                  <span className="site-footer__contact-text site-footer__muted leading-relaxed" style={{ whiteSpace: "pre-line" }}>{footerContent.address}</span>
                 </li>
               )}
-              {footerContent.phone && (
-                <li>
-                  <a href={`tel:${footerContent.phone.replace(/\s/g, "")}`} className="flex items-center gap-3 group">
-                    <Phone className="w-4 h-4 text-[var(--footer-accent)] flex-shrink-0" />
-                    <span className="site-footer__link text-[13px]">{footerContent.phone}</span>
-                  </a>
+              {phones.length > 0 && (
+                <li className="site-footer__contact-item site-footer__contact-phones">
+                  <Phone className="site-footer__contact-icon" aria-hidden />
+                  <div className="site-footer__phone-list">
+                    {phones.map((phone, index) => (
+                      <a
+                        key={`${phone}-${index}`}
+                        href={footerPhoneTelHref(phone)}
+                        className="site-footer__phone-link site-footer__contact-text site-footer__link leading-relaxed"
+                      >
+                        {phone}
+                      </a>
+                    ))}
+                  </div>
                 </li>
               )}
               {footerContent.email && (
                 <li>
-                  <a href={`mailto:${footerContent.email}`} className="flex items-center gap-3 group">
-                    <Mail className="w-4 h-4 text-[var(--footer-accent)] flex-shrink-0" />
-                    <span className="site-footer__link text-[13px] break-all">{footerContent.email}</span>
+                  <a href={`mailto:${footerContent.email}`} className="site-footer__contact-link group">
+                    <Mail className="site-footer__contact-icon" />
+                    <span className="site-footer__contact-text site-footer__link break-all">{footerContent.email}</span>
                   </a>
                 </li>
               )}
@@ -254,16 +272,16 @@ export default function Footer({
 
       {/* ── Bottom bar ── */}
       <div className="relative border-t site-footer__divider">
-        <div className="container-custom py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="site-footer__muted text-[11px] opacity-70 font-medium tracking-wide">
+        <div className="container-custom site-footer__bottom">
+          <span className="site-footer__muted site-footer__copyright opacity-70 font-medium tracking-wide">
             © {new Date().getFullYear()} Fédération Marocaine de l&apos;Assurance. {t("rights")}.
           </span>
-          <div className="flex items-center gap-6">
+          <div className="site-footer__legal-links">
             {[
               { label: t("legal"),   href: `/${locale}/mentions-legales` },
               { label: t("privacy"), href: `/${locale}/confidentialite` },
             ].map(({ label, href }) => (
-              <Link key={href} href={href} className="site-footer__link group inline-flex items-center gap-1 text-[11px] opacity-70 hover:opacity-100 tracking-wide font-medium">
+              <Link key={href} href={href} className="site-footer__link site-footer__legal-link group inline-flex items-center gap-1 opacity-70 hover:opacity-100 tracking-wide font-medium">
                 {label}
                 <ArrowUpRight className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
               </Link>

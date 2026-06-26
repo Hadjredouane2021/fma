@@ -44,6 +44,9 @@ next-env.d.ts
 
 /src/generated/prisma
 
+# Sauvegardes de base de données
+/backups/
+
 # Fichiers déposés via l’admin (images, PDF, etc.)
 /public/uploads/posts/*
 !/public/uploads/posts/.gitkeep

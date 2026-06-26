@@ -57,7 +57,7 @@ export default function Header({
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-[background-color,box-shadow,border-color] duration-200",
+          "site-header-glass-3d fixed top-0 left-0 right-0 z-50 transition-[background-color,box-shadow,border-color,backdrop-filter] duration-300",
           scrolled ? "site-header-scrolled" : "site-header-idle"
         )}
       >

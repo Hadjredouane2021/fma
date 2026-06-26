@@ -4,6 +4,7 @@ import { ArrowRight, Calendar, ArrowUpRight } from "lucide-react";
 import { formatDate, cn } from "@/lib/utils";
 import { glassCardLg, glassContent } from "@/lib/surface-styles";
 import { buttonFilterInactive } from "@/lib/button-styles";
+import { SECTION_HEADER_TITLE_CLASSES } from "@/components/common/SectionHeader";
 import type { Post, Locale } from "@/types";
 
 function localizedTitle(post: Post, locale: Locale) {
@@ -51,7 +52,7 @@ export function LatestNewsSection({
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" />
             {locale === "ar" ? "آخر الأخبار" : locale === "en" ? "News" : "Actualités"}
           </span>
-          <h2 className="font-display text-lg sm:text-2xl lg:text-3xl xl:text-[2.25rem] font-bold text-[var(--text-1)] tracking-tight leading-[1.15] sm:leading-[1.1]">
+          <h2 className={SECTION_HEADER_TITLE_CLASSES}>
             {title}
           </h2>
           {subtitle && (

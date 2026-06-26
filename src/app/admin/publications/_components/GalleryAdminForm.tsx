@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { ADMIN_IMAGE_ACCEPT } from "@/lib/admin-upload";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { GalleryHorizontal, Loader2, Save, Trash2, ArrowLeft, ArrowRight, Link2 } from "lucide-react";
@@ -17,12 +18,14 @@ export default function GalleryAdminForm({
   label,
   initial,
   initialTitle,
+  showPhotoTitles = false,
 }: {
   category: GalleryCategory;
   uploadFolder: string;
   label: string;
   initial: GalleryItem[];
   initialTitle: GalleryTitle;
+  showPhotoTitles?: boolean;
 }) {
   const router = useRouter();
   const [title, setTitle] = useState<GalleryTitle>(initialTitle);
@@ -61,6 +64,15 @@ export default function GalleryAdminForm({
 
   const setLink = (i: number, link: string) =>
     setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, link } : it)));
+
+  const setPhotoTitle = (i: number, lang: keyof GalleryTitle, value: string) =>
+    setItems((prev) =>
+      prev.map((it, idx) =>
+        idx === i
+          ? { ...it, photoTitle: { fr: "", en: "", ar: "", ...it.photoTitle, [lang]: value } }
+          : it
+      )
+    );
 
   const move = (i: number, dir: -1 | 1) => {
     setItems((prev) => {
@@ -115,13 +127,13 @@ export default function GalleryAdminForm({
 
       <div className="mb-4">
         <label className={cn(buttonUploadLabel, "inline-flex items-center gap-2", uploading && "opacity-60 pointer-events-none")}>
-          <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
+          <input type="file" accept={ADMIN_IMAGE_ACCEPT} multiple className="hidden" onChange={handleUpload} disabled={uploading} />
           {uploading ? <><Loader2 className="w-4 h-4 animate-spin" />Envoi…</> : "Ajouter des photos"}
         </label>
       </div>
 
       {items.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 mb-4">
           {items.map((item, i) => (
             <div key={`${item.url}-${i}`} className="rounded-xl overflow-hidden border border-[var(--border)]">
               <div className="relative aspect-square">
@@ -148,6 +160,32 @@ export default function GalleryAdminForm({
                   placeholder="Lien (https://… ou /fr/page)"
                 />
               </div>
+              {showPhotoTitles && (
+                <div className="p-2 pt-0 space-y-1.5 bg-[var(--bg)]">
+                  <input
+                    type="text"
+                    value={item.photoTitle?.fr ?? ""}
+                    onChange={(e) => setPhotoTitle(i, "fr", e.target.value)}
+                    className={cn(inputBase, "py-1.5 text-xs")}
+                    placeholder="Titre (FR)"
+                  />
+                  <input
+                    type="text"
+                    value={item.photoTitle?.en ?? ""}
+                    onChange={(e) => setPhotoTitle(i, "en", e.target.value)}
+                    className={cn(inputBase, "py-1.5 text-xs")}
+                    placeholder="Titre (EN)"
+                  />
+                  <input
+                    type="text"
+                    dir="rtl"
+                    value={item.photoTitle?.ar ?? ""}
+                    onChange={(e) => setPhotoTitle(i, "ar", e.target.value)}
+                    className={cn(inputBase, "py-1.5 text-xs")}
+                    placeholder="Titre (AR)"
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { ADMIN_IMAGE_ACCEPT, ADMIN_IMAGE_FORMATS_LABEL } from "@/lib/admin-upload";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -44,6 +45,7 @@ export default function PostForm({ categories, initialData }: PostFormProps) {
       ? new Date(initialData.publishedAt as string).toISOString().slice(0, 10)
       : new Date().toISOString().slice(0, 10),
     featured:       (initialData?.featured as boolean)      || false,
+    announcePopup:  (initialData?.announcePopup as boolean) || false,
     categoryId:     (initialData?.categoryId as string)     || "",
     seoTitle:       (initialData?.seoTitle as string)       || "",
     seoDescription: (initialData?.seoDescription as string) || "",
@@ -294,7 +296,7 @@ export default function PostForm({ categories, initialData }: PostFormProps) {
           <div className="md:col-span-2">
             <label className={label}>Image principale</label>
             <p className="text-xs text-[var(--text-3)] mb-2">
-              Saisissez une URL ou importez un fichier (max 4&nbsp;Mo — JPEG, PNG, WebP, GIF).
+              Saisissez une URL ou importez un fichier (max 4&nbsp;Mo — {ADMIN_IMAGE_FORMATS_LABEL}).
             </p>
             <div className="flex flex-col sm:flex-row gap-2 sm:items-stretch">
               <input
@@ -310,7 +312,7 @@ export default function PostForm({ categories, initialData }: PostFormProps) {
               >
                 <input
                   type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  accept={ADMIN_IMAGE_ACCEPT}
                   className="sr-only"
                   onChange={handleFeaturedImageUpload}
                   disabled={uploadingImage}
@@ -341,6 +343,24 @@ export default function PostForm({ categories, initialData }: PostFormProps) {
           <div className="md:col-span-2 flex items-center gap-3">
             <input type="checkbox" id="featured" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="w-4 h-4 accent-primary" />
             <label htmlFor="featured" className="text-sm font-medium text-[var(--text-1)] cursor-pointer">⭐ Article à la une</label>
+          </div>
+          <div className="md:col-span-2 flex items-start gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg-alt)]/50 p-4">
+            <input
+              type="checkbox"
+              id="announcePopup"
+              checked={form.announcePopup}
+              onChange={(e) => setForm({ ...form, announcePopup: e.target.checked })}
+              className="mt-0.5 h-4 w-4 accent-primary"
+              disabled={form.status !== "PUBLISHED"}
+            />
+            <div>
+              <label htmlFor="announcePopup" className="text-sm font-medium text-[var(--text-1)] cursor-pointer">
+                📢 Popup d&apos;annonce sur le site
+              </label>
+              <p className="mt-1 text-xs text-[var(--text-3)]">
+                Affiche une fenêtre modale aux visiteurs (une seule annonce active à la fois). Réservé aux articles publiés.
+              </p>
+            </div>
           </div>
         </div>
       </div>

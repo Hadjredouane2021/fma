@@ -154,7 +154,7 @@ async function main() {
     { nameFr: "MAMDA - MCMA", website: "https://www.mamda-mcma.ma", category: "assureurs", order: 5 },
     { nameFr: "Atlanta Assurance", website: "https://www.atlanta.ma", category: "assureurs", order: 6 },
     { nameFr: "CNIA Saada", website: "https://www.cniasaada.ma", category: "assureurs", order: 7 },
-    { nameFr: "Allianz Maroc", website: "https://www.allianz.ma", category: "assureurs", order: 8 },
+    { nameFr: "Allianz Trade", nameEn: "Allianz Trade", website: "https://www.allianz.ma", category: "assureurs", order: 8 },
     { nameFr: "Zurich Assurance Maroc", website: "https://www.zurich.ma", category: "assureurs", order: 9 },
     { nameFr: "CAT (Compagnie Africaine des Travaux)", website: "#", category: "assureurs", order: 10 },
     { nameFr: "SCR - Société Centrale de Réassurance", website: "https://www.scr.ma", category: "reassureurs", order: 1 },

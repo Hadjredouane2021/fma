@@ -77,14 +77,17 @@ function MemberAvatar({ name, photo }: { name: string; photo?: string | null }) 
     .replace(/^M\.?\s*/i, "")
     .split(/\s+/)
     .filter(Boolean)
-    .slice(0, 2)
+    .slice(0, 3)
     .map((part) => part[0])
     .join("")
     .toUpperCase();
 
   return (
     <div
-      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-[var(--fma-blue)]/20 text-[11px] font-bold text-primary ring-2 ring-[var(--border)] ring-offset-2 ring-offset-[var(--bg-surface)]"
+      className={cn(
+        "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-[var(--fma-blue)]/20 font-bold text-primary ring-2 ring-[var(--border)] ring-offset-2 ring-offset-[var(--bg-surface)]",
+        initials.length >= 3 ? "text-[9px] tracking-tight" : "text-[11px]"
+      )}
       aria-hidden
     >
       {initials || "FMA"}

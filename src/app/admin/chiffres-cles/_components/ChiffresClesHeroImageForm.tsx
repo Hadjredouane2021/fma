@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import { ADMIN_IMAGE_ACCEPT } from "@/lib/admin-upload";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageIcon, Loader2, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { buttonUploadLabel } from "@/lib/button-styles";
+import { PAGE_HERO_PREVIEW_CLASS, PAGE_HERO_SIZE_HINT } from "@/lib/page-hero";
 
 const HERO_TYPE = "chiffres-cles";
 
@@ -69,6 +71,8 @@ export default function ChiffresClesHeroImageForm({ initial }: { initial: string
       </h2>
       <p className="text-xs text-[var(--text-3)] mb-4">
         Affichée en haut de la page Publications → Chiffres clés.
+        <br />
+        Taille recommandée&nbsp;: <span className="text-[var(--text-2)]">{PAGE_HERO_SIZE_HINT}</span>.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <input
@@ -80,13 +84,13 @@ export default function ChiffresClesHeroImageForm({ initial }: { initial: string
           disabled={uploading}
         />
         <label className={cn(buttonUploadLabel, "inline-flex items-center gap-2", uploading && "opacity-60 pointer-events-none")}>
-          <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleUpload} disabled={uploading} />
+          <input type="file" accept={ADMIN_IMAGE_ACCEPT} className="hidden" onChange={handleUpload} disabled={uploading} />
           {uploading ? <><Loader2 className="w-4 h-4 animate-spin" />Envoi…</> : "Importer une photo"}
         </label>
       </div>
       {imageUrl && (
-        <div className="mb-4 relative rounded-xl overflow-hidden border border-[var(--border)] w-full h-48 sm:h-56">
-          <Image src={imageUrl} alt="Aperçu hero Chiffres clés" fill className="object-cover object-[center_25%]" unoptimized={imageUrl.startsWith("/uploads")} />
+        <div className={cn("mb-4", PAGE_HERO_PREVIEW_CLASS)}>
+          <Image src={imageUrl} alt="Aperçu hero Chiffres clés" fill className="object-cover object-center" unoptimized={imageUrl.startsWith("/uploads")} />
           <button
             type="button"
             onClick={() => setImageUrl("")}

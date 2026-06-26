@@ -8,8 +8,10 @@ import {
   Dialog,
   DialogContent,
   DialogCloseButton,
+  DialogTitle,
 } from "@/components/ui/Dialog";
 import type { GalleryItem } from "@/lib/galleries";
+import { localPublicImageUnoptimized } from "@/lib/utils";
 
 export function GalleryGrid({ items }: { items: GalleryItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -41,7 +43,7 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="object-contain transition-transform duration-500 group-hover:scale-105"
-              unoptimized={item.url.startsWith("/uploads")}
+              unoptimized={localPublicImageUnoptimized(item.url)}
             />
           </button>
         ))}
@@ -50,6 +52,7 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
       <Dialog open={openIndex !== null} onOpenChange={(open) => !open && close()}>
         <DialogContent className="left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-1.5rem)] sm:w-full max-w-lg sm:max-w-2xl lg:max-w-3xl max-h-[90vh] overflow-y-auto glass-panel border border-[var(--border)] shadow-card p-4 sm:p-6">
           <DialogCloseButton />
+          <DialogTitle className="sr-only">Galerie photo</DialogTitle>
           {current && (
             <div className="relative">
               <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg)]">
@@ -59,7 +62,7 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
                   fill
                   sizes="90vw"
                   className="object-contain"
-                  unoptimized={current.url.startsWith("/uploads")}
+                  unoptimized={localPublicImageUnoptimized(current.url)}
                 />
               </div>
 

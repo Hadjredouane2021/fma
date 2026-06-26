@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { localPublicImageUnoptimized } from "@/lib/utils";
 
 type HeroBackgroundPhotoProps = {
   src: string;
@@ -16,7 +17,7 @@ export function HeroBackgroundPhoto({ src }: HeroBackgroundPhotoProps) {
         sizes="(max-width: 640px) 100vw, (max-width: 1280px) 100vw, (max-width: 1920px) 100vw, 2560px"
         quality={90}
         className="hero-bg-photo__img"
-        unoptimized={src.startsWith("/uploads")}
+        unoptimized={localPublicImageUnoptimized(src)}
       />
     </div>
   );

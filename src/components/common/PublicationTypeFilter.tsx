@@ -65,12 +65,6 @@ function PublicationQuerySelect({
   );
 }
 
-export function PublicationTypeFilter(
-  props: Omit<React.ComponentProps<typeof PublicationQuerySelect>, "param"> & { showAllOption?: boolean }
-) {
-  return <PublicationQuerySelect param="type" {...props} />;
-}
-
 export function PublicationYearFilter(props: Omit<React.ComponentProps<typeof PublicationQuerySelect>, "param">) {
   return <PublicationQuerySelect param="year" {...props} />;
 }

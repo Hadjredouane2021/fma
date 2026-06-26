@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_MENU_CONTENT, type MenuContent, type MenuItem, type MenuChild } from "@/lib/menu-site-public";
 import { DB_KEYS } from "@/lib/db-keys";
+import { revalidateLayoutSettings } from "@/lib/site-settings-cache";
 
 const KEY = DB_KEYS.MENU_CONTENT;
 
@@ -69,5 +70,6 @@ export async function PUT(req: NextRequest) {
     update: { value: JSON.stringify(normalized), group: "site" },
     create: { key: KEY, value: JSON.stringify(normalized), group: "site" },
   });
+  revalidateLayoutSettings();
   return NextResponse.json(normalized);
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateLaFmaPageData } from "@/lib/la-fma-page-cache";
 
 async function getSession() {
   try {
@@ -68,6 +69,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.ok) return NextResponse.json({ message: parsed.message }, { status: 400 });
 
     const created = await prisma.teamMember.create({ data: parsed.data });
+    revalidateLaFmaPageData();
     return NextResponse.json(created);
   } catch (e) {
     console.error("POST /api/admin/team:", e);

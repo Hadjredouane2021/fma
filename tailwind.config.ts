@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { FMA_HEX } from "./src/lib/fma-brand-colors";
 
 const config: Config = {
   darkMode: "class",
@@ -10,27 +11,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ── Charte FMA — Couleurs PRINCIPALES ──
+        // ── Charte FMA — Couleurs PRINCIPALES (RVB 148/31/73 · 154/150/174 · 88/88/87) ──
         primary: {
-          DEFAULT: "#941F49", // Bordeaux FMA
+          DEFAULT: FMA_HEX.burgundy,
           50: "#FCE8EE",
           100: "#F5C5D4",
           200: "#E88CA8",
           300: "#D6537C",
           400: "#C43A65",
-          500: "#941F49",
+          500: FMA_HEX.burgundy,
           600: "#76183A",
           700: "#59122C",
           800: "#3B0C1D",
           900: "#1E060F",
         },
         mauve: {
-          DEFAULT: "#9A96AE", // Lavande FMA
+          DEFAULT: FMA_HEX.mauve,
           50: "#F4F3F7",
           100: "#E5E3EC",
           200: "#CBC8D6",
           300: "#B2AEC2",
-          400: "#9A96AE",
+          400: FMA_HEX.mauve,
           500: "#7E7A93",
           600: "#605D71",
           700: "#454253",
@@ -38,26 +39,26 @@ const config: Config = {
           900: "#15141A",
         },
         graphite: {
-          DEFAULT: "#585857", // Anthracite FMA
+          DEFAULT: FMA_HEX.graphite,
           50: "#F2F2F1",
           100: "#DCDCDB",
           200: "#B8B8B6",
           300: "#959592",
           400: "#71716F",
-          500: "#585857",
+          500: FMA_HEX.graphite,
           600: "#444443",
           700: "#333332",
           800: "#222221",
           900: "#111110",
         },
-        // ── Charte FMA — Couleurs SECONDAIRES ──
+        // ── Charte FMA — Couleurs SECONDAIRES (RVB 179/153/136 · 58/123/171 · 199/216/229) ──
         gold: {
-          DEFAULT: "#B39988", // Taupe FMA (rgb 179/153/136) — gardé "gold" pour compat
+          DEFAULT: FMA_HEX.taupe,
           50: "#F7F2EF",
           100: "#EBDFD8",
           200: "#D9C4B8",
           300: "#C7A998",
-          400: "#B39988",
+          400: FMA_HEX.taupe,
           500: "#967A6A",
           600: "#7A6154",
           700: "#5D493F",
@@ -65,12 +66,12 @@ const config: Config = {
           900: "#221814",
         },
         accent: {
-          DEFAULT: "#3A7BAB", // Bleu FMA (rgb 58/123/171)
+          DEFAULT: FMA_HEX.blue,
           50: "#E8F1F8",
           100: "#C5DCEF",
           200: "#8CB9DE",
           300: "#5296CD",
-          400: "#3A7BAB",
+          400: FMA_HEX.blue,
           500: "#2E6289",
           600: "#234A67",
           700: "#173144",
@@ -78,10 +79,10 @@ const config: Config = {
           900: "#060D11",
         },
         pale: {
-          DEFAULT: "#C7D8E5", // Bleu pâle FMA (rgb 199/216/229)
+          DEFAULT: FMA_HEX.pale,
           50: "#F4F8FB",
           100: "#E6EFF5",
-          200: "#C7D8E5",
+          200: FMA_HEX.pale,
           300: "#A4BFD3",
           400: "#7FA4BD",
           500: "#5C8AA5",
@@ -97,8 +98,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-montserrat)", "system-ui", "sans-serif"],
-        display: ["var(--font-outfit)", "var(--font-montserrat)", "system-ui", "sans-serif"],
+        sans: ["Gotham", "system-ui", "sans-serif"],
+        display: ["Gotham", "system-ui", "sans-serif"],
         arabic: ["var(--font-ibm-plex-arabic)", "Tahoma", "Arial", "sans-serif"],
       },
       borderRadius: {
@@ -106,12 +107,11 @@ const config: Config = {
         "5xl": "2.5rem",
       },
       backgroundImage: {
-        "hero-pattern": "linear-gradient(135deg, #941F49 0%, #3A7BAB 50%, #941F49 100%)",
-        "gold-gradient": "linear-gradient(135deg, #B39988 0%, #C7D8E5 100%)",
-        "blue-gradient": "linear-gradient(135deg, #941F49 0%, #3A7BAB 100%)",
-        // Gradient signature traversant les 3 couleurs principales chromatiques.
-        "fma-gradient": "linear-gradient(135deg, #941F49 0%, #9A96AE 55%, #3A7BAB 100%)",
-        "mauve-gradient": "linear-gradient(135deg, #9A96AE 0%, #C7D8E5 100%)",
+        "hero-pattern": `linear-gradient(135deg, ${FMA_HEX.burgundy} 0%, ${FMA_HEX.blue} 50%, ${FMA_HEX.burgundy} 100%)`,
+        "gold-gradient": `linear-gradient(135deg, ${FMA_HEX.taupe} 0%, ${FMA_HEX.pale} 100%)`,
+        "blue-gradient": `linear-gradient(135deg, ${FMA_HEX.burgundy} 0%, ${FMA_HEX.blue} 100%)`,
+        "fma-gradient": `linear-gradient(135deg, ${FMA_HEX.burgundy} 0%, ${FMA_HEX.mauve} 55%, ${FMA_HEX.blue} 100%)`,
+        "mauve-gradient": `linear-gradient(135deg, ${FMA_HEX.mauve} 0%, ${FMA_HEX.pale} 100%)`,
         "mesh-light":
           "radial-gradient(at 40% 20%, rgba(148, 31, 73, 0.09) 0px, transparent 50%), radial-gradient(at 80% 0%, rgba(58, 123, 171, 0.11) 0px, transparent 45%), radial-gradient(at 0% 50%, rgba(154, 150, 174, 0.12) 0px, transparent 50%), radial-gradient(at 95% 90%, rgba(179, 153, 136, 0.10) 0px, transparent 45%)",
         "mesh-dark":

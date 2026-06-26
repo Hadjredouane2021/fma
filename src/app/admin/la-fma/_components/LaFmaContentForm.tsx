@@ -28,7 +28,7 @@ const TABS: { key: Locale; flag: string; label: string; dir: "ltr" | "rtl" }[] =
 ];
 
 const inputBase =
-  "w-full px-4 py-3 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text-1)] placeholder-[var(--text-3)] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors";
+  "w-full px-3 py-2.5 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-sm text-[var(--text-1)] placeholder-[var(--text-3)] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors";
 const labelCls = "block text-xs font-semibold text-[var(--text-2)] uppercase tracking-wide mb-2";
 const card = "bg-[var(--bg)] border border-[var(--border)] rounded-2xl p-6";
 /** Même gabarit que les cartes mission / chiffres-clés (bordure arrondie + espacement). */
@@ -414,13 +414,6 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
                       Supprimer
                     </Button>
                   </div>
-                  <LaFmaIconField
-                    value={m.icon}
-                    onChange={(v) => setMissionIcon(idx, v)}
-                    label="Icône (photo ou emoji)"
-                    labelCls={labelCls}
-                    inputBase={inputBase}
-                  />
                   <div>
                     <label className={labelCls}>Titre ({tab.toUpperCase()})</label>
                     <input
@@ -430,15 +423,25 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
                       className={inputBase}
                     />
                   </div>
-                  <div>
-                    <label className={labelCls}>Description ({tab.toUpperCase()})</label>
-                    <textarea
-                      rows={3}
-                      value={m.description[tab]}
-                      onChange={(e) => setMissionDesc(idx, tab, e.target.value)}
-                      className={inputBase}
-                    />
-                  </div>
+                  <LaFmaIconField
+                    value={m.icon}
+                    onChange={(v) => setMissionIcon(idx, v)}
+                    label="Icône (photo ou emoji)"
+                    labelCls={labelCls}
+                    inputBase={inputBase}
+                    compact
+                    suffix={
+                      <div className="min-w-0">
+                        <label className={labelCls}>Description ({tab.toUpperCase()})</label>
+                        <input
+                          type="text"
+                          value={m.description[tab]}
+                          onChange={(e) => setMissionDesc(idx, tab, e.target.value)}
+                          className={inputBase}
+                        />
+                      </div>
+                    }
+                  />
                 </div>
               ))}
             </div>
@@ -571,6 +574,18 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
                     label="Icône (photo ou emoji)"
                     labelCls={labelCls}
                     inputBase={inputBase}
+                    compact
+                    suffix={
+                      <div className="min-w-0">
+                        <label className={labelCls}>Description ({tab.toUpperCase()})</label>
+                        <input
+                          type="text"
+                          value={b.description[tab]}
+                          onChange={(e) => setOrgBlocDesc(idx, tab, e.target.value)}
+                          className={inputBase}
+                        />
+                      </div>
+                    }
                   />
                   <div>
                     <label className={labelCls}>Titre ({tab.toUpperCase()})</label>
@@ -578,15 +593,6 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
                       type="text"
                       value={b.title[tab]}
                       onChange={(e) => setOrgBlocTitle(idx, tab, e.target.value)}
-                      className={inputBase}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelCls}>Description ({tab.toUpperCase()})</label>
-                    <textarea
-                      rows={3}
-                      value={b.description[tab]}
-                      onChange={(e) => setOrgBlocDesc(idx, tab, e.target.value)}
                       className={inputBase}
                     />
                   </div>

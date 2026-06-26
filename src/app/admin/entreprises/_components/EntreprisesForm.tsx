@@ -7,6 +7,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import { LaFmaIconField } from "@/components/admin/LaFmaIconField";
+import { PAGE_HERO_SIZE_HINT } from "@/lib/page-hero";
 import {
   type EntreprisesContent,
   type EntrepriseProduct,
@@ -141,7 +142,7 @@ function ProductRow({ product: p, onChange, onRemove, tab }: {
                 inputBase={inputBase}
                 uploadFolder="entreprises-icons"
                 widePreview
-                sizeHint="594 × 162 px (ratio 37:10) — idéalement 1188 × 324 px pour les écrans Retina"
+                sizeHint={PAGE_HERO_SIZE_HINT}
               />
             </div>
             <div className="shrink-0">

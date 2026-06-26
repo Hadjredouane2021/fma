@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { DB_KEYS } from "@/lib/db-keys";
-import { getChiffresClesContent } from "@/lib/chiffres-cles-site-public";
+import { getChiffresClesContent } from "@/lib/chiffres-cles-cache";
 import ChiffresClesHeroImageForm from "./_components/ChiffresClesHeroImageForm";
 import ChiffresClesStructureForm from "./_components/ChiffresClesStructureForm";
 

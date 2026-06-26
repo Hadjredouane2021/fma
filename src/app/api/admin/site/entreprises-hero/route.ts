@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DB_KEYS } from "@/lib/db-keys";
+import { revalidateEntreprisesContent } from "@/lib/entreprises-cache";
 
 const KEY = DB_KEYS.ENTREPRISES_HERO;
 
@@ -26,5 +27,6 @@ export async function PUT(req: NextRequest) {
     update: { value, group: "site" },
     create: { key: KEY, value, group: "site" },
   });
+  revalidateEntreprisesContent();
   return NextResponse.json({ imageUrl: value });
 }

@@ -1,106 +1,35 @@
-export type GalleryTitle = { fr: string; en: string; ar: string };
-export type GalleryItem = { url: string; link: string };
-export type GalleryData = { title: GalleryTitle; items: GalleryItem[] };
+import { publicAssetUrl } from "@/lib/utils";
 
-export type GalleryCategory =
-  | "conseil-fma"
-  | "glossaire"
-  | "saviez-vous"
-  | "prevention"
-  | "quiz-time"
-  | "reglementation"
-  | "interventions-fma"
-  | "reseaux-sociaux";
+export type GalleryTitle = { fr: string; en: string; ar: string };
+export type GalleryItem = { url: string; link: string; photoTitle?: GalleryTitle };
+export type GalleryFolderItem = GalleryItem & { inCarousel?: boolean; isCover?: boolean };
+export type GalleryFolder = {
+  id: string;
+  title: GalleryTitle;
+  description: GalleryTitle;
+  items: GalleryFolderItem[];
+};
+export type GalleryData = {
+  title: GalleryTitle;
+  items: GalleryItem[];
+  folders?: GalleryFolder[];
+};
+
+export const FOLDER_GALLERY_CATEGORIES = ["interventions-fma", "reseaux-sociaux"] as const;
+export type FolderGalleryCategory = (typeof FOLDER_GALLERY_CATEGORIES)[number];
+
+export function isFolderGalleryCategory(category: GalleryCategory): category is FolderGalleryCategory {
+  return (FOLDER_GALLERY_CATEGORIES as readonly string[]).includes(category);
+}
+
+export type GalleryCategory = "interventions-fma" | "reseaux-sociaux";
 
 export const GALLERY_CATEGORIES: GalleryCategory[] = [
-  "conseil-fma",
-  "glossaire",
-  "saviez-vous",
-  "prevention",
-  "quiz-time",
-  "reglementation",
   "interventions-fma",
   "reseaux-sociaux",
 ];
 
-const CONSEIL_FMA_FILES = [
-  "040324.png", "040625.png", "040725.png", "050325.png", "060324.png",
-  "080825.png", "090425.png", "100724.png", "120824.png", "171025.png",
-  "180725.png", "220525.png", "220925.png", "240725.png", "260624.png",
-  "260724.png", "260825.png", "280225.png", "280825.png", "290725.png",
-];
-
-const GLOSSAIRE_FILES = [
-  "050825.jpg", "100925.jpeg", "110725.png", "120925.jpeg", "131125.png",
-  "141125.png", "170925.png", "230224.png", "290224.png", "300925.png",
-];
-
-const SAVIEZ_VOUS_FILES = [
-  "050525.png", "060824.png", "070525.png", "070725.png", "090725.png",
-  "090924.png", "100624.png", "110825.png", "120624.png", "120825.png",
-  "130225.png", "130924.png", "150525.png", "150724 AUTRE PHTO.png", "150925.png",
-  "160725.png", "160824.png", "161024.jpg", "170724.png", "180724.png",
-  "180925.png", "200125.png", "220824.png", "240624.png", "240925.png",
-  "250924.png", "260824.png", "280125.jpeg", "300525.jpg", "300824.png",
-  "310725.jpg",
-];
-
-const PREVENTION_FILES = [
-  "010925.png", "040825.png", "080724.png", "090525.png", "110925.jpeg",
-  "111224.png", "130324.png", "140225.png", "140725.png", "141025.png",
-  "160525.png", "170725.png", "180825.png", "190124.png", "200624.png",
-  "220725.png", "230725.png", "250125.png", "250725.png", "250825.png",
-  "251125.jpg", "260625.png", "260924.png", "300425-1.png", "300425-2.png",
-  "300425-3.png",
-];
-
-const QUIZ_TIME_FILES = [
-  "010825.jpg", "030425.png", "060325.png", "150225.png", "220125.png",
-  "230724.png", "260925.png", "270924.png",
-];
-
-const REGLEMENTATION_FILES = [
-  "010324.png", "020824.png", "040425.png", "050725.jpg", "070824.png",
-  "090824.png", "111024.png", "210624.png", "260224.png", "310724.png",
-];
-
 export const GALLERY_CONFIG: Record<GalleryCategory, { title: GalleryTitle; folder: string; uploadFolder: string; defaultFiles: string[] }> = {
-  "conseil-fma": {
-    title: { fr: "Le Conseil FMA", en: "The FMA Council", ar: "مجلس الاتحاد" },
-    folder: "/LE CONSEIL FMA",
-    uploadFolder: "conseil-fma",
-    defaultFiles: CONSEIL_FMA_FILES,
-  },
-  glossaire: {
-    title: { fr: "Le Glossaire", en: "Glossary", ar: "المعجم" },
-    folder: "/LE GLOSSAIRE",
-    uploadFolder: "gallery-glossaire",
-    defaultFiles: GLOSSAIRE_FILES,
-  },
-  "saviez-vous": {
-    title: { fr: "Le Saviez-vous", en: "Did You Know", ar: "هل تعلم" },
-    folder: "/LE SAVIEZ-VOUS",
-    uploadFolder: "gallery-saviez-vous",
-    defaultFiles: SAVIEZ_VOUS_FILES,
-  },
-  prevention: {
-    title: { fr: "Prévention", en: "Prevention", ar: "الوقاية" },
-    folder: "/PREVENTION",
-    uploadFolder: "gallery-prevention",
-    defaultFiles: PREVENTION_FILES,
-  },
-  "quiz-time": {
-    title: { fr: "Quiz Time", en: "Quiz Time", ar: "وقت الاختبار" },
-    folder: "/QUIZ TIME",
-    uploadFolder: "gallery-quiz-time",
-    defaultFiles: QUIZ_TIME_FILES,
-  },
-  reglementation: {
-    title: { fr: "Réglementation", en: "Regulation", ar: "التنظيم" },
-    folder: "/REGLEMENTATION",
-    uploadFolder: "gallery-reglementation",
-    defaultFiles: REGLEMENTATION_FILES,
-  },
   "interventions-fma": {
     title: { fr: "Interventions FMA", en: "FMA Interventions", ar: "تدخلات الاتحاد" },
     folder: "/INTERVENTIONS-FMA",
@@ -117,7 +46,7 @@ export const GALLERY_CONFIG: Record<GalleryCategory, { title: GalleryTitle; fold
 
 export function defaultGalleryItems(category: GalleryCategory): GalleryItem[] {
   const { folder, defaultFiles } = GALLERY_CONFIG[category];
-  return defaultFiles.map((f) => ({ url: `${folder}/${encodeURIComponent(f)}`, link: "" }));
+  return defaultFiles.map((f) => ({ url: publicAssetUrl(folder, f), link: "" }));
 }
 
 export function isGalleryCategory(value: string): value is GalleryCategory {
@@ -128,6 +57,16 @@ export function dbKeyForGallery(category: GalleryCategory): string {
   return `gallery_${category.replace(/-/g, "_")}_images`;
 }
 
+function normalizePhotoTitle(value: unknown): GalleryTitle | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const d = value as Record<string, unknown>;
+  const fr = typeof d.fr === "string" ? d.fr : "";
+  const en = typeof d.en === "string" ? d.en : "";
+  const ar = typeof d.ar === "string" ? d.ar : "";
+  if (!fr && !en && !ar) return undefined;
+  return { fr, en, ar };
+}
+
 export function normalizeGalleryItems(value: unknown): GalleryItem[] {
   if (!Array.isArray(value)) return [];
   return value
@@ -135,30 +74,153 @@ export function normalizeGalleryItems(value: unknown): GalleryItem[] {
       if (typeof entry === "string") return { url: entry, link: "" };
       if (entry && typeof entry === "object" && typeof (entry as { url?: unknown }).url === "string") {
         const link = (entry as { link?: unknown }).link;
-        return { url: (entry as { url: string }).url, link: typeof link === "string" ? link : "" };
+        const photoTitle = normalizePhotoTitle((entry as { photoTitle?: unknown }).photoTitle);
+        return {
+          url: (entry as { url: string }).url,
+          link: typeof link === "string" ? link : "",
+          ...(photoTitle ? { photoTitle } : {}),
+        };
       }
       return null;
     })
     .filter((v): v is GalleryItem => v !== null && v.url.trim().length > 0);
 }
 
+function normalizeGalleryTitle(value: unknown, fallback: GalleryTitle): GalleryTitle {
+  if (!value || typeof value !== "object") return { ...fallback };
+  const d = value as Partial<GalleryTitle>;
+  return {
+    fr: typeof d.fr === "string" ? d.fr : fallback.fr,
+    en: typeof d.en === "string" ? d.en : fallback.en,
+    ar: typeof d.ar === "string" ? d.ar : fallback.ar,
+  };
+}
+
+function normalizeFolderItem(entry: unknown): GalleryFolderItem | null {
+  if (typeof entry === "string") return { url: entry, link: "" };
+  if (!entry || typeof entry !== "object" || typeof (entry as { url?: unknown }).url !== "string") {
+    return null;
+  }
+  const e = entry as Partial<GalleryFolderItem>;
+  const photoTitle = normalizePhotoTitle(e.photoTitle);
+  const url = e.url!.trim();
+  if (!url) return null;
+  return {
+    url,
+    link: typeof e.link === "string" ? e.link : "",
+    ...(photoTitle ? { photoTitle } : {}),
+    inCarousel: e.inCarousel === true,
+    isCover: e.isCover === true,
+  };
+}
+
+export function createEmptyGalleryFolder(): GalleryFolder {
+  return {
+    id: `folder-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    title: { fr: "", en: "", ar: "" },
+    description: { fr: "", en: "", ar: "" },
+    items: [],
+  };
+}
+
+export function normalizeGalleryFolders(value: unknown, legacyItems: GalleryItem[] = []): GalleryFolder[] {
+  if (Array.isArray(value) && value.length > 0) {
+    const folders = value
+      .map((raw): GalleryFolder | null => {
+        if (!raw || typeof raw !== "object") return null;
+        const f = raw as Partial<GalleryFolder>;
+        const items = Array.isArray(f.items)
+          ? f.items.map(normalizeFolderItem).filter((v): v is GalleryFolderItem => v !== null)
+          : [];
+        return {
+          id: typeof f.id === "string" && f.id.trim() ? f.id.trim() : createEmptyGalleryFolder().id,
+          title: normalizeGalleryTitle(f.title, { fr: "", en: "", ar: "" }),
+          description: normalizeGalleryTitle(f.description, { fr: "", en: "", ar: "" }),
+          items,
+        };
+      })
+      .filter((v): v is GalleryFolder => v !== null);
+    if (folders.length > 0) return folders;
+  }
+
+  if (legacyItems.length === 0) return [];
+  return [
+    {
+      id: "legacy-default",
+      title: { fr: "", en: "", ar: "" },
+      description: { fr: "", en: "", ar: "" },
+      items: legacyItems.map((item, index) => ({
+        ...item,
+        inCarousel: true,
+        isCover: index === 0,
+      })),
+    },
+  ];
+}
+
+export function flattenFolderItems(folders: GalleryFolder[]): GalleryFolderItem[] {
+  return folders.flatMap((folder) => folder.items);
+}
+
+export function getFolderCoverUrl(folder: GalleryFolder): string {
+  const cover = folder.items.find((item) => item.isCover);
+  return cover?.url ?? folder.items[0]?.url ?? "";
+}
+
+export function getGalleryCarouselItems(data: GalleryData): GalleryFolderItem[] {
+  if (data.folders && data.folders.length > 0) {
+    return flattenFolderItems(data.folders).filter((item) => item.inCarousel);
+  }
+  return data.items.map((item) => ({ ...item, inCarousel: true }));
+}
+
+export function foldersToFlatItems(folders: GalleryFolder[]): GalleryItem[] {
+  return flattenFolderItems(folders).map(({ url, link, photoTitle }) => ({
+    url,
+    link,
+    ...(photoTitle ? { photoTitle } : {}),
+  }));
+}
+
 export function parseGalleryData(value: string | null | undefined, category: GalleryCategory): GalleryData {
   const defaults = GALLERY_CONFIG[category].title;
-  if (!value) return { title: defaults, items: defaultGalleryItems(category) };
+  if (!value) {
+    const items = defaultGalleryItems(category);
+    return isFolderGalleryCategory(category)
+      ? { title: defaults, items, folders: normalizeGalleryFolders([], items) }
+      : { title: defaults, items };
+  }
   try {
     const parsed = JSON.parse(value);
     if (Array.isArray(parsed)) {
       const items = normalizeGalleryItems(parsed);
-      return { title: defaults, items: items.length > 0 ? items : defaultGalleryItems(category) };
+      const resolved = items.length > 0 ? items : defaultGalleryItems(category);
+      return isFolderGalleryCategory(category)
+        ? { title: defaults, items: resolved, folders: normalizeGalleryFolders([], resolved) }
+        : { title: defaults, items: resolved };
     }
-    const items = normalizeGalleryItems(parsed.items ?? parsed.images);
     const title = {
       fr: typeof parsed.title?.fr === "string" ? parsed.title.fr : defaults.fr,
       en: typeof parsed.title?.en === "string" ? parsed.title.en : defaults.en,
       ar: typeof parsed.title?.ar === "string" ? parsed.title.ar : defaults.ar,
     };
+    const legacyItems = normalizeGalleryItems(parsed.items ?? parsed.images);
+    const items = legacyItems.length > 0 ? legacyItems : defaultGalleryItems(category);
+
+    if (isFolderGalleryCategory(category)) {
+      const folders = normalizeGalleryFolders(parsed.folders, items);
+      return {
+        title,
+        items: foldersToFlatItems(folders),
+        folders,
+      };
+    }
+
     return { title, items: items.length > 0 ? items : defaultGalleryItems(category) };
   } catch {
-    return { title: defaults, items: defaultGalleryItems(category) };
+    const items = defaultGalleryItems(category);
+    return isFolderGalleryCategory(category)
+      ? { title: defaults, items, folders: normalizeGalleryFolders([], items) }
+      : { title: defaults, items };
   }
 }

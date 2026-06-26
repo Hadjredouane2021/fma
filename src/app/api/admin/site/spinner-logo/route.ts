@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_SITE_SPINNER, normalizeSiteSpinner } from "@/lib/site-spinner";
 import { DB_KEYS } from "@/lib/db-keys";
+import { revalidateLayoutSettings } from "@/lib/site-settings-cache";
 
 const KEY = DB_KEYS.SITE_SPINNER;
 
@@ -32,5 +33,6 @@ export async function PUT(req: NextRequest) {
     update: { value: JSON.stringify(normalized), group: "site" },
     create: { key: KEY, value: JSON.stringify(normalized), group: "site" },
   });
+  revalidateLayoutSettings();
   return NextResponse.json(normalized);
 }

@@ -4,13 +4,15 @@ import type React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
+import { FMA_HEX } from "@/lib/fma-brand-colors";
+
 /** Dégradés par défaut — charte FMA (bordeaux, bleu, mauve, taupe) */
 export const FMA_GRADIENTS = [
-  "linear-gradient(135deg, #941F49 0%, #3A7BAB 100%)",
-  "linear-gradient(135deg, #3A7BAB 0%, #9A96AE 100%)",
-  "linear-gradient(135deg, #9A96AE 0%, #B39988 100%)",
-  "linear-gradient(135deg, #941F49 0%, #9A96AE 100%)",
-  "linear-gradient(135deg, #941F49 0%, #3A7BAB 100%)",
+  `linear-gradient(135deg, ${FMA_HEX.burgundy} 0%, ${FMA_HEX.blue} 100%)`,
+  `linear-gradient(135deg, ${FMA_HEX.blue} 0%, ${FMA_HEX.mauve} 100%)`,
+  `linear-gradient(135deg, ${FMA_HEX.mauve} 0%, ${FMA_HEX.taupe} 100%)`,
+  `linear-gradient(135deg, ${FMA_HEX.burgundy} 0%, ${FMA_HEX.mauve} 100%)`,
+  `linear-gradient(135deg, ${FMA_HEX.burgundy} 0%, ${FMA_HEX.blue} 100%)`,
 ] as const;
 
 type GradientBackgroundProps = React.ComponentProps<"div"> & {

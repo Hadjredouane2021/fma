@@ -13,6 +13,8 @@ import {
 import DeletePublicationButton from "./_components/DeletePublicationButton";
 import PublicationsHeroImagesForm from "./_components/PublicationsHeroImagesForm";
 import GalleryAdminForm from "./_components/GalleryAdminForm";
+import FolderGalleryForm from "./_components/FolderGalleryForm";
+import { isFolderGalleryCategory } from "@/lib/galleries";
 
 const TYPE_LABELS: Record<string, string> = {
   "chiffres-cles":   "Chiffres clés",
@@ -69,16 +71,27 @@ export default async function AdminPublicationsPage() {
       <main className="p-8">
         <PublicationsHeroImagesForm initial={heroImages} />
 
-        {galleries.map((g) => (
-          <GalleryAdminForm
-            key={g.category}
-            category={g.category}
-            uploadFolder={g.uploadFolder}
-            label={g.label}
-            initial={g.data.items}
-            initialTitle={g.data.title}
-          />
-        ))}
+        {galleries.map((g) =>
+          isFolderGalleryCategory(g.category) ? (
+            <FolderGalleryForm
+              key={g.category}
+              category={g.category}
+              label={g.label}
+              uploadFolder={g.uploadFolder}
+              initialTitle={g.data.title}
+              initialFolders={g.data.folders ?? []}
+            />
+          ) : (
+            <GalleryAdminForm
+              key={g.category}
+              category={g.category}
+              uploadFolder={g.uploadFolder}
+              label={g.label}
+              initial={g.data.items}
+              initialTitle={g.data.title}
+            />
+          )
+        )}
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] shadow-sm dark:shadow-none">
           <table className="w-full text-sm">
             <thead>

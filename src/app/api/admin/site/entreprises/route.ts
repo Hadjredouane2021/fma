@@ -6,6 +6,7 @@ import {
   normalizeEntreprisesContent,
   ENTREPRISES_KEY,
 } from "@/lib/entreprises-site-public";
+import { revalidateEntreprisesContent } from "@/lib/entreprises-cache";
 
 async function getSession() {
   try { return await auth(); } catch { return null; }
@@ -30,5 +31,6 @@ export async function PUT(req: NextRequest) {
     update: { value: JSON.stringify(normalized), group: "site" },
     create: { key: ENTREPRISES_KEY, value: JSON.stringify(normalized), group: "site" },
   });
+  revalidateEntreprisesContent();
   return NextResponse.json(normalized);
 }

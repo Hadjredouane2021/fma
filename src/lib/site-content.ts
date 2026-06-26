@@ -20,6 +20,7 @@ export { DEFAULT_LA_FMA_CONTENT } from "@/lib/la-fma-site-public";
 import { normalizeLaFmaIcon } from "@/lib/la-fma-icon";
 import {
   createEmptyHomeKeyFigure,
+  createEmptyHomeGlobalFigure,
   HOME_KEY_FIGURES_MAX,
   HOME_KEY_FIGURES_MIN,
 } from "@/lib/home-site-public";
@@ -27,6 +28,7 @@ import { unstable_cache, revalidateTag } from "next/cache";
 
 export {
   createEmptyHomeKeyFigure,
+  createEmptyHomeGlobalFigure,
   HOME_KEY_FIGURES_MAX,
   HOME_KEY_FIGURES_MIN,
 } from "@/lib/home-site-public";
@@ -71,6 +73,21 @@ export interface HomeKeyFigure {
   label: LocalizedString;
   valueSource: HomeKeyFigureValueSource;
   chiffresClesRowId: string;
+  /** Texte affiché en dépliant la carte (chevron). Vide = pas de détail. */
+  description: LocalizedString;
+  /** Regroupement vertical : même clé (FR) sur des cartes consécutives = pile sous un titre commun. */
+  stackGroup?: LocalizedString;
+}
+
+export interface HomeGlobalFigure {
+  /** Valeur numérique de la grande carte (ex. "64269.4"). */
+  value: string;
+  /** Suffixe (ex. « MDH »). */
+  suffix: string;
+  label: LocalizedString;
+  description: LocalizedString;
+  valueSource: HomeKeyFigureValueSource;
+  chiffresClesRowId: string;
 }
 
 export interface HomeKeyFiguresSection {
@@ -80,6 +97,8 @@ export interface HomeKeyFiguresSection {
   imageUrl: string;
   /** Légende sous chaque chiffre (ex. « des primes émises »). */
   figureCaption: LocalizedString;
+  /** Grande carte "Chiffre d'affaires global" affichée au-dessus de la grille. */
+  globalFigure: HomeGlobalFigure;
 }
 
 export type HeroBackgroundType = "default" | "color" | "image";
@@ -135,10 +154,10 @@ export const DEFAULT_HOME_CONTENT: HomeContent = {
     href: "publications",
   },
   keyFigures: [
-    { value: "47", suffix: " Mds MAD", label: { fr: "Chiffre d'affaires", en: "Revenue",            ar: "رقم الأعمال" }, valueSource: "manual", chiffresClesRowId: "" },
-    { value: "25", suffix: "+",        label: { fr: "Compagnies membres",  en: "Member companies",   ar: "الشركات الأعضاء" }, valueSource: "manual", chiffresClesRowId: "" },
-    { value: "5",  suffix: " M+",      label: { fr: "Contrats souscrits",  en: "Policies",           ar: "العقود" }, valueSource: "manual", chiffresClesRowId: "" },
-    { value: "65", suffix: " ans",     label: { fr: "D'expérience",        en: "Years of experience", ar: "سنة من الخبرة" }, valueSource: "manual", chiffresClesRowId: "" },
+    { value: "47", suffix: " Mds MAD", label: { fr: "Chiffre d'affaires", en: "Revenue",            ar: "رقم الأعمال" }, valueSource: "manual", chiffresClesRowId: "", description: { fr: "", en: "", ar: "" }, stackGroup: { fr: "", en: "", ar: "" } },
+    { value: "25", suffix: "+",        label: { fr: "Compagnies membres",  en: "Member companies",   ar: "الشركات الأعضاء" }, valueSource: "manual", chiffresClesRowId: "", description: { fr: "", en: "", ar: "" }, stackGroup: { fr: "", en: "", ar: "" } },
+    { value: "5",  suffix: " M+",      label: { fr: "Contrats souscrits",  en: "Policies",           ar: "العقود" }, valueSource: "manual", chiffresClesRowId: "", description: { fr: "", en: "", ar: "" }, stackGroup: { fr: "", en: "", ar: "" } },
+    { value: "65", suffix: " ans",     label: { fr: "D'expérience",        en: "Years of experience", ar: "سنة من الخبرة" }, valueSource: "manual", chiffresClesRowId: "", description: { fr: "", en: "", ar: "" }, stackGroup: { fr: "", en: "", ar: "" } },
   ],
   keyFiguresSection: {
     eyebrow: {
@@ -151,6 +170,14 @@ export const DEFAULT_HOME_CONTENT: HomeContent = {
       fr: "des primes émises",
       en: "of premiums issued",
       ar: "من الأقساط المكتتبة",
+    },
+    globalFigure: {
+      value: "",
+      suffix: "",
+      label: { fr: "Chiffre d'affaires global", en: "Global revenue", ar: "رقم الأعمال الإجمالي" },
+      description: { fr: "", en: "", ar: "" },
+      valueSource: "manual",
+      chiffresClesRowId: "",
     },
   },
   hero: {
@@ -190,6 +217,24 @@ function normalizeKeyFiguresEyebrow(
     fr: typeof eyebrow.fr === "string" ? eyebrow.fr.trim() : "",
     en: typeof eyebrow.en === "string" ? eyebrow.en.trim() : "",
     ar: typeof eyebrow.ar === "string" ? eyebrow.ar.trim() : "",
+  };
+}
+
+function normalizeGlobalFigure(input: unknown): HomeGlobalFigure {
+  const def = DEFAULT_HOME_CONTENT.keyFiguresSection.globalFigure;
+  if (!input || typeof input !== "object") return { ...def };
+  const d = input as Partial<HomeGlobalFigure>;
+  const valueSource: HomeKeyFigureValueSource =
+    d.valueSource === "contribution" || d.valueSource === "revenue" || d.valueSource === "manual"
+      ? d.valueSource
+      : def.valueSource;
+  return {
+    value: (d.value ?? "").toString().trim(),
+    suffix: typeof d.suffix === "string" ? d.suffix.trim() : "",
+    label: localizedFallback(d.label as Partial<LocalizedString> | undefined, def.label),
+    description: localizedFallback(d.description as Partial<LocalizedString> | undefined, { fr: "", en: "", ar: "" }),
+    valueSource,
+    chiffresClesRowId: typeof d.chiffresClesRowId === "string" ? d.chiffresClesRowId : def.chiffresClesRowId,
   };
 }
 
@@ -237,6 +282,14 @@ export function normalizeHomeContent(input: unknown): HomeContent {
         label: localizedFallback(f?.label as Partial<LocalizedString> | undefined, def.label),
         valueSource,
         chiffresClesRowId: typeof f?.chiffresClesRowId === "string" ? f.chiffresClesRowId : def.chiffresClesRowId,
+        description: localizedFallback(
+          f?.description as Partial<LocalizedString> | undefined,
+          def.description ?? { fr: "", en: "", ar: "" }
+        ),
+        stackGroup: localizedFallback(
+          f?.stackGroup as Partial<LocalizedString> | undefined,
+          def.stackGroup ?? { fr: "", en: "", ar: "" }
+        ),
       };
     });
 
@@ -270,6 +323,7 @@ export function normalizeHomeContent(input: unknown): HomeContent {
         d.keyFiguresSection?.figureCaption,
         DEFAULT_HOME_CONTENT.keyFiguresSection.figureCaption
       ),
+      globalFigure: normalizeGlobalFigure(d.keyFiguresSection?.globalFigure),
     },
     hero: {
       background: normalizeHeroBackground(d.hero?.background),
@@ -293,7 +347,7 @@ export const getHomeContent = unstable_cache(
       return DEFAULT_HOME_CONTENT;
     }
   },
-  ["site-content:home:v3"],
+  ["site-content:home:v5"],
   { tags: [HOME_TAG], revalidate: 300 }
 );
 

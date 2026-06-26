@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { ADMIN_IMAGE_ACCEPT, ADMIN_IMAGE_FORMATS_LABEL } from "@/lib/admin-upload";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, LoaderPinwheel, Save } from "lucide-react";
@@ -77,7 +78,7 @@ export default function SpinnerLogoForm({ initial }: { initial: SiteSpinnerSetti
       </h2>
       <p className="relative z-10 mb-6 text-xs text-[var(--text-3)]">
         Image affichée au centre du spinner lors de la navigation et du chargement des pages (site public et admin).
-        Formats : JPEG, PNG, WebP, GIF ou SVG. Taille recommandée : carré, fond transparent ou blanc.
+        Formats : {ADMIN_IMAGE_FORMATS_LABEL}. Taille recommandée : carré, fond transparent ou blanc.
       </p>
 
       <div className="relative z-10 space-y-5">
@@ -97,7 +98,7 @@ export default function SpinnerLogoForm({ initial }: { initial: SiteSpinnerSetti
             <label className={cn(buttonUploadLabel, uploading && "pointer-events-none opacity-60")}>
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                accept={ADMIN_IMAGE_ACCEPT}
                 className="sr-only"
                 onChange={handleUpload}
                 disabled={uploading}

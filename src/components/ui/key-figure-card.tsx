@@ -13,6 +13,7 @@ export interface KeyFigureCardProps extends React.HTMLAttributes<HTMLDivElement>
   caption: string;
   decimals?: number;
   locale?: string;
+  description?: string;
 }
 
 function formatMetricValue(value: number, decimals: number, locale: string): string {
@@ -34,6 +35,7 @@ export const KeyFigureCard = React.forwardRef<HTMLDivElement, KeyFigureCardProps
       caption,
       decimals = 1,
       locale = "fr",
+      description,
       ...props
     },
     ref
@@ -41,6 +43,7 @@ export const KeyFigureCard = React.forwardRef<HTMLDivElement, KeyFigureCardProps
     const metricRef = React.useRef<HTMLParagraphElement>(null);
     const rootRef = React.useRef<HTMLDivElement>(null);
     const [inView, setInView] = React.useState(false);
+    const hasDescription = Boolean(description?.trim());
 
     React.useEffect(() => {
       const node = rootRef.current;
@@ -87,20 +90,23 @@ export const KeyFigureCard = React.forwardRef<HTMLDivElement, KeyFigureCardProps
         )}
         {...props}
       >
+        <div className="key-figure-bento-card__content">
         <p className="mb-2 flex min-h-[2.75rem] items-center justify-center text-[0.8125rem] font-medium leading-snug text-[var(--text-2)] md:min-h-[3rem] md:text-sm">
           <span className="line-clamp-2">{label}</span>
         </p>
 
-        <ChevronDown
-          className="mb-2 h-4 w-4 text-[var(--blue)] opacity-80 transition-transform duration-300 group-hover:translate-y-0.5"
-          strokeWidth={2.5}
-          aria-hidden
-        />
+        {!hasDescription && (
+          <ChevronDown
+            className="mb-2 h-4 w-4 text-[var(--blue)] opacity-80 transition-transform duration-300 group-hover:translate-y-0.5"
+            strokeWidth={2.5}
+            aria-hidden
+          />
+        )}
 
         <div className="mb-2 flex items-baseline justify-center gap-0.5">
           <p
             ref={metricRef}
-            className="font-display text-[clamp(1.625rem,2.8vw,2.5rem)] font-bold leading-none tracking-tight text-[#2d3a4a] tabular-nums dark:text-[var(--text-1)]"
+            className="font-display text-[clamp(1.625rem,2.8vw,2.5rem)] font-bold leading-none tracking-tight text-[#2d3a4a] tabular-nums dark:text-white"
             aria-live="polite"
             aria-atomic="true"
           >
@@ -108,13 +114,20 @@ export const KeyFigureCard = React.forwardRef<HTMLDivElement, KeyFigureCardProps
             {formatMetricValue(0, decimals, locale)}
           </p>
           {metricUnit && (
-            <span className="text-[clamp(1.125rem,2vw,1.75rem)] font-bold leading-none text-[#2d3a4a] dark:text-[var(--text-1)]">
+            <span className="text-[clamp(1.125rem,2vw,1.75rem)] font-bold leading-none text-[#2d3a4a] dark:text-white">
               {metricUnit}
             </span>
           )}
         </div>
 
+        {hasDescription && (
+          <span className="mb-2 inline-flex max-w-full items-center rounded-full bg-[var(--blue)]/10 px-6 py-2 text-[1.375rem] font-semibold leading-snug text-[var(--blue)]">
+            {description}
+          </span>
+        )}
+
         <p className="text-[0.6875rem] font-medium text-[var(--text-3)] md:text-xs">{caption}</p>
+        </div>
       </div>
     );
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { ADMIN_IMAGE_ACCEPT } from "@/lib/admin-upload";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Save } from "lucide-react";
@@ -187,7 +188,7 @@ export default function TeamMemberForm({ initial, defaultOrder = 0 }: TeamMember
           />
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-alt)] px-3 py-2 text-xs font-semibold text-primary hover:bg-[var(--bg-surface)]">
-              <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
+              <input type="file" accept={ADMIN_IMAGE_ACCEPT} className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
               {uploading ? "Envoi…" : "Choisir une image"}
             </label>
             {form.photo ? (

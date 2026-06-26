@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_FOOTER_CONTENT, type FooterContent } from "@/lib/footer-site-public";
 import { DB_KEYS } from "@/lib/db-keys";
+import { revalidateLayoutSettings } from "@/lib/site-settings-cache";
 
 const KEY = DB_KEYS.FOOTER_CONTENT;
 
@@ -25,6 +26,7 @@ function normalizeFooter(input: unknown): FooterContent {
     linkedin: str(d.linkedin, DEFAULT_FOOTER_CONTENT.linkedin),
     twitter: str(d.twitter, DEFAULT_FOOTER_CONTENT.twitter),
     youtube: str(d.youtube, DEFAULT_FOOTER_CONTENT.youtube),
+    instagram: str(d.instagram, DEFAULT_FOOTER_CONTENT.instagram),
   };
 }
 
@@ -46,5 +48,6 @@ export async function PUT(req: NextRequest) {
     update: { value: JSON.stringify(normalized), group: "site" },
     create: { key: KEY, value: JSON.stringify(normalized), group: "site" },
   });
+  revalidateLayoutSettings();
   return NextResponse.json(normalized);
 }

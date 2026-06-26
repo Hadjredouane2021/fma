@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { ADMIN_IMAGE_ACCEPT, ADMIN_IMAGE_FORMATS_LABEL } from "@/lib/admin-upload";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Eye, ImageOff, ImagePlus, Loader2, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
@@ -99,6 +100,47 @@ export default function HomeContentForm({
       next[idx] = { ...next[idx], label: { ...next[idx].label, [lang]: v } };
       return { ...c, keyFigures: next };
     });
+  const setKeyFigureDescription = (idx: number, lang: Locale, v: string) =>
+    setContent((c) => {
+      const next = [...c.keyFigures];
+      next[idx] = { ...next[idx], description: { ...next[idx].description, [lang]: v } };
+      return { ...c, keyFigures: next };
+    });
+  const setKeyFigureStackGroup = (idx: number, lang: Locale, v: string) =>
+    setContent((c) => {
+      const next = [...c.keyFigures];
+      const current = next[idx].stackGroup ?? { fr: "", en: "", ar: "" };
+      next[idx] = { ...next[idx], stackGroup: { ...current, [lang]: v } };
+      return { ...c, keyFigures: next };
+    });
+
+  const setGlobalFigure = (patch: Partial<HomeContent["keyFiguresSection"]["globalFigure"]>) =>
+    setContent((c) => ({
+      ...c,
+      keyFiguresSection: { ...c.keyFiguresSection, globalFigure: { ...c.keyFiguresSection.globalFigure, ...patch } },
+    }));
+  const setGlobalFigureLabel = (lang: Locale, v: string) =>
+    setContent((c) => ({
+      ...c,
+      keyFiguresSection: {
+        ...c.keyFiguresSection,
+        globalFigure: {
+          ...c.keyFiguresSection.globalFigure,
+          label: { ...c.keyFiguresSection.globalFigure.label, [lang]: v },
+        },
+      },
+    }));
+  const setGlobalFigureDescription = (lang: Locale, v: string) =>
+    setContent((c) => ({
+      ...c,
+      keyFiguresSection: {
+        ...c.keyFiguresSection,
+        globalFigure: {
+          ...c.keyFiguresSection.globalFigure,
+          description: { ...c.keyFiguresSection.globalFigure.description, [lang]: v },
+        },
+      },
+    }));
   const addKeyFigure = () =>
     setContent((c) => {
       if (c.keyFigures.length >= HOME_KEY_FIGURES_MAX) return c;
@@ -392,7 +434,7 @@ export default function HomeContentForm({
                       Remplacer
                       <input
                         type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        accept={ADMIN_IMAGE_ACCEPT}
                         onChange={handleHeroBgUpload}
                         className="hidden"
                         disabled={uploadingBg}
@@ -421,13 +463,13 @@ export default function HomeContentForm({
                     <ImagePlus className="w-6 h-6 text-[var(--text-3)]" />
                     <span className="text-sm font-semibold text-[var(--text-2)]">Cliquer pour téléverser une image</span>
                     <span className="text-xs text-[var(--text-3)]">
-                      JPEG, PNG ou WebP — max 16&nbsp;Mo. Recommandé&nbsp;: 2560×1440&nbsp;px (moins de 3000&nbsp;px de large).
+                      {ADMIN_IMAGE_FORMATS_LABEL} — max 16&nbsp;Mo. Recommandé&nbsp;: 2560×1440&nbsp;px (moins de 3000&nbsp;px de large).
                     </span>
                   </>
                 )}
                 <input
                   type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  accept={ADMIN_IMAGE_ACCEPT}
                   onChange={handleHeroBgUpload}
                   className="hidden"
                   disabled={uploadingBg}
@@ -564,7 +606,7 @@ export default function HomeContentForm({
                 uploadingKeyFiguresImg && "pointer-events-none opacity-60"
               )}
             >
-              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleKeyFiguresImgUpload} disabled={uploadingKeyFiguresImg} />
+              <input type="file" accept={ADMIN_IMAGE_ACCEPT} className="hidden" onChange={handleKeyFiguresImgUpload} disabled={uploadingKeyFiguresImg} />
               {uploadingKeyFiguresImg ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
               Importer
             </label>
@@ -575,6 +617,102 @@ export default function HomeContentForm({
             </div>
           )}
         </div>
+
+        <div className="space-y-3 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-3" dir={currentTab.dir}>
+          <h4 className="text-xs font-bold uppercase tracking-wide text-primary">
+            Carte « Chiffre d&apos;affaires global »
+            <span className="text-[var(--text-3)] font-normal normal-case ml-1">
+              (affichée au-dessus de la grille ; valeur manuelle vide = masquée. Liaison possible vers le{" "}
+              <a href="/admin/chiffres-cles" className="font-semibold text-primary hover:underline">tableau Chiffres clés</a>.)
+            </span>
+          </h4>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label className={labelCls}>Source de la valeur</label>
+              <select
+                value={content.keyFiguresSection.globalFigure.valueSource}
+                onChange={(e) =>
+                  setGlobalFigure({
+                    valueSource: e.target.value as HomeKeyFigureValueSource,
+                    chiffresClesRowId: e.target.value === "manual" ? "" : content.keyFiguresSection.globalFigure.chiffresClesRowId,
+                  })
+                }
+                className={inputBase}
+              >
+                {VALUE_SOURCE_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+            {content.keyFiguresSection.globalFigure.valueSource !== "manual" && (
+              <div>
+                <label className={labelCls}>Ligne Chiffres clés</label>
+                <select
+                  value={content.keyFiguresSection.globalFigure.chiffresClesRowId}
+                  onChange={(e) => setGlobalFigure({ chiffresClesRowId: e.target.value })}
+                  className={inputBase}
+                >
+                  <option value="">— Choisir une ligne —</option>
+                  {chiffresClesRows.map((r) => (
+                    <option key={r.id} value={r.id}>{r.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-[160px_160px_1fr]">
+            <div>
+              <label className={labelCls}>
+                Valeur
+                {content.keyFiguresSection.globalFigure.valueSource === "contribution" && (
+                  <span className="text-[var(--text-3)] font-normal normal-case ml-1">(depuis taux %)</span>
+                )}
+              </label>
+              <input
+                type="text"
+                value={content.keyFiguresSection.globalFigure.value}
+                onChange={(e) => setGlobalFigure({ value: e.target.value })}
+                className={`${inputBase} font-bold`}
+                placeholder="64269.4"
+                disabled={content.keyFiguresSection.globalFigure.valueSource === "contribution"}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Suffixe</label>
+              <input
+                type="text"
+                value={content.keyFiguresSection.globalFigure.valueSource === "contribution" ? "%" : content.keyFiguresSection.globalFigure.suffix}
+                onChange={(e) => setGlobalFigure({ suffix: e.target.value })}
+                className={inputBase}
+                placeholder="MDH"
+                disabled={content.keyFiguresSection.globalFigure.valueSource === "contribution"}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Libellé ({currentTab.label})</label>
+              <input
+                type="text"
+                value={content.keyFiguresSection.globalFigure.label[tab]}
+                onChange={(e) => setGlobalFigureLabel(tab, e.target.value)}
+                className={inputBase}
+                placeholder="Chiffre d'affaires global"
+              />
+            </div>
+          </div>
+          <div>
+            <label className={labelCls}>
+              Description dépliable ({currentTab.label})
+              <span className="text-[var(--text-3)] font-normal normal-case ml-1">(affichée au clic sur le chevron, optionnel)</span>
+            </label>
+            <textarea
+              rows={2}
+              value={content.keyFiguresSection.globalFigure.description[tab]}
+              onChange={(e) => setGlobalFigureDescription(tab, e.target.value)}
+              className={inputBase}
+            />
+          </div>
+        </div>
+
         <div className="space-y-3" dir={currentTab.dir}>
           {content.keyFigures.map((fig, idx) => {
             const linked = fig.valueSource !== "manual";
@@ -660,6 +798,21 @@ export default function HomeContentForm({
                   className={inputBase}
                 />
               </div>
+              <div className="md:col-span-2">
+                <label className={labelCls}>
+                  Groupe empilé ({currentTab.label})
+                  <span className="text-[var(--text-3)] font-normal normal-case ml-1">
+                    (même texte sur des cartes consécutives = pile verticale sous ce titre)
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={fig.stackGroup?.[tab] ?? ""}
+                  onChange={(e) => setKeyFigureStackGroup(idx, tab, e.target.value)}
+                  className={inputBase}
+                  placeholder="ex. RÉASSURANCE EXCLUSIVE"
+                />
+              </div>
               <div className="flex items-end justify-end md:pb-1">
                 <button
                   type="button"
@@ -672,6 +825,18 @@ export default function HomeContentForm({
                   <span className="sr-only md:not-sr-only">Supprimer</span>
                 </button>
               </div>
+              </div>
+              <div>
+                <label className={labelCls}>
+                  Description dépliable ({currentTab.label})
+                  <span className="text-[var(--text-3)] font-normal normal-case ml-1">(affichée au clic sur le chevron, optionnel)</span>
+                </label>
+                <textarea
+                  rows={2}
+                  value={fig.description[tab]}
+                  onChange={(e) => setKeyFigureDescription(idx, tab, e.target.value)}
+                  className={inputBase}
+                />
               </div>
             </div>
             );

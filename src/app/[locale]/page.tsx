@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { prisma } from "@/lib/prisma";
+import { getLatestPublishedPosts } from "@/lib/posts-cache";
+import { getHomePageGalleries } from "@/lib/galleries-cache";
+import { getGalleryCarouselItems } from "@/lib/galleries";
 import { LatestNewsSection } from "@/components/common/LatestNewsSection";
 import { KeyFiguresSection } from "@/components/common/KeyFiguresSection";
 import { ConseilFmaCarousel } from "@/components/common/ConseilFmaCarousel";
@@ -12,10 +14,12 @@ import { Section } from "@/components/ui/Section";
 import { cn } from "@/lib/utils";
 import { HeroBackgroundPhoto } from "@/components/common/HeroBackgroundPhoto";
 import { getHomeContent } from "@/lib/site-content";
-import { getChiffresClesContent, resolveHomeKeyFigure } from "@/lib/chiffres-cles-site-public";
-import { dbKeyForGallery, parseGalleryData } from "@/lib/galleries";
+import { getChiffresClesContent } from "@/lib/chiffres-cles-cache";
+import { resolveHomeKeyFigure } from "@/lib/chiffres-cles-site-public";
 import type { Locale, Post } from "@/types";
 import type { Metadata } from "next";
+
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -33,32 +37,39 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const l = locale as Locale;
   const t = await getTranslations({ locale, namespace: "home" });
 
-  const [latestPosts, home, interventionsFmaRow, reseauxSociauxRow, chiffresCles] = await Promise.all([
-    prisma.post
-      .findMany({
-        where: { status: "PUBLISHED", deletedAt: null },
-        include: { category: true },
-        orderBy: { publishedAt: "desc" },
-        take: 5,
-      })
-      .catch(() => []),
+  const [latestPosts, home, homeGalleries, chiffresCles] = await Promise.all([
+    getLatestPublishedPosts(),
     getHomeContent(),
-    prisma.setting.findUnique({ where: { key: dbKeyForGallery("interventions-fma") } }).catch(() => null),
-    prisma.setting.findUnique({ where: { key: dbKeyForGallery("reseaux-sociaux") } }).catch(() => null),
+    getHomePageGalleries(),
     getChiffresClesContent(),
   ]);
 
-  const KEY_FIGURES = home.keyFigures.map((fig) => resolveHomeKeyFigure(fig, chiffresCles, l));
+  const KEY_FIGURES = home.keyFigures.map((fig) => {
+    const resolved = resolveHomeKeyFigure(fig, chiffresCles, l);
+    const stackKey = fig.stackGroup?.fr?.trim() || "";
+    const stackTitle =
+      fig.stackGroup?.[l]?.trim() || fig.stackGroup?.fr?.trim() || "";
+    return {
+      ...resolved,
+      stackGroup: stackKey || undefined,
+      stackGroupTitle: stackKey ? stackTitle : undefined,
+    };
+  });
+  const globalFigureCfg = home.keyFiguresSection.globalFigure;
+  const hasGlobalFigure = globalFigureCfg.valueSource !== "manual" || Boolean(globalFigureCfg.value);
+  const GLOBAL_FIGURE = hasGlobalFigure ? resolveHomeKeyFigure(globalFigureCfg, chiffresCles, l) : undefined;
 
-  const interventionsFma = parseGalleryData(interventionsFmaRow?.value, "interventions-fma");
-  const interventionsFmaItems = interventionsFma.items.map((item) => ({
+  const interventionsFma = homeGalleries.interventionsFma;
+  const interventionsFmaItems = getGalleryCarouselItems(interventionsFma).map((item) => ({
     url: item.url,
     link: item.link,
+    title: item.photoTitle?.[l]?.trim() || item.photoTitle?.fr?.trim() || "",
   }));
-  const reseauxSociaux = parseGalleryData(reseauxSociauxRow?.value, "reseaux-sociaux");
-  const reseauxSociauxItems = reseauxSociaux.items.map((item) => ({
+  const reseauxSociaux = homeGalleries.reseauxSociaux;
+  const reseauxSociauxItems = getGalleryCarouselItems(reseauxSociaux).map((item) => ({
     url: item.url,
     link: item.link,
+    title: item.photoTitle?.[l]?.trim() || item.photoTitle?.fr?.trim() || "",
   }));
   const viewAllLabel = l === "ar" ? "عرض الكل" : l === "en" ? "View all" : "Voir tout";
 
@@ -139,11 +150,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ── KEY FIGURES ── */}
       <KeyFiguresSection
-        eyebrow={home.keyFiguresSection.eyebrow[l]}
+        eyebrow={home.keyFiguresSection.eyebrow[l] ?? ""}
         figures={KEY_FIGURES}
         locale={locale}
         imageUrl={home.keyFiguresSection.imageUrl}
-        figureCaption={home.keyFiguresSection.figureCaption[l]}
+        figureCaption={home.keyFiguresSection.figureCaption[l] ?? ""}
+        globalFigure={GLOBAL_FIGURE}
       />
 
       {/* ── INTERVENTIONS FMA ── */}

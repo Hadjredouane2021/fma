@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Pencil } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -29,6 +30,7 @@ export default async function AdminLiensUtilesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--bg-alt)]">
+                <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-3)]">Logo</th>
                 <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-3)]">Titre (FR)</th>
                 <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-3)] max-w-xs">URL</th>
                 <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-3)]">Catégorie</th>
@@ -40,6 +42,22 @@ export default async function AdminLiensUtilesPage() {
             <tbody className="divide-y divide-[var(--border)]">
               {links.map((link) => (
                 <tr key={link.id} className="group transition-colors hover:bg-[var(--bg-alt)]/80">
+                  <td className="px-4 py-3">
+                    {link.icon ? (
+                      <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--bg-alt)]">
+                        <Image
+                          src={link.icon}
+                          alt=""
+                          fill
+                          className="object-contain p-0.5"
+                          sizes="40px"
+                          unoptimized={link.icon.startsWith("/uploads")}
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-xs text-[var(--text-3)]">—</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 font-semibold text-primary">{link.titleFr}</td>
                   <td className="px-4 py-3 max-w-xs">
                     <code className="text-xs text-[var(--text-2)] break-all line-clamp-2">{link.url}</code>
@@ -79,7 +97,7 @@ export default async function AdminLiensUtilesPage() {
               ))}
               {links.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-16 text-center text-[var(--text-3)]">
+                  <td colSpan={7} className="py-16 text-center text-[var(--text-3)]">
                     <p className="mb-2 text-4xl">🔗</p>
                     <p className="text-sm">Aucun lien. Ajoutez-en pour la page publique.</p>
                   </td>

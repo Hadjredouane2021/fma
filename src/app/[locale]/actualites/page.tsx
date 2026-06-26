@@ -4,10 +4,10 @@ import { DB_KEYS } from "@/lib/db-keys";
 import { NewsCard } from "@/components/common/NewsCard";
 import { PageHero } from "@/components/common/PageHero";
 import { PageHeroImage } from "@/components/common/PageHeroImage";
+import { SectionHeader } from "@/components/common/SectionHeader";
 import { Section } from "@/components/ui/Section";
-import { cn } from "@/lib/utils";
-import { buttonTabActive, buttonTabInactive } from "@/lib/button-styles";
 import NewsFilter from "./_components/NewsFilter";
+import { ActualitesPagination } from "./_components/ActualitesPagination";
 import type { Locale, Post } from "@/types";
 import type { Metadata } from "next";
 
@@ -19,7 +19,16 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return { title: `${t("title")} | FMA` };
 }
 
-export default async function ActualitesPage({ params, searchParams }: {
+function pageSubtitle(locale: Locale) {
+  if (locale === "ar") return "تابعوا أخبار قطاع التأمين في المغرب";
+  if (locale === "en") return "Follow insurance sector news in Morocco";
+  return "Suivez l'actualité du secteur des assurances au Maroc";
+}
+
+export default async function ActualitesPage({
+  params,
+  searchParams,
+}: {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ category?: string; q?: string; page?: string }>;
 }) {
@@ -29,60 +38,86 @@ export default async function ActualitesPage({ params, searchParams }: {
   const page = Number(pageStr) || 1;
   const limit = 9;
 
-  const [posts, categories, total, heroRow] = await Promise.all([
-    prisma.post.findMany({
-      where: {
-        status: "PUBLISHED", deletedAt: null,
-        ...(category ? { category: { slug: category } } : {}),
-        ...(q ? { OR: [{ titleFr: { contains: q } }, { titleEn: { contains: q } }, { contentFr: { contains: q } }] } : {}),
-      },
-      include: { category: true },
-      orderBy: { publishedAt: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
-    }).catch(() => []),
-    prisma.category.findMany({ orderBy: { order: "asc" } }).catch(() => []),
-    prisma.post.count({ where: { status: "PUBLISHED", deletedAt: null } }).catch(() => 0),
-    prisma.setting.findUnique({ where: { key: HERO_KEY } }).catch(() => null),
-  ]);
-  const heroImage = heroRow?.value?.trim() || null;
+  const where = {
+    status: "PUBLISHED" as const,
+    deletedAt: null,
+    ...(category ? { category: { slug: category } } : {}),
+    ...(q ? { OR: [{ titleFr: { contains: q } }, { titleEn: { contains: q } }, { contentFr: { contains: q } }] } : {}),
+  };
 
+  const [posts, categories, total, heroRow, t] = await Promise.all([
+    prisma.post
+      .findMany({
+        where,
+        include: { category: true },
+        orderBy: { publishedAt: "desc" },
+        skip: (page - 1) * limit,
+        take: limit,
+      })
+      .catch(() => []),
+    prisma.category.findMany({ orderBy: { order: "asc" } }).catch(() => []),
+    prisma.post.count({ where }).catch(() => 0),
+    prisma.setting.findUnique({ where: { key: HERO_KEY } }).catch(() => null),
+    getTranslations({ locale, namespace: "news" }),
+  ]);
+
+  const heroImage = heroRow?.value?.trim() || null;
   const totalPages = Math.ceil(total / limit);
+  const showFeatured = page === 1 && !q && posts.length > 0;
+  const featuredPost = showFeatured ? posts[0] : null;
+  const gridPosts = showFeatured ? posts.slice(1) : posts;
 
   return (
     <div>
       <PageHero locale={l}>
-        {heroImage && <PageHeroImage src={heroImage} alt={l === "ar" ? "الأخبار" : l === "en" ? "News" : "Actualités"} />}
+        {heroImage ? (
+          <PageHeroImage src={heroImage} alt={t("title")} />
+        ) : null}
       </PageHero>
 
-      <Section>
-          <NewsFilter categories={categories} locale={l} currentCategory={category} currentQ={q} />
+      <Section className="actualites-page">
+        <SectionHeader title={t("title")} subtitle={pageSubtitle(l)} />
 
-          {posts.length === 0 ? (
-            <div className="text-center py-20 text-[var(--text-3)]">
-              <div className="text-5xl mb-4">📰</div>
-              <p>{l === "ar" ? "لم يتم العثور على أخبار" : l === "en" ? "No news found" : "Aucune actualité trouvée"}</p>
+        <div className="mt-8 sm:mt-10">
+          <NewsFilter
+            categories={categories}
+            locale={l}
+            currentCategory={category}
+            currentQ={q}
+            resultCount={total}
+          />
+        </div>
+
+        {posts.length === 0 ? (
+          <div className="actualites-empty mt-10 px-6 py-16 text-center sm:mt-12">
+            <div className="mb-4 text-5xl" aria-hidden>
+              📰
             </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {posts.map((post) => <NewsCard key={post.id} post={post as Post} locale={l} />)}
+            <p className="text-[var(--text-2)]">{t("noResults")}</p>
+          </div>
+        ) : (
+          <div className="mt-8 space-y-8 sm:mt-10 sm:space-y-10">
+            {featuredPost ? (
+              <NewsCard post={featuredPost as Post} locale={l} variant="featured" />
+            ) : null}
+
+            {gridPosts.length > 0 ? (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-7">
+                {gridPosts.map((post) => (
+                  <NewsCard key={post.id} post={post as Post} locale={l} />
+                ))}
               </div>
-              {totalPages > 1 && (
-                <div className="flex justify-center gap-2 mt-12">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                    <a key={p} href={`?page=${p}${category ? `&category=${category}` : ""}${q ? `&q=${q}` : ""}`}
-                      className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center text-sm font-semibold",
-                        p === page ? buttonTabActive : buttonTabInactive
-                      )}>
-                      {p}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
+            ) : null}
+
+            <ActualitesPagination
+              page={page}
+              totalPages={totalPages}
+              category={category}
+              q={q}
+              locale={locale}
+            />
+          </div>
+        )}
       </Section>
     </div>
   );

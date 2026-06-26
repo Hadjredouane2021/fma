@@ -54,3 +54,19 @@ export function buildMetaTitle(title: string, suffix = "FMA - Fédération Maroc
 export function absoluteUrl(path: string): string {
   return `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}${path}`;
 }
+
+/** URL publique vers un fichier dans `public/` (segments encodés, espaces inclus). */
+export function publicAssetUrl(folder: string, filename: string): string {
+  const segments = [...folder.split("/").filter(Boolean), filename].map((part) =>
+    encodeURIComponent(part)
+  );
+  return `/${segments.join("/")}`;
+}
+
+/** `next/image` : servir tel quel les fichiers locaux du dossier `public/`. */
+export function localPublicImageUnoptimized(url: string): boolean {
+  const u = url.trim();
+  if (!u) return false;
+  if (/^https?:\/\//i.test(u)) return false;
+  return u.startsWith("/");
+}

@@ -213,6 +213,7 @@ type HomeKeyFigureLike = {
   label: { fr: string; en: string; ar: string };
   valueSource?: "manual" | "contribution" | "revenue";
   chiffresClesRowId?: string;
+  description?: { fr: string; en: string; ar: string };
 };
 
 /** Résout la valeur affichée d'une carte d'accueil (manuelle ou liée au tableau Chiffres clés). */
@@ -220,8 +221,9 @@ export function resolveHomeKeyFigure(
   fig: HomeKeyFigureLike,
   chiffresCles: ChiffresClesContent,
   locale: "fr" | "en" | "ar"
-): { value: string; suffix: string; label: string } {
+): { value: string; suffix: string; label: string; description: string } {
   const label = fig.label[locale]?.trim() || fig.label.fr;
+  const description = fig.description?.[locale]?.trim() || fig.description?.fr?.trim() || "";
   const row = fig.chiffresClesRowId
     ? chiffresCles.rows.find((r) => r.id === fig.chiffresClesRowId)
     : undefined;
@@ -235,6 +237,7 @@ export function resolveHomeKeyFigure(
       value,
       suffix: "%",
       label: label || row.category[locale] || row.category.fr,
+      description,
     };
   }
 
@@ -248,19 +251,9 @@ export function resolveHomeKeyFigure(
       value: formatted,
       suffix: fig.suffix || " Mds",
       label: label || row.category[locale] || row.category.fr,
+      description,
     };
   }
 
-  return { value: fig.value, suffix: fig.suffix, label };
-}
-
-export async function getChiffresClesContent(): Promise<ChiffresClesContent> {
-  const { prisma } = await import("@/lib/prisma");
-  const row = await prisma.setting.findUnique({ where: { key: CHIFFRES_CLES_KEY } }).catch(() => null);
-  if (!row) return DEFAULT_CHIFFRES_CLES_CONTENT;
-  try {
-    return normalizeChiffresClesContent(JSON.parse(row.value));
-  } catch {
-    return DEFAULT_CHIFFRES_CLES_CONTENT;
-  }
+  return { value: fig.value, suffix: fig.suffix, label, description };
 }

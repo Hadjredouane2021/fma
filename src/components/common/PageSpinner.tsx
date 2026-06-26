@@ -29,16 +29,16 @@ export function PageSpinner({
       aria-busy="true"
       aria-label={label || "Chargement"}
     >
-      <div className="relative z-10 flex flex-col items-center gap-5">
-        <div className="relative flex h-24 w-24 items-center justify-center" aria-hidden>
-          <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-[var(--border)] border-t-[var(--brand)] border-r-[var(--blue)]" />
-          <div className="relative flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full bg-[var(--bg-surface)] p-2 shadow-sm">
+      <div className="relative z-10 flex flex-col items-center gap-6">
+        <div className="relative flex h-40 w-40 items-center justify-center sm:h-44 sm:w-44" aria-hidden>
+          <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-[var(--border)] border-t-[var(--brand)] border-r-[var(--blue)] sm:border-4" />
+          <div className="relative flex h-32 w-32 items-center justify-center rounded-full bg-[var(--bg-surface)] p-3 shadow-sm sm:h-36 sm:w-36 sm:p-3.5">
             <Image
               src={imageUrl}
               alt=""
-              width={56}
-              height={56}
-              className="h-auto max-h-12 w-auto max-w-[3.25rem] object-contain"
+              width={128}
+              height={128}
+              className="h-auto max-h-24 w-auto max-w-[8rem] object-contain sm:max-h-28 sm:max-w-[9.5rem]"
               priority
               unoptimized={spinnerImageUnoptimized(imageUrl)}
             />

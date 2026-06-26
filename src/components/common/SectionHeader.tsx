@@ -2,11 +2,11 @@ import { cn } from "@/lib/utils";
 
 /** Typographie fluide des titres de section (accueil, La FMA, etc.). */
 export const SECTION_HEADER_TITLE_CLASSES =
-  "font-display text-pretty break-words font-bold tracking-tight text-[var(--text-1)] gold-accent text-[clamp(1.375rem,1.05rem+1.5vw,2.65rem)] leading-[1.22] sm:leading-[1.18] lg:leading-[1.12]";
+  "font-display text-pretty break-words font-bold tracking-tight text-[var(--fma-blue)] gold-accent text-[clamp(1.375rem,1.05rem+1.5vw,2.65rem)] leading-[1.22] sm:leading-[1.18] lg:leading-[1.12]";
 
 /** Titres longs (phrase) — une ligne sur desktop, retour à la ligne sur mobile. */
 export const SECTION_HEADER_LONG_TITLE_CLASSES =
-  "font-display break-words font-bold tracking-tight text-[var(--text-1)] gold-accent text-[clamp(1.0625rem,0.65rem+1.35vw,1.875rem)] leading-[1.3] sm:leading-[1.24] md:leading-[1.2] lg:leading-[1.16] lg:whitespace-nowrap lg:max-w-none";
+  "font-display break-words font-bold tracking-tight text-[var(--fma-blue)] gold-accent text-[clamp(1.0625rem,0.65rem+1.35vw,1.875rem)] leading-[1.3] sm:leading-[1.24] md:leading-[1.2] lg:leading-[1.16] lg:whitespace-nowrap lg:max-w-none";
 
 interface SectionHeaderProps {
   title: string;

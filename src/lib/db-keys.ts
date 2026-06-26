@@ -6,10 +6,10 @@ export const DB_KEYS = {
   PUBLICATIONS_HERO: "publications_hero_images",
   ACTUALITES_HERO: "actualites_hero_image",
   LIENS_UTILES_HERO: "liens_utiles_hero_image",
+  VOCABULAIRE_HERO: "vocabulaire_hero_image",
   PARTICULIERS_HERO: "particuliers_hero_image",
   ENTREPRISES_HERO: "entreprises_hero_image",
   LA_FMA_STATS_IMAGE: "la_fma_stats_image",
-  CONSEIL_FMA_IMAGES: "conseil_fma_images",
   SITE_LOGO: "site_logo",
   SITE_SPINNER: "site_spinner_logo",
   HOME_CONTENT: "home_content",
@@ -17,4 +17,6 @@ export const DB_KEYS = {
   CONTACT_CONTENT: "contact_content",
   CONTACT_HERO: "contact_hero_image",
   CHIFFRES_CLES_CONTENT: "chiffres_cles_content",
+  SITE_THEME: "site_theme_colors",
+  ADMIN_THEME: "admin_theme_colors",
 } as const;

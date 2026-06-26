@@ -44,7 +44,14 @@ export default async function AdminActualitesPage() {
                 <tr key={post.id} className="group transition-colors hover:bg-[var(--bg-alt)]/80">
                   <td className="px-6 py-4">
                     <p className="max-w-xs truncate font-semibold text-primary transition-colors group-hover:text-gold">{post.titleFr}</p>
-                    <p className="mt-0.5 font-mono text-xs text-[var(--text-3)]">/{post.slug}</p>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                      <p className="font-mono text-xs text-[var(--text-3)]">/{post.slug}</p>
+                      {post.announcePopup && post.status === "PUBLISHED" ? (
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+                          Popup
+                        </span>
+                      ) : null}
+                    </div>
                   </td>
                   <td className="px-4 py-4">
                     {post.category ? (
