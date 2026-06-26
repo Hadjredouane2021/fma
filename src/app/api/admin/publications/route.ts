@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { generateSlug } from "@/lib/utils";
 import { publicationDataFromBody } from "@/lib/admin-publication-dto";
 import { resolvePublicationPublishedAt } from "@/lib/publication-date";
+import { syncAnnouncementPopup, revalidateAnnouncementPages } from "@/lib/announcement-popup";
 
 async function getAdmin() {
   try { return await auth(); } catch { return null; }
@@ -35,6 +36,8 @@ export async function POST(req: NextRequest) {
     if (existing) slug = `${slug}-${Date.now()}`;
 
     const data = publicationDataFromBody(body);
+    if (data.status !== "PUBLISHED") data.announcePopup = false;
+
     const pub = await prisma.publication.create({
       data: {
         ...data,
@@ -43,6 +46,10 @@ export async function POST(req: NextRequest) {
           data.status === "PUBLISHED" ? resolvePublicationPublishedAt(data) : null,
       },
     });
+    if (data.announcePopup) {
+      await syncAnnouncementPopup("publication", pub.id, true);
+    }
+    revalidateAnnouncementPages();
     return NextResponse.json(pub, { status: 201 });
   } catch (e: unknown) {
     console.error("POST publication:", e);

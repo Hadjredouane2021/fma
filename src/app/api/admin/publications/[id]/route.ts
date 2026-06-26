@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { publicationDataFromBody } from "@/lib/admin-publication-dto";
 import { resolvePublicationPublishedAt } from "@/lib/publication-date";
+import { syncAnnouncementPopup, revalidateAnnouncementPages } from "@/lib/announcement-popup";
 
 async function getAdmin() {
   try { return await auth(); } catch { return null; }
@@ -15,6 +16,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const body = await req.json();
     const data = publicationDataFromBody(body);
+    if (data.status !== "PUBLISHED") data.announcePopup = false;
+
     const pub = await prisma.publication.update({
       where: { id },
       data: {
@@ -23,6 +26,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
           data.status === "PUBLISHED" ? resolvePublicationPublishedAt(data) : null,
       },
     });
+    if (data.announcePopup) {
+      await syncAnnouncementPopup("publication", pub.id, true);
+    }
+    revalidateAnnouncementPages();
     return NextResponse.json(pub);
   } catch (e: unknown) {
     console.error("PUT publication:", e);

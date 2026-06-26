@@ -358,7 +358,7 @@ export default function PostForm({ categories, initialData }: PostFormProps) {
                 📢 Popup d&apos;annonce sur le site
               </label>
               <p className="mt-1 text-xs text-[var(--text-3)]">
-                Affiche une fenêtre modale aux visiteurs (une seule annonce active à la fois). Réservé aux articles publiés.
+                Affiche une fenêtre modale aux visiteurs (une seule annonce active à la fois, actualité ou publication). Réservé aux articles publiés.
               </p>
             </div>
           </div>

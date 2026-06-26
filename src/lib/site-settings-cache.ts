@@ -37,6 +37,7 @@ export const CACHE_TAGS = {
   entreprises: "site:entreprises",
   formations: "site:formations",
   postsLatest: "site:posts-latest",
+  publicationsAnnouncement: "site:publications-announcement",
 } as const;
 
 function normalizeFooterContent(input: unknown): FooterContent {

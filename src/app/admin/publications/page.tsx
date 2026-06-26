@@ -108,6 +108,11 @@ export default async function AdminPublicationsPage() {
                 <tr key={pub.id} className="group transition-colors hover:bg-[var(--bg-alt)]/80">
                   <td className="px-6 py-4">
                     <p className="max-w-sm truncate font-semibold text-primary transition-colors group-hover:text-gold">{pub.titleFr}</p>
+                    {pub.announcePopup && pub.status === "PUBLISHED" ? (
+                      <span className="mt-0.5 inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+                        Popup
+                      </span>
+                    ) : null}
                   </td>
                   <td className="px-4 py-4">
                     <span

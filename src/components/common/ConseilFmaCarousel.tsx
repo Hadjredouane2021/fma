@@ -39,7 +39,8 @@ function SlideImage({
         className="object-contain object-center p-3 sm:p-4 md:p-5"
         priority={priority}
         unoptimized={localPublicImageUnoptimized(item.url)}
-        onLoadingComplete={(img) => {
+        onLoad={(event) => {
+          const img = event.currentTarget;
           if (img.naturalWidth && img.naturalHeight) {
             onAspectRatio(img.naturalWidth / img.naturalHeight);
           }

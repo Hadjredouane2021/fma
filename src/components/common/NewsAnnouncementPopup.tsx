@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ArrowRight, Megaphone } from "lucide-react";
 import {
   Dialog,
   DialogClose,
   DialogCloseButton,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/Dialog";
@@ -17,12 +18,28 @@ import { buttonBase, buttonPrimary, buttonSizes } from "@/lib/button-styles";
 import { truncate, cn } from "@/lib/utils";
 import type { AnnouncementPost } from "@/lib/posts-cache";
 import type { Locale } from "@/types";
+import {
+  announcementActionsClass,
+  announcementBodyClass,
+  announcementDialogClass,
+  announcementHeaderClass,
+  announcementImageClass,
+  announcementImageSizes,
+  announcementImageWrapClass,
+  announcementPrimaryActionClass,
+  announcementSecondaryActionClass,
+  announcementTextClass,
+  announcementTitleClass,
+} from "@/components/common/announcement-popup-ui";
+import { useAnnouncementDialogOpen } from "@/components/common/useAnnouncementDialogOpen";
 
 const STORAGE_KEY = "fma-news-announcement-dismissed";
 
 type NewsAnnouncementPopupProps = {
   locale: Locale;
   announcement: AnnouncementPost | null;
+  enabled?: boolean;
+  onShown?: () => void;
 };
 
 function localized(
@@ -64,16 +81,24 @@ function dismiss(announcement: AnnouncementPost) {
   );
 }
 
-export function NewsAnnouncementPopup({ locale, announcement }: NewsAnnouncementPopupProps) {
-  const [open, setOpen] = useState(false);
+export function NewsAnnouncementPopup({
+  locale,
+  announcement,
+  enabled = true,
+  onShown,
+}: NewsAnnouncementPopupProps) {
+  const dismissed = announcement ? isDismissed(announcement) : true;
+  const { hydrated, open, setOpen } = useAnnouncementDialogOpen(
+    enabled,
+    Boolean(announcement),
+    dismissed
+  );
 
   useEffect(() => {
-    if (!announcement || isDismissed(announcement)) return;
-    const timer = window.setTimeout(() => setOpen(true), 600);
-    return () => window.clearTimeout(timer);
-  }, [announcement]);
+    if (open) onShown?.();
+  }, [open, onShown]);
 
-  if (!announcement) return null;
+  if (!announcement || !hydrated) return null;
 
   const title = localized(announcement, locale, "title");
   const excerpt = localized(announcement, locale, "excerpt");
@@ -89,47 +114,58 @@ export function NewsAnnouncementPopup({ locale, announcement }: NewsAnnouncement
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="left-1/2 top-1/2 max-h-[90vh] w-[calc(100vw-1.5rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto sm:max-w-lg">
-        <DialogCloseButton />
-        <DialogHeader>
+      <DialogContent className={announcementDialogClass}>
+        <DialogCloseButton className="right-3 top-3 sm:right-5 sm:top-5" />
+        <DialogHeader className={announcementHeaderClass}>
           <div className="mb-1 flex items-center gap-2 text-primary">
-            <Megaphone className="h-4 w-4 shrink-0" aria-hidden />
-            <span className="text-xs font-bold uppercase tracking-widest">{badge}</span>
+            <Megaphone className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" aria-hidden />
+            <span className="text-xs font-bold uppercase tracking-widest sm:text-sm">{badge}</span>
           </div>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle className={announcementTitleClass}>{title}</DialogTitle>
+          <DialogDescription className="sr-only">
+            {excerpt
+              ? excerpt.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+              : title}
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 px-5 pb-5 sm:px-6 sm:pb-6">
+        <div className={announcementBodyClass}>
           {announcement.featuredImage ? (
-            <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg-alt)]">
+            <div className={announcementImageWrapClass}>
               <Image
                 src={announcement.featuredImage}
                 alt=""
                 fill
-                className="object-cover"
-                sizes="(max-width: 640px) 100vw, 480px"
+                className={announcementImageClass}
+                sizes={announcementImageSizes}
                 unoptimized={announcement.featuredImage.startsWith("/uploads")}
               />
             </div>
           ) : null}
 
           {excerpt ? (
-            <p className="text-sm leading-relaxed text-[var(--text-2)]">
-              {truncate(excerpt.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(), 220)}
+            <p className={announcementTextClass}>
+              {truncate(excerpt.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(), 360)}
             </p>
           ) : null}
 
-          <div className="flex flex-wrap items-center gap-3 pt-1">
+          <div className={announcementActionsClass}>
             <Link
               href={href}
               onClick={() => handleOpenChange(false)}
-              className={cn(buttonBase, buttonPrimary, buttonSizes.rounded.md, "inline-flex items-center gap-2")}
+              className={cn(
+                buttonBase,
+                buttonPrimary,
+                buttonSizes.rounded.md,
+                announcementPrimaryActionClass,
+                "inline-flex items-center gap-2"
+              )}
             >
               {readMore}
               <ArrowRight className="h-4 w-4" />
             </Link>
             <DialogClose asChild>
-              <Button variant="ghost" size="md" type="button">
+              <Button variant="ghost" size="md" type="button" className={announcementSecondaryActionClass}>
                 {closeLabel}
               </Button>
             </DialogClose>

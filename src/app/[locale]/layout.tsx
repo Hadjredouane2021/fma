@@ -9,8 +9,8 @@ import { NavigationProgress } from "@/components/common/NavigationProgress";
 import { SpinnerLogoProvider } from "@/components/common/SpinnerLogoProvider";
 import { SiteThemeStyle } from "@/components/common/SiteThemeStyle";
 import { getLayoutSiteSettings } from "@/lib/site-settings-cache";
-import { getAnnouncementPost } from "@/lib/posts-cache";
-import { NewsAnnouncementPopup } from "@/components/common/NewsAnnouncementPopup";
+import { fetchSiteAnnouncements } from "@/lib/site-announcements";
+import { SiteAnnouncementPopupsClient } from "@/components/common/SiteAnnouncementPopupsClient";
 import type { Locale } from "@/types";
 
 export const revalidate = 300;
@@ -29,10 +29,10 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!routing.locales.includes(locale as "fr" | "en" | "ar")) notFound();
 
-  const [messages, layoutSettings, announcement] = await Promise.all([
+  const [messages, layoutSettings, announcements] = await Promise.all([
     getMessages(),
     getLayoutSiteSettings(),
-    getAnnouncementPost(),
+    fetchSiteAnnouncements(),
   ]);
   const { footer: footerContent, menu: menuContent, logo: siteLogo, spinner: siteSpinner } = layoutSettings;
 
@@ -45,7 +45,7 @@ export default async function LocaleLayout({
         <Header locale={locale as Locale} menuContent={menuContent} siteLogo={siteLogo} />
         <main className="flex-1">{children}</main>
         <Footer locale={locale as Locale} footerContent={footerContent} siteLogo={siteLogo} menuContent={menuContent} />
-        <NewsAnnouncementPopup locale={locale as Locale} announcement={announcement} />
+        <SiteAnnouncementPopupsClient locale={locale as Locale} initialAnnouncements={announcements} />
       </SpinnerLogoProvider>
     </NextIntlClientProvider>
   );

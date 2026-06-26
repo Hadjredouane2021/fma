@@ -509,16 +509,19 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
                     label="Icône (photo ou emoji)"
                     labelCls={labelCls}
                     inputBase={inputBase}
+                    compact
+                    suffix={
+                      <div className="min-w-0">
+                        <label className={labelCls}>Titre ({tab.toUpperCase()})</label>
+                        <input
+                          type="text"
+                          value={v.title[tab]}
+                          onChange={(e) => setValeurTitle(idx, tab, e.target.value)}
+                          className={inputBase}
+                        />
+                      </div>
+                    }
                   />
-                  <div>
-                    <label className={labelCls}>Titre ({tab.toUpperCase()})</label>
-                    <input
-                      type="text"
-                      value={v.title[tab]}
-                      onChange={(e) => setValeurTitle(idx, tab, e.target.value)}
-                      className={inputBase}
-                    />
-                  </div>
                 </div>
               ))}
             </div>

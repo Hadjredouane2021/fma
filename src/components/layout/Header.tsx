@@ -67,28 +67,26 @@ export default function Header({
           prefetch
           className="absolute left-3 top-1/2 z-[60] flex -translate-y-1/2 items-center sm:left-4 lg:left-6 group/logo"
         >
-          <span className="site-logo-plate p-1.5 lg:p-2">
-            <Image
-              src={logoLightSrc}
-              alt="Fédération Marocaine de l'Assurance"
-              width={280}
-              height={96}
-              className="block h-8 w-auto max-w-[9.5rem] object-contain object-left transition-opacity duration-200 sm:h-9 sm:max-w-[11rem] xl:h-10 xl:max-w-[13rem] 2xl:max-w-[15rem] group-hover/logo:opacity-90 dark:hidden"
-              sizes="(max-width: 640px) 152px, (max-width: 1280px) 176px, 240px"
-              unoptimized={siteLogoImageUnoptimized(logoLightSrc)}
-              priority
-            />
-            <Image
-              src={logoDarkSrc}
-              alt="Fédération Marocaine de l'Assurance"
-              width={280}
-              height={96}
-              className="hidden h-8 w-auto max-w-[9.5rem] object-contain object-left transition-opacity duration-200 sm:h-9 sm:max-w-[11rem] xl:h-10 xl:max-w-[13rem] 2xl:max-w-[15rem] group-hover/logo:opacity-90 dark:block"
-              sizes="(max-width: 640px) 152px, (max-width: 1280px) 176px, 240px"
-              unoptimized={siteLogoImageUnoptimized(logoDarkSrc)}
-              priority
-            />
-          </span>
+          <Image
+            src={logoLightSrc}
+            alt="Fédération Marocaine de l'Assurance"
+            width={280}
+            height={96}
+            className="block h-8 w-auto max-w-[9.5rem] object-contain object-left transition-opacity duration-200 sm:h-9 sm:max-w-[11rem] xl:h-10 xl:max-w-[13rem] 2xl:max-w-[15rem] group-hover/logo:opacity-90 dark:hidden"
+            sizes="(max-width: 640px) 152px, (max-width: 1280px) 176px, 240px"
+            unoptimized={siteLogoImageUnoptimized(logoLightSrc)}
+            priority
+          />
+          <Image
+            src={logoDarkSrc}
+            alt="Fédération Marocaine de l'Assurance"
+            width={280}
+            height={96}
+            className="hidden h-8 w-auto max-w-[9.5rem] object-contain object-left transition-opacity duration-200 sm:h-9 sm:max-w-[11rem] xl:h-10 xl:max-w-[13rem] 2xl:max-w-[15rem] group-hover/logo:opacity-90 dark:block"
+            sizes="(max-width: 640px) 152px, (max-width: 1280px) 176px, 240px"
+            unoptimized={siteLogoImageUnoptimized(logoDarkSrc)}
+            priority
+          />
         </Link>
 
         {/* Recherche + langue + thème — desktop xl+ */}
@@ -242,17 +240,15 @@ export default function Header({
         {/* Drawer header */}
         <div className="site-header-drawer-head flex items-center justify-between px-5 h-16">
           <div className="flex items-center gap-2.5">
-            <span className="site-logo-plate max-w-[28ch] p-2 !bg-white/95 !border-white/20">
-              <Image
-                src={logoLightSrc}
-                alt="Fédération Marocaine de l'Assurance"
-                width={280}
-                height={96}
-                className="h-auto w-full object-contain"
-                sizes="280px"
-                unoptimized={siteLogoImageUnoptimized(logoLightSrc)}
-              />
-            </span>
+            <Image
+              src={logoLightSrc}
+              alt="Fédération Marocaine de l'Assurance"
+              width={280}
+              height={96}
+              className="h-8 w-auto max-w-[9.5rem] object-contain object-left"
+              sizes="280px"
+              unoptimized={siteLogoImageUnoptimized(logoLightSrc)}
+            />
             <span className="text-white font-semibold text-sm">Menu</span>
           </div>
           <button

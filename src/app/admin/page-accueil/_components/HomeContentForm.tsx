@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Eye, ImageOff, ImagePlus, Loader2, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { HomeHeroBackgroundPreview } from "@/components/admin/HomeHeroBackgroundPreview";
 import { cn } from "@/lib/utils";
 import { buttonTabActive, buttonTabInactive, buttonFilterActive, buttonFilterInactive } from "@/lib/button-styles";
 import {
@@ -413,18 +414,9 @@ export default function HomeContentForm({
           <div className="space-y-3">
             <label className={labelCls}>Image de fond</label>
             {content.hero.background.imageUrl ? (
-              <div className="relative rounded-2xl overflow-hidden border border-[var(--border)] bg-[var(--bg-surface)]">
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={content.hero.background.imageUrl}
-                    alt="Aperçu du fond du hero"
-                    fill
-                    sizes="(min-width: 768px) 600px, 100vw"
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-t border-[var(--border)] bg-[var(--bg)]">
+              <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)]">
+                <HomeHeroBackgroundPreview src={content.hero.background.imageUrl} />
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border)] bg-[var(--bg)] px-3 py-2">
                   <code className="text-xs font-mono text-[var(--text-3)] truncate max-w-full">
                     {content.hero.background.imageUrl}
                   </code>

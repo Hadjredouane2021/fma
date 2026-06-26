@@ -1,8 +1,6 @@
 "use client";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
 import { FontFamily, FontSize, TextStyle } from "@tiptap/extension-text-style";
@@ -90,15 +88,14 @@ export default function RichTextEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
+        link: {
+          openOnClick: false,
+          HTMLAttributes: { class: "text-primary underline hover:text-gold" },
+        },
       }),
       TextStyle,
       FontFamily,
       FontSize,
-      Underline,
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: { class: "text-primary underline hover:text-gold" },
-      }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder }),
     ],

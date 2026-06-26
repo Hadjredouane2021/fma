@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateSlug } from "@/lib/utils";
-import { revalidateLatestPosts } from "@/lib/posts-cache";
+import { syncAnnouncementPopup, revalidateAnnouncementPages } from "@/lib/announcement-popup";
 
 async function getAdmin() {
   try {
@@ -10,14 +10,6 @@ async function getAdmin() {
   } catch {
     return null;
   }
-}
-
-async function syncAnnouncementPopup(postId: string, enabled: boolean) {
-  if (!enabled) return;
-  await prisma.post.updateMany({
-    where: { id: { not: postId }, announcePopup: true, deletedAt: null },
-    data: { announcePopup: false },
-  });
 }
 
 export async function GET() {
@@ -65,9 +57,9 @@ export async function POST(req: NextRequest) {
       },
     });
     if (body.announcePopup === true) {
-      await syncAnnouncementPopup(post.id, true);
+      await syncAnnouncementPopup("post", post.id, true);
     }
-    revalidateLatestPosts();
+    revalidateAnnouncementPages();
     return NextResponse.json(post, { status: 201 });
   } catch (e: unknown) {
     console.error("POST posts:", e);

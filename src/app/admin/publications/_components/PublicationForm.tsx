@@ -41,6 +41,7 @@ export default function PublicationForm({ initialData }: PublicationFormProps) {
     year:          (initialData?.year as number)?.toString() || new Date().getFullYear().toString(),
     status:        (initialData?.status as string)         || "DRAFT",
     featured:      (initialData?.featured as boolean)      || false,
+    announcePopup: (initialData?.announcePopup as boolean) || false,
   });
 
   const isEdit = Boolean(initialData?.id);
@@ -308,6 +309,24 @@ export default function PublicationForm({ initialData }: PublicationFormProps) {
           <div className="md:col-span-2 flex items-center gap-3">
             <input type="checkbox" id="featured" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="w-4 h-4 accent-primary" />
             <label htmlFor="featured" className="text-sm font-medium text-[var(--text-1)]">Publication mise en avant</label>
+          </div>
+          <div className="md:col-span-2 flex items-start gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg-alt)]/50 p-4">
+            <input
+              type="checkbox"
+              id="announcePopup"
+              checked={form.announcePopup}
+              onChange={(e) => setForm({ ...form, announcePopup: e.target.checked })}
+              className="mt-0.5 h-4 w-4 accent-primary"
+              disabled={form.status !== "PUBLISHED"}
+            />
+            <div>
+              <label htmlFor="announcePopup" className="text-sm font-medium text-[var(--text-1)] cursor-pointer">
+                📢 Popup d&apos;annonce sur le site
+              </label>
+              <p className="mt-1 text-xs text-[var(--text-3)]">
+                Affiche une fenêtre modale aux visiteurs (une seule annonce active à la fois, actualité ou publication). Réservé aux publications publiées.
+              </p>
+            </div>
           </div>
         </div>
       </div>

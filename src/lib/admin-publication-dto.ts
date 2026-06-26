@@ -24,5 +24,6 @@ export function publicationDataFromBody(body: PublicationBody) {
     year: body.year != null && body.year !== "" ? Number(body.year) : null,
     status: (str(body.status) || "DRAFT") as Status,
     featured: Boolean(body.featured),
+    announcePopup: Boolean(body.announcePopup),
   };
 }

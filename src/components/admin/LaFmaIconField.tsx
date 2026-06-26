@@ -150,15 +150,13 @@ export function LaFmaIconField({
     <div className={compact || suffix ? "min-w-0" : undefined}>
       {suffix ? (
         <>
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="shrink-0 space-y-2">
+          <div className="grid grid-cols-[auto_minmax(4.5rem,5.5rem)_minmax(0,1fr)] items-end gap-3">
+            {previewBox ?? <span className="h-10 w-10 shrink-0" aria-hidden />}
+            <div className="space-y-2">
               <label className={labelCls}>{label}</label>
-              <div className="flex items-center gap-2">
-                {previewBox}
-                {iconInput}
-              </div>
+              {iconInput}
             </div>
-            <div className="min-w-0 flex-1">{suffix}</div>
+            <div className="min-w-0 space-y-2">{suffix}</div>
           </div>
           <div className="mt-2">{uploadRow}</div>
           {uploadError ? (
