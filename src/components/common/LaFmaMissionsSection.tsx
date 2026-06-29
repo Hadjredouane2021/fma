@@ -22,13 +22,17 @@ export function LaFmaMissionsSection({ locale, title, missions }: LaFmaMissionsS
           <article
             key={`la-fma-mission-${idx}`}
             data-equal-height-item
-            className="la-fma-org-card la-fma-mission-card"
+            className="la-fma-team-card la-fma-mission-card"
           >
-            <LaFmaPremiumCard
-              icon={mission.icon}
-              title={mission.title[l]}
-              description={mission.description[l]}
-            />
+            <div className="la-fma-org-card__accent" aria-hidden />
+            <div className="la-fma-team-card__content flex h-full min-h-0 flex-col">
+              <LaFmaPremiumCard
+                icon={mission.icon}
+                title={mission.title[l]}
+                description={mission.description[l]}
+                showAccent={false}
+              />
+            </div>
           </article>
         ))}
       </EqualHeightGrid>

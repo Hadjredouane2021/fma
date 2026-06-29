@@ -16,6 +16,7 @@ import { HeroBackgroundPhoto } from "@/components/common/HeroBackgroundPhoto";
 import { getHomeContent } from "@/lib/site-content";
 import { getChiffresClesContent } from "@/lib/chiffres-cles-cache";
 import { resolveHomeKeyFigure } from "@/lib/chiffres-cles-site-public";
+import { sectionBgClassName } from "@/lib/section-backgrounds";
 import type { Locale, Post } from "@/types";
 import type { Metadata } from "next";
 
@@ -95,7 +96,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* ── HERO ── */}
       <section
         className={cn(
-          "hero-light hero-home border-b border-[var(--border)]",
+          sectionBgClassName("hero"),
+          "hero-light hero-home relative border-b border-[var(--border)] bg-transparent",
           heroImageUrl && "hero-home--has-photo",
           heroBg.showOverlays && "hero-overlays"
         )}
@@ -160,7 +162,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ── INTERVENTIONS FMA ── */}
       {interventionsFmaItems.length > 0 && (
-        <Section>
+        <Section className={cn(sectionBgClassName("interventions-fma"), "bg-transparent")}>
           <SectionHeader title={interventionsFma.title[l]} />
           <ConseilFmaCarousel
             items={interventionsFmaItems}
@@ -180,7 +182,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ── RÉSEAUX SOCIAUX ── */}
       {reseauxSociauxItems.length > 0 && (
-        <Section>
+        <Section className={cn(sectionBgClassName("reseaux-sociaux"), "bg-transparent")}>
           <SectionHeader title={reseauxSociaux.title[l]} />
           <ConseilFmaCarousel
             items={reseauxSociauxItems}
@@ -209,7 +211,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       />
 
       {/* ── NEWSLETTER ── */}
-      <Section containerClassName="max-w-2xl mx-auto text-center">
+      <Section
+        className={cn(sectionBgClassName("newsletter"), "bg-transparent")}
+        containerClassName="max-w-2xl mx-auto text-center"
+      >
         <div className="glass-liquid mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl card-hover">
           <span className="relative z-10 text-3xl" aria-hidden>
             📧

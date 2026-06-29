@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { PageHero } from "@/components/common/PageHero";
 import { PageHeroImage } from "@/components/common/PageHeroImage";
+import { SectionBackground } from "@/components/common/SectionBackground";
 import { ComiteDirecteurBoard, COMITE_DIRECTEUR_SECTION_TITLE } from "@/components/common/ComiteDirecteurBoard";
 import { LaFmaMissionsSection } from "@/components/common/LaFmaMissionsSection";
 import { LaFmaOrganisationSection } from "@/components/common/LaFmaOrganisationSection";
@@ -30,12 +31,12 @@ function OrgCard({ member, locale }: { member: TeamMember; locale: Locale }) {
   return (
     <div
       className={cn(
-        "la-fma-team-card flex min-h-[112px] w-[360px] shrink-0 flex-col items-center justify-center px-6 py-6 text-center"
+        "la-fma-team-card la-fma-org-chart-card flex flex-col items-center justify-center text-center"
       )}
     >
       <div className="la-fma-team-card__content">
-        <p className="text-[15px] font-bold leading-snug text-[var(--text-1)]">{name}</p>
-        {title ? <p className="mt-2.5 text-[14px] leading-snug text-[var(--blue)]">{title}</p> : null}
+        <p className="font-bold leading-snug text-[var(--text-1)]">{name}</p>
+        {title ? <p className="leading-snug text-[var(--blue)]">{title}</p> : null}
       </div>
     </div>
   );
@@ -68,7 +69,7 @@ function OrgChart({ members, locale }: { members: TeamMember[]; locale: Locale }
     <div className="mt-12 overflow-x-auto pb-6">
       <div className="flex min-w-fit flex-col items-center gap-6 mx-auto">
         {levels.map((level) => (
-          <div key={level} className="flex items-start justify-center gap-4 flex-wrap">
+          <div key={level} className="flex items-center justify-center gap-4 flex-wrap">
             {rowMap[level].map((m) => (
               <OrgCard key={m.id} member={m} locale={locale} />
             ))}
@@ -97,7 +98,7 @@ export default async function FMAPage({ params }: { params: Promise<{ locale: st
   const { members, direction: allTeam, comiteDirecteur, statsImageUrl } = pageData;
 
   return (
-    <div>
+    <SectionBackground id="la-fma">
       <PageHero locale={l}>
         <PageHeroImage src={statsImageUrl} alt={content.heroTitle[l]} />
       </PageHero>
@@ -225,6 +226,6 @@ export default async function FMAPage({ params }: { params: Promise<{ locale: st
           </Section>
         );
       })()}
-    </div>
+    </SectionBackground>
   );
 }

@@ -5,6 +5,7 @@ import { formatDate, cn } from "@/lib/utils";
 import { glassCardLg, glassContent } from "@/lib/surface-styles";
 import { buttonFilterInactive } from "@/lib/button-styles";
 import { SECTION_HEADER_TITLE_CLASSES } from "@/components/common/SectionHeader";
+import { sectionBgClassName } from "@/lib/section-backgrounds";
 import type { Post, Locale } from "@/types";
 
 function localizedTitle(post: Post, locale: Locale) {
@@ -45,7 +46,13 @@ export function LatestNewsSection({
   const featuredHref = `/${locale}/actualites/${featured.slug}`;
 
   return (
-    <section className="container-custom py-10 sm:py-16 lg:py-24">
+    <section
+      className={cn(
+        sectionBgClassName("dernieres-actualites"),
+        "relative overflow-hidden bg-transparent section-padding"
+      )}
+    >
+      <div className="container-custom relative z-[1]">
       <div className="flex flex-col gap-6 sm:gap-8 sm:flex-row sm:items-end sm:justify-between mb-6 sm:mb-10 lg:mb-14">
         <div>
           <span className="inline-flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--brand)] mb-2 sm:mb-3">
@@ -166,6 +173,7 @@ export function LatestNewsSection({
         >
           {viewAllLabel} <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </Link>
+      </div>
       </div>
     </section>
   );

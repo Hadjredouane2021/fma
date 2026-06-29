@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, HelpCircle } from "lucide-react";
 import { PageHero } from "@/components/common/PageHero";
 import { PageHeroImage } from "@/components/common/PageHeroImage";
+import { SectionBackground } from "@/components/common/SectionBackground";
 import { FormationCard } from "@/components/common/FormationCard";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
@@ -29,7 +30,7 @@ export default async function FormationsPage({ params }: { params: Promise<{ loc
   const formations = sortFormationsByDate(filterActiveFormations(c.formations));
 
   return (
-    <div>
+    <SectionBackground id="formations">
       <PageHero locale={l}>
         {heroImage ? <PageHeroImage src={heroImage} alt={c.heroTitle[l]} /> : null}
       </PageHero>
@@ -91,6 +92,6 @@ export default async function FormationsPage({ params }: { params: Promise<{ loc
           </Button>
         </Link>
       </Section>
-    </div>
+    </SectionBackground>
   );
 }

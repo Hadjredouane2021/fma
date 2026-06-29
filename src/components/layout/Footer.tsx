@@ -1,15 +1,16 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Mail, Phone, MapPin, ArrowUpRight, ChevronDown } from "lucide-react";
 import type { Locale } from "@/types";
 import type { FooterContent } from "@/lib/footer-site-public";
 import { footerPhoneTelHref, parseFooterPhones } from "@/lib/footer-site-public";
-import { resolveLogoHref, siteLogoImageUnoptimized, DEFAULT_SITE_LOGO, type SiteLogoSettings } from "@/lib/site-logo";
+import { resolveLogoHref, type SiteLogoSettings } from "@/lib/site-logo";
+import { SiteLogoFromSettings } from "@/components/common/SiteLogo";
 import { resolveHref, type MenuContent, type MenuItem } from "@/lib/menu-site-public";
 import { cn } from "@/lib/utils";
+import { sectionBgClassName } from "@/lib/section-backgrounds";
 
 /* ── Social icons ── */
 const FbIcon = () => (
@@ -141,9 +142,6 @@ export default function Footer({
   ].filter((s) => s.href);
 
   const logoHref = resolveLogoHref(siteLogo.linkUrl, locale);
-  const isDefaultLogo = siteLogo.imageUrl === DEFAULT_SITE_LOGO.imageUrl;
-  const logoLightSrc = isDefaultLogo ? "/logo-fma-light.png" : siteLogo.imageUrl;
-  const logoDarkSrc = isDefaultLogo ? "/logo-fma-dark.png" : siteLogo.imageUrl;
 
   /* Split menu items: first col = items 0–2, second col = items 3–end */
   const items = menuContent.items;
@@ -152,11 +150,10 @@ export default function Footer({
   const col2 = items.slice(mid);
   const phones = parseFooterPhones(footerContent.phone);
 
-  const logoImageClassName =
-    "site-footer__logo-img block h-10 w-auto max-w-full object-contain object-start transition-opacity duration-200 sm:h-11 lg:h-12 2xl:h-[3.25rem]";
+  const logoImageClassName = "site-footer__logo-img transition-opacity duration-200";
 
   return (
-    <footer className="site-footer">
+    <footer className={cn("site-footer", sectionBgClassName("footer"), "bg-transparent")}>
       <div className="site-footer__accent-line" aria-hidden />
 
       {/* ── Main grid ── */}
@@ -167,23 +164,11 @@ export default function Footer({
           <div className="site-footer__brand site-footer__brand-col">
             <Link href={logoHref} className="block group/logo w-full max-w-full">
               <span className="site-logo-plate site-footer__logo-plate inline-flex max-w-full p-2.5 sm:p-3">
-                <Image
-                  src={logoLightSrc}
-                  alt="Fédération Marocaine de l'Assurance"
-                  width={280}
-                  height={96}
-                  className={`${logoImageClassName} dark:hidden`}
+                <SiteLogoFromSettings
+                  settings={siteLogo}
+                  frameClassName="site-logo-frame site-logo-frame--footer max-w-full"
+                  imageClassName={logoImageClassName}
                   sizes="(max-width: 640px) 176px, (max-width: 1280px) 208px, 288px"
-                  unoptimized={siteLogoImageUnoptimized(logoLightSrc)}
-                />
-                <Image
-                  src={logoDarkSrc}
-                  alt="Fédération Marocaine de l'Assurance"
-                  width={280}
-                  height={96}
-                  className={`hidden ${logoImageClassName} dark:block`}
-                  sizes="(max-width: 640px) 176px, (max-width: 1280px) 208px, 288px"
-                  unoptimized={siteLogoImageUnoptimized(logoDarkSrc)}
                 />
               </span>
             </Link>

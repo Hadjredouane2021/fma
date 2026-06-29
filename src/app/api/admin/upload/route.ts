@@ -38,6 +38,9 @@ const FOLDER_RULES: Record<string, "image" | "pdf"> = {
   "gallery-reseaux-sociaux": "image",
   "hero-backgrounds": "image",
   "key-figures-hero": "image",
+  "section-bg-contact": "image",
+  "section-bg-key-figures": "image",
+  "section-backgrounds": "image",
   team: "image",
   members: "image",
   "site-logo": "image",
@@ -108,7 +111,12 @@ export async function POST(req: NextRequest) {
     const maxSize =
       mime === SVG_MIME
         ? MAX_SVG
-        : subfolder === "hero-backgrounds" || subfolder === "key-figures-hero" || subfolder === "la-fma-stats"
+        : subfolder === "hero-backgrounds" ||
+            subfolder === "key-figures-hero" ||
+            subfolder === "la-fma-stats" ||
+            subfolder === "section-bg-contact" ||
+            subfolder === "section-bg-key-figures" ||
+            subfolder === "section-backgrounds"
           ? MAX_HERO_IMAGE
           : MAX_IMAGE;
     if (file.size > maxSize) {

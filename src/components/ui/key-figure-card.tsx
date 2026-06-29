@@ -85,12 +85,12 @@ export const KeyFigureCard = React.forwardRef<HTMLDivElement, KeyFigureCardProps
           else if (ref) ref.current = node;
         }}
         className={cn(
-          "key-figure-bento-card group relative flex h-full min-h-[11.5rem] flex-col items-center justify-center text-center",
+          "la-fma-team-card group relative flex h-full min-h-[11.5rem] flex-col items-center justify-center rounded-[1.25rem] px-4 py-5 text-center",
           className
         )}
         {...props}
       >
-        <div className="key-figure-bento-card__content">
+        <div className="la-fma-team-card__content">
         <p className="mb-2 flex min-h-[2.75rem] items-center justify-center text-[0.8125rem] font-medium leading-snug text-[var(--text-2)] md:min-h-[3rem] md:text-sm">
           <span className="line-clamp-2">{label}</span>
         </p>

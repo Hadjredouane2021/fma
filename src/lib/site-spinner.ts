@@ -3,7 +3,7 @@ export type SiteSpinnerSettings = {
 };
 
 export const DEFAULT_SITE_SPINNER: SiteSpinnerSettings = {
-  imageUrl: "/logo-fma-spinner.png",
+  imageUrl: "/logo-fma-spinner.svg",
 };
 
 export function normalizeSiteSpinner(input: unknown): SiteSpinnerSettings {

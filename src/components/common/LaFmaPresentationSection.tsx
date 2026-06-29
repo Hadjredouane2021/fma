@@ -32,8 +32,9 @@ export function LaFmaPresentationSection({
 
         <aside className="la-fma-presentation__stats" aria-label={l === "ar" ? "أرقام رئيسية" : l === "en" ? "Key figures" : "Chiffres clés"}>
           {stats.map((stat, idx) => (
-            <div key={`la-fma-stat-${idx}`} className="la-fma-presentation-stat">
-              <div className="la-fma-presentation-stat__body">
+            <div key={`la-fma-stat-${idx}`} className="la-fma-team-card la-fma-presentation-stat rounded-[1.25rem]">
+              <div className="la-fma-presentation-stat__accent" aria-hidden />
+              <div className="la-fma-presentation-stat__body la-fma-team-card__content">
                 <p className="la-fma-presentation-stat__value font-display">{stat.value}</p>
                 <p className="la-fma-presentation-stat__label">{stat.label[l]}</p>
               </div>

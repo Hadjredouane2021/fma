@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import { PageHero } from "@/components/common/PageHero";
+import { SectionBackground } from "@/components/common/SectionBackground";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import type { Locale } from "@/types";
@@ -36,7 +37,7 @@ export default async function RecherchePage({ params, searchParams }: {
   const total = posts.length + publications.length;
 
   return (
-    <div>
+    <SectionBackground id="recherche">
       <PageHero locale={l}>
         <form method="get" className="relative mt-4 max-w-2xl">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-3)]" />
@@ -107,6 +108,6 @@ export default async function RecherchePage({ params, searchParams }: {
             </div>
           )}
       </Section>
-    </div>
+    </SectionBackground>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, FileText, BookOpen, Link as LinkIcon, GraduationCap } from "lucide-react";
 import { PageHero } from "@/components/common/PageHero";
+import { SectionBackground } from "@/components/common/SectionBackground";
 import { Section } from "@/components/ui/Section";
 import type { Locale } from "@/types";
 
@@ -16,7 +17,7 @@ export default async function DecouvrirleSecteurPage({ params }: { params: Promi
   const l = locale as Locale;
 
   return (
-    <div>
+    <SectionBackground id="decouvrir-le-secteur">
       <PageHero locale={l} />
       <Section containerClassName="grid grid-cols-1 md:grid-cols-2 gap-6">
           {SECTIONS.map((s) => {
@@ -39,6 +40,6 @@ export default async function DecouvrirleSecteurPage({ params }: { params: Promi
             );
           })}
       </Section>
-    </div>
+    </SectionBackground>
   );
 }

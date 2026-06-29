@@ -5,6 +5,7 @@ import { PdfViewerLink } from "@/components/common/PdfViewerModal";
 import { PageHeroImage } from "@/components/common/PageHeroImage";
 import { formatDate } from "@/lib/utils";
 import { PageHero } from "@/components/common/PageHero";
+import { SectionBackground } from "@/components/common/SectionBackground";
 import { Section } from "@/components/ui/Section";
 import type { Locale } from "@/types";
 
@@ -18,7 +19,7 @@ export default async function ConventionsPage({ params }: { params: Promise<{ lo
   const heroImage = heroImageRow?.value ?? "";
 
   return (
-    <div>
+    <SectionBackground id="conventions">
       <PageHero locale={l}>
         {heroImage ? (
           <PageHeroImage src={heroImage} alt="Conventions professionnelles" />
@@ -33,11 +34,12 @@ export default async function ConventionsPage({ params }: { params: Promise<{ lo
                 const title = l === "ar" ? (c.titleAr || c.titleFr) : l === "en" ? (c.titleEn || c.titleFr) : c.titleFr;
                 const desc = l === "ar" ? (c.descriptionAr || c.descriptionFr || "") : l === "en" ? (c.descriptionEn || c.descriptionFr || "") : (c.descriptionFr || "");
                 return (
-                  <div key={c.id} className="glass-liquid rounded-2xl p-6 card-hover flex gap-5">
-                    <div className="relative z-10 glass-panel w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <article key={c.id} className="convention-card-glass flex gap-5 p-6">
+                    <div className="convention-card-glass__accent" aria-hidden />
+                    <div className="convention-card-glass__icon">
                       <FileText className="w-5 h-5 text-primary" />
                     </div>
-                    <div className="relative z-10 flex-1">
+                    <div className="convention-card-glass__body">
                       <h3 className="font-bold text-primary text-base mb-2">{title}</h3>
                       {desc && <div className="prose-fma text-sm mb-3" dangerouslySetInnerHTML={{ __html: desc }} />}
                       <div className="flex items-center gap-4">
@@ -54,12 +56,12 @@ export default async function ConventionsPage({ params }: { params: Promise<{ lo
                         )}
                       </div>
                     </div>
-                  </div>
+                  </article>
                 );
               })}
             </div>
           )}
       </Section>
-    </div>
+    </SectionBackground>
   );
 }

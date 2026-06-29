@@ -41,7 +41,7 @@ function emailLayout(content: string, previewText: string): string {
         <table cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td align="center" style="background-color:#ffffff;border-radius:12px;padding:10px 24px">
-              <img src="${BASE_URL}/logo-fma-full.png" alt="Fédération Marocaine de l'Assurance" width="180" height="auto" style="display:block;border:0;width:180px;height:auto" />
+              <img src="${BASE_URL}/logo-fma-full.jpg" alt="Fédération Marocaine de l'Assurance" width="180" height="auto" style="display:block;border:0;width:180px;height:auto" />
             </td>
           </tr>
         </table>
@@ -66,7 +66,7 @@ function emailLayout(content: string, previewText: string): string {
     <tr>
       <td align="center" style="background-color:#1a0a0f;padding:32px 40px">
         <!-- Footer logo -->
-        <img src="${BASE_URL}/logo-fma-full.png" alt="FMA" width="120" height="auto" style="display:block;margin:0 auto 16px;border:0;opacity:0.7;width:120px" />
+        <img src="${BASE_URL}/logo-fma-full.jpg" alt="FMA" width="120" height="auto" style="display:block;margin:0 auto 16px;border:0;opacity:0.7;width:120px" />
         <!-- Footer links -->
         <p style="margin:0 0 12px;font-size:13px;font-family:Arial,sans-serif">
           <a href="${BASE_URL}/fr" style="color:#c9a0b0;text-decoration:none;margin:0 8px">Site web</a>

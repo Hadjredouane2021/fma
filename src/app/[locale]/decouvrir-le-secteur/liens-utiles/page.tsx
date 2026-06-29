@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { DB_KEYS } from "@/lib/db-keys";
 import { PageHero } from "@/components/common/PageHero";
 import { PageHeroImage } from "@/components/common/PageHeroImage";
+import { SectionBackground } from "@/components/common/SectionBackground";
 import { UsefulLinksGrid, usefulLinksPageCopy } from "@/components/common/UsefulLinksGrid";
 import { Section } from "@/components/ui/Section";
 import type { Locale } from "@/types";
@@ -58,7 +59,7 @@ export default async function LiensUtilesPage({ params }: { params: Promise<{ lo
   }));
 
   return (
-    <div>
+    <SectionBackground id="liens-utiles">
       <PageHero locale={l}>
         {heroImage ? <PageHeroImage src={heroImage} alt={copy.title} /> : null}
       </PageHero>
@@ -66,6 +67,6 @@ export default async function LiensUtilesPage({ params }: { params: Promise<{ lo
       <Section>
         <UsefulLinksGrid links={items} locale={l} />
       </Section>
-    </div>
+    </SectionBackground>
   );
 }

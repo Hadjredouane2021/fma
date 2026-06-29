@@ -40,7 +40,7 @@ export function KeyFiguresSection({
   const src = imageUrl?.trim() || DEFAULT_IMAGE;
 
   return (
-    <section className="key-figures-section relative overflow-hidden section-padding border-y border-[var(--border)]">
+    <section className="key-figures-section deco-section-bg deco-section-bg--key-figures relative overflow-hidden section-padding border-y border-[var(--border)]">
       <div className="key-figures-section__glow" aria-hidden />
       <div className="container-custom relative z-[1]">
         {eyebrow.trim() ? (

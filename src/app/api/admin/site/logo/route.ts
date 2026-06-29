@@ -1,9 +1,11 @@
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_SITE_LOGO, normalizeSiteLogo } from "@/lib/site-logo";
 import { DB_KEYS } from "@/lib/db-keys";
 import { revalidateLayoutSettings } from "@/lib/site-settings-cache";
+import { routing } from "@/i18n/routing";
 
 const KEY = DB_KEYS.SITE_LOGO;
 
@@ -34,5 +36,8 @@ export async function PUT(req: NextRequest) {
     create: { key: KEY, value: JSON.stringify(normalized), group: "site" },
   });
   revalidateLayoutSettings();
+  for (const locale of routing.locales) {
+    revalidatePath(`/${locale}`, "layout");
+  }
   return NextResponse.json(normalized);
 }

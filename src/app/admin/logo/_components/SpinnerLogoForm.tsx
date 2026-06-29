@@ -92,7 +92,7 @@ export default function SpinnerLogoForm({ initial }: { initial: SiteSpinnerSetti
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               className={cn(inputBase, "flex-1 font-mono text-sm")}
-              placeholder="/logo-fma-spinner.png"
+              placeholder="/logo-fma-spinner.svg"
               disabled={uploading}
             />
             <label className={cn(buttonUploadLabel, uploading && "pointer-events-none opacity-60")}>

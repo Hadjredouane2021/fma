@@ -8,12 +8,13 @@ import { LocaleAttributes } from "@/components/common/LocaleAttributes";
 import { NavigationProgress } from "@/components/common/NavigationProgress";
 import { SpinnerLogoProvider } from "@/components/common/SpinnerLogoProvider";
 import { SiteThemeStyle } from "@/components/common/SiteThemeStyle";
+import { SiteSectionBackgroundsStyle } from "@/components/common/SiteSectionBackgroundsStyle";
 import { getLayoutSiteSettings } from "@/lib/site-settings-cache";
 import { fetchSiteAnnouncements } from "@/lib/site-announcements";
 import { SiteAnnouncementPopupsClient } from "@/components/common/SiteAnnouncementPopupsClient";
 import type { Locale } from "@/types";
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -40,6 +41,7 @@ export default async function LocaleLayout({
     <NextIntlClientProvider messages={messages}>
       <SpinnerLogoProvider imageUrl={siteSpinner.imageUrl}>
         <SiteThemeStyle />
+        <SiteSectionBackgroundsStyle />
         <LocaleAttributes locale={locale as Locale} />
         <NavigationProgress />
         <Header locale={locale as Locale} menuContent={menuContent} siteLogo={siteLogo} />

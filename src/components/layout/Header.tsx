@@ -1,14 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Menu, X, Search, ChevronDown, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonSegmentActive, buttonSegmentInactive } from "@/lib/button-styles";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { resolveHref, type MenuContent } from "@/lib/menu-site-public";
-import { resolveLogoHref, siteLogoImageUnoptimized, DEFAULT_SITE_LOGO, type SiteLogoSettings } from "@/lib/site-logo";
+import { resolveLogoHref, type SiteLogoSettings } from "@/lib/site-logo";
+import { SiteLogoFromSettings } from "@/components/common/SiteLogo";
 import type { Locale } from "@/types";
 
 const localeLabels: Record<string, string> = { fr: "FR", en: "EN", ar: "ع" };
@@ -49,43 +49,29 @@ export default function Header({
     : item.labelFr;
 
   const logoHref = resolveLogoHref(siteLogo.linkUrl, locale);
-  const isDefaultLogo = siteLogo.imageUrl === DEFAULT_SITE_LOGO.imageUrl;
-  const logoLightSrc = isDefaultLogo ? "/logo-fma-light.png" : siteLogo.imageUrl;
-  const logoDarkSrc = isDefaultLogo ? "/logo-fma-dark.png" : siteLogo.imageUrl;
 
   return (
     <>
       <header
         className={cn(
-          "site-header-glass-3d fixed top-0 left-0 right-0 z-50 transition-[background-color,box-shadow,border-color,backdrop-filter] duration-300",
+          "site-header-glass-3d fixed top-0 left-0 right-0 z-[100] transition-[background-color,box-shadow,border-color,backdrop-filter] duration-300",
           scrolled ? "site-header-scrolled" : "site-header-idle"
         )}
       >
+        <div className="site-header-deco" aria-hidden />
+
         {/* Logo — ancré sur le header, bord gauche de l'écran */}
         <Link
           href={logoHref}
           prefetch
           className="absolute left-3 top-1/2 z-[60] flex -translate-y-1/2 items-center sm:left-4 lg:left-6 group/logo"
         >
-          <Image
-            src={logoLightSrc}
-            alt="Fédération Marocaine de l'Assurance"
-            width={280}
-            height={96}
-            className="block h-8 w-auto max-w-[9.5rem] object-contain object-left transition-opacity duration-200 sm:h-9 sm:max-w-[11rem] xl:h-10 xl:max-w-[13rem] 2xl:max-w-[15rem] group-hover/logo:opacity-90 dark:hidden"
-            sizes="(max-width: 640px) 152px, (max-width: 1280px) 176px, 240px"
-            unoptimized={siteLogoImageUnoptimized(logoLightSrc)}
+          <SiteLogoFromSettings
+            settings={siteLogo}
             priority
-          />
-          <Image
-            src={logoDarkSrc}
-            alt="Fédération Marocaine de l'Assurance"
-            width={280}
-            height={96}
-            className="hidden h-8 w-auto max-w-[9.5rem] object-contain object-left transition-opacity duration-200 sm:h-9 sm:max-w-[11rem] xl:h-10 xl:max-w-[13rem] 2xl:max-w-[15rem] group-hover/logo:opacity-90 dark:block"
+            frameClassName="site-logo-frame site-logo-frame--header"
+            imageClassName="transition-opacity duration-200 group-hover/logo:opacity-90"
             sizes="(max-width: 640px) 152px, (max-width: 1280px) 176px, 240px"
-            unoptimized={siteLogoImageUnoptimized(logoDarkSrc)}
-            priority
           />
         </Link>
 
@@ -113,7 +99,7 @@ export default function Header({
             </button>
             <div
               className={cn(
-                "absolute top-full right-0 pt-1 z-50",
+                "absolute top-full right-0 pt-1 z-[80]",
                 "transition-[opacity,visibility] duration-100",
                 langOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
               )}
@@ -151,7 +137,7 @@ export default function Header({
               {menuContent.items.map((item) => (
                 <div
                   key={item.id}
-                  className={cn("relative shrink-0", item.children.length > 0 && "group/navdropdown")}
+                  className={cn("relative shrink-0 z-[1]", item.children.length > 0 && "group/navdropdown")}
                 >
                   <Link
                     href={resolveHref(item.href, locale)}
@@ -169,7 +155,7 @@ export default function Header({
                   {item.children.length > 0 && (
                     <div
                       className={cn(
-                        "absolute top-full left-1/2 z-50 w-[min(100vw-2rem,18rem)] -translate-x-1/2 pt-1",
+                        "absolute top-full left-1/2 z-[80] w-[min(100vw-2rem,18rem)] -translate-x-1/2 pt-1",
                         "pointer-events-none invisible opacity-0",
                         "transition-[opacity,visibility] duration-100",
                         "group-hover/navdropdown:pointer-events-auto group-hover/navdropdown:visible group-hover/navdropdown:opacity-100"
@@ -240,14 +226,12 @@ export default function Header({
         {/* Drawer header */}
         <div className="site-header-drawer-head flex items-center justify-between px-5 h-16">
           <div className="flex items-center gap-2.5">
-            <Image
-              src={logoLightSrc}
-              alt="Fédération Marocaine de l'Assurance"
-              width={280}
-              height={96}
-              className="h-8 w-auto max-w-[9.5rem] object-contain object-left"
+            <SiteLogoFromSettings
+              settings={siteLogo}
+              variant="dark"
+              frameClassName="site-logo-frame site-logo-frame--header"
+              imageClassName="transition-opacity duration-200"
               sizes="280px"
-              unoptimized={siteLogoImageUnoptimized(logoLightSrc)}
             />
             <span className="text-white font-semibold text-sm">Menu</span>
           </div>

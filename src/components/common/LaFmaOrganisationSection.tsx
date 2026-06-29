@@ -22,13 +22,17 @@ export function LaFmaOrganisationSection({ locale, title, blocs }: LaFmaOrganisa
           <article
             key={`la-fma-org-${idx}`}
             data-equal-height-item
-            className="la-fma-org-card"
+            className="la-fma-team-card la-fma-mission-card"
           >
-            <LaFmaPremiumCard
-              icon={bloc.icon}
-              title={bloc.title[l]}
-              description={bloc.description[l]}
-            />
+            <div className="la-fma-org-card__accent" aria-hidden />
+            <div className="la-fma-team-card__content flex h-full min-h-0 flex-col">
+              <LaFmaPremiumCard
+                icon={bloc.icon}
+                title={bloc.title[l]}
+                description={bloc.description[l]}
+                showAccent={false}
+              />
+            </div>
           </article>
         ))}
       </EqualHeightGrid>

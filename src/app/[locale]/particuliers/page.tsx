@@ -1,5 +1,6 @@
 import { PageHero } from "@/components/common/PageHero";
 import { PageHeroImage } from "@/components/common/PageHeroImage";
+import { SectionBackground } from "@/components/common/SectionBackground";
 import { ParticuliersInsuranceCard } from "@/components/common/ParticuliersInsuranceCard";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
@@ -24,7 +25,7 @@ export default async function ParticuliersPage({ params }: { params: Promise<{ l
   const { content: c, heroImage } = await getParticuliersPageData();
 
   return (
-    <div>
+    <SectionBackground id="particuliers">
       <PageHero locale={l}>
         {heroImage && <PageHeroImage src={heroImage} alt={c.heroTitle[l]} />}
       </PageHero>
@@ -46,6 +47,6 @@ export default async function ParticuliersPage({ params }: { params: Promise<{ l
           </Button>
         </Link>
       </Section>
-    </div>
+    </SectionBackground>
   );
 }

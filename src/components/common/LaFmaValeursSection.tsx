@@ -28,13 +28,17 @@ export function LaFmaValeursSection({ locale, title, description, valeurs }: LaF
           <article
             key={`la-fma-valeur-${idx}`}
             data-equal-height-item
-            className="la-fma-org-card la-fma-mission-card"
+            className="la-fma-team-card la-fma-mission-card"
           >
-            <LaFmaPremiumCard
-              icon={valeur.icon}
-              title={valeur.title[l]}
-              description={valeur.description[l]}
-            />
+            <div className="la-fma-org-card__accent" aria-hidden />
+            <div className="la-fma-team-card__content flex h-full min-h-0 flex-col">
+              <LaFmaPremiumCard
+                icon={valeur.icon}
+                title={valeur.title[l]}
+                description={valeur.description[l]}
+                showAccent={false}
+              />
+            </div>
           </article>
         ))}
       </EqualHeightGrid>

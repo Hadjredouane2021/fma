@@ -35,12 +35,15 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   ];
 
   return (
-    <div>
-      <PageHero locale={l}>
+    <div className="contact-page deco-section-bg deco-section-bg--contact">
+      <PageHero locale={l} className="contact-page__hero">
         {heroImage && <PageHeroImage src={heroImage} alt={content.heroTitle[l]} />}
       </PageHero>
 
-      <Section containerClassName="grid grid-cols-1 lg:grid-cols-5 gap-10">
+      <Section
+        className="contact-section contact-page__content"
+        containerClassName="grid grid-cols-1 lg:grid-cols-5 gap-10"
+      >
         <div className="lg:col-span-2 space-y-4">
           {infos.map(({ icon: Icon, label, value }) => (
             <div key={label} className="glass-liquid rounded-2xl p-5 flex gap-4 card-hover">

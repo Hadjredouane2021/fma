@@ -8,6 +8,7 @@ import { SectionHeader } from "@/components/common/SectionHeader";
 import { Section } from "@/components/ui/Section";
 import NewsFilter from "./_components/NewsFilter";
 import { ActualitesPagination } from "./_components/ActualitesPagination";
+import { SectionBackground } from "@/components/common/SectionBackground";
 import type { Locale, Post } from "@/types";
 import type { Metadata } from "next";
 
@@ -68,7 +69,7 @@ export default async function ActualitesPage({
   const gridPosts = showFeatured ? posts.slice(1) : posts;
 
   return (
-    <div>
+    <SectionBackground id="actualites">
       <PageHero locale={l}>
         {heroImage ? (
           <PageHeroImage src={heroImage} alt={t("title")} />
@@ -119,6 +120,6 @@ export default async function ActualitesPage({
           </div>
         )}
       </Section>
-    </div>
+    </SectionBackground>
   );
 }

@@ -19,4 +19,5 @@ export const DB_KEYS = {
   CHIFFRES_CLES_CONTENT: "chiffres_cles_content",
   SITE_THEME: "site_theme_colors",
   ADMIN_THEME: "admin_theme_colors",
+  SECTION_BACKGROUNDS: "section_backgrounds",
 } as const;

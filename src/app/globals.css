@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Typographie latine FMA — Gotham (charte, obligatoire) */
 @font-face {
   font-family: "Gotham";
@@ -794,13 +796,59 @@ body {
 /* ── Header site 2026 — verre 3D premium, clair & sombre ── */
 .site-header-glass-3d {
   isolation: isolate;
+  overflow: visible;
+}
+.site-header-deco {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--site-header-deco-bg, url("/contact-section-bg.png"));
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  opacity: 0.42;
+}
+.site-header-deco::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0.04) 28%,
+      transparent 52%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg) 12%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 28%, transparent) 100%
+    );
+}
+.dark .site-header-deco {
+  opacity: 0.18;
+}
+.dark .site-header-deco::after {
+  background:
+    linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.015) 30%,
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg) 38%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 58%, transparent) 100%
+    );
 }
 .site-header-glass-3d::before {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
   background: linear-gradient(
     125deg,
     rgba(255, 255, 255, 0.38) 0%,
@@ -892,6 +940,7 @@ body {
   right: 0;
   bottom: -1px;
   height: 1px;
+  z-index: 2;
   background: linear-gradient(
     90deg,
     transparent 0%,
@@ -907,7 +956,7 @@ body {
 /* Barre nav pleine largeur — marges fluides pour logo et actions */
 .site-header-bar {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   align-items: center;
   width: 100%;
@@ -941,6 +990,12 @@ body {
   .site-header-nav { gap: 0.25rem; }
 }
 
+/* Dropdown nav — au-dessus des voisins et du contenu page */
+.site-header-nav > div:hover,
+.site-header-nav > div:focus-within {
+  z-index: 70;
+}
+
 .site-header-nav-link {
   position: relative;
   display: flex;
@@ -949,7 +1004,7 @@ body {
   border-radius: 999px;
   padding: 0.4375rem 0.625rem;
   font-size: 0.6875rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.005em;
   line-height: 1.25;
   white-space: nowrap;
@@ -1213,19 +1268,12 @@ body {
   }
 }
 .la-fma-presentation-stat {
-  position: relative;
   display: flex;
   flex: 1;
   align-items: center;
   gap: 1rem;
-  overflow: hidden;
-  border-radius: 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--border) 80%, white);
-  background: color-mix(in srgb, var(--bg-surface) 94%, white);
   padding: 1.125rem 1.25rem;
   min-height: 5.5rem;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-  box-shadow: 0 10px 28px rgba(45, 58, 74, 0.05);
 }
 @media (min-width: 1024px) {
   .la-fma-presentation-stat {
@@ -1233,18 +1281,19 @@ body {
     min-height: 0;
   }
 }
-.la-fma-presentation-stat:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--brand) 22%, var(--border));
-  box-shadow: 0 16px 36px rgba(45, 58, 74, 0.09);
+.la-fma-presentation-stat__accent {
+  pointer-events: none;
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 2;
+  width: 3px;
+  border-radius: 1.25rem 0 0 1.25rem;
+  background: linear-gradient(180deg, var(--fma-burgundy), var(--fma-blue));
+  opacity: 0.85;
 }
-.dark .la-fma-presentation-stat {
-  background: color-mix(in srgb, var(--bg-surface) 88%, var(--bg-alt));
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
-}
-.dark .la-fma-presentation-stat:hover {
-  border-color: color-mix(in srgb, var(--brand) 35%, var(--border));
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.32);
+[dir="rtl"] .la-fma-presentation-stat__accent {
+  inset: 0 0 0 auto;
+  border-radius: 0 1.25rem 1.25rem 0;
 }
 
 /* Cartes organigramme — verre 3D */
@@ -1335,6 +1384,35 @@ body {
   position: relative;
   z-index: 1;
 }
+.la-fma-org-chart-card {
+  width: 22.5rem;
+  height: 10rem;
+  flex-shrink: 0;
+  padding: 1.25rem 1.5rem;
+}
+.la-fma-org-chart-card .la-fma-team-card__content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.la-fma-org-chart-card .la-fma-team-card__content p:first-child {
+  font-size: clamp(1.0625rem, 0.95rem + 0.35vw, 1.25rem);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.la-fma-org-chart-card .la-fma-team-card__content p:last-child:not(:only-child) {
+  font-size: clamp(0.9375rem, 0.88rem + 0.25vw, 1.0625rem);
+  margin-top: 0.5rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
 .la-fma-members-grid {
   display: flex;
   flex-wrap: wrap;
@@ -1391,17 +1469,6 @@ body {
   }
 }
 
-.la-fma-presentation-stat::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: linear-gradient(180deg, var(--fma-burgundy), var(--fma-blue));
-  opacity: 0.85;
-}
-[dir="rtl"] .la-fma-presentation-stat::before {
-  inset: 0 0 0 auto;
-}
 .la-fma-presentation-stat__body {
   min-width: 0;
   flex: 1;
@@ -1643,6 +1710,27 @@ body {
   -webkit-hyphens: auto;
   color: var(--text-2);
 }
+.la-fma-mission-card.la-fma-team-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 14rem;
+  border-radius: 1.75rem;
+  padding: clamp(1.5rem, 2.5vw, 2rem);
+}
+@media (min-width: 640px) {
+  .la-fma-mission-card.la-fma-team-card {
+    min-height: 16rem;
+  }
+}
+@media (min-width: 1024px) {
+  .la-fma-mission-card.la-fma-team-card {
+    min-height: 17.5rem;
+  }
+}
+.la-fma-mission-card.la-fma-team-card .la-fma-org-card__accent {
+  z-index: 2;
+  inset-block: 1.25rem;
+}
 .la-fma-mission-card {
   min-height: 0;
 }
@@ -1664,25 +1752,164 @@ body {
   margin: 0;
 }
 
+/* Fonds décoratifs de section — base partagée */
+.deco-section-bg {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+.deco-section-bg::before,
+.deco-section-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Blocs de page — fond transparent pour laisser voir le motif admin */
+.deco-section-bg .page-hero {
+  background: transparent;
+}
+.deco-section-bg section {
+  background-color: transparent;
+}
+.deco-section-bg section.la-fma-presentation,
+.deco-section-bg section.actualites-page,
+.dark .deco-section-bg section.la-fma-presentation,
+.dark .deco-section-bg section.actualites-page {
+  background: transparent;
+}
+
+/* Variante contact — intérieur marocain 3D (cover) */
+.deco-section-bg--contact::before {
+  background-image: var(--deco-section-contact-bg, url("/contact-section-bg.png"));
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.42;
+}
+.deco-section-bg--contact::after {
+  background:
+    linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0.04) 28%,
+      transparent 52%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg) 12%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 28%, transparent) 100%
+    );
+}
+.dark .deco-section-bg--contact::before {
+  opacity: 0.18;
+}
+.dark .deco-section-bg--contact::after {
+  background:
+    linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.015) 30%,
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg) 38%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 58%, transparent) 100%
+    );
+}
+
+/* Page contact — fond unifié hero + contenu */
+.contact-page {
+  position: relative;
+  isolation: isolate;
+}
+.contact-page .contact-page__hero,
+.contact-page .contact-page__content {
+  background: transparent;
+}
+
 /* Section chiffres clés — layout 2026 (bento + visuel) */
-.key-figures-section {
+.key-figures-section.deco-section-bg {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+.dark .key-figures-section.deco-section-bg {
+  background: transparent;
+}
+.key-figures-section:not(.deco-section-bg) {
   background:
     radial-gradient(ellipse 80% 60% at 12% 20%, color-mix(in srgb, var(--fma-pale) 45%, transparent), transparent 55%),
     radial-gradient(ellipse 70% 50% at 88% 80%, color-mix(in srgb, var(--brand) 6%, transparent), transparent 50%),
     #ffffff;
 }
-.dark .key-figures-section {
+.dark .key-figures-section:not(.deco-section-bg) {
   background:
     radial-gradient(ellipse 80% 60% at 12% 20%, color-mix(in srgb, var(--blue) 14%, transparent), transparent 55%),
     radial-gradient(ellipse 70% 50% at 88% 80%, color-mix(in srgb, var(--brand) 10%, transparent), transparent 50%),
     var(--bg);
 }
+.deco-section-bg--key-figures::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--deco-section-key-figures-bg, url("/key-figures-section-bg.png"));
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.58;
+}
+.deco-section-bg--key-figures::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.24) 0%,
+      rgba(255, 255, 255, 0.05) 30%,
+      transparent 55%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg) 10%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 26%, transparent) 100%
+    );
+}
+.dark .deco-section-bg--key-figures::before {
+  opacity: 0.2;
+}
+.dark .deco-section-bg--key-figures::after {
+  background:
+    linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.015) 32%,
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg) 38%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 58%, transparent) 100%
+    );
+}
 .key-figures-section__glow {
   pointer-events: none;
   position: absolute;
   inset: 0;
+  z-index: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
   opacity: 0.5;
+}
+.key-figures-section.deco-section-bg .key-figures-section__glow {
+  opacity: 0.18;
 }
 .key-figures-section__title {
   text-wrap: balance;
@@ -1939,6 +2166,137 @@ body {
   position: relative;
   z-index: 2;
 }
+
+/* Conventions — cartes liquid glass 3D */
+.convention-card-glass {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--glass-border) 72%, var(--border));
+  background:
+    linear-gradient(155deg, color-mix(in srgb, #ffffff 78%, transparent) 0%, color-mix(in srgb, var(--glass-bg) 88%, transparent) 42%, color-mix(in srgb, var(--bg-surface) 92%, transparent) 100%);
+  backdrop-filter: blur(18px) saturate(165%);
+  -webkit-backdrop-filter: blur(18px) saturate(165%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.72) inset,
+    0 -1px 0 color-mix(in srgb, var(--border) 55%, transparent) inset,
+    0 14px 32px rgba(45, 58, 74, 0.1),
+    0 4px 10px rgba(45, 58, 74, 0.05);
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
+}
+.convention-card-glass::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(255, 255, 255, 0.08) 34%,
+    transparent 58%
+  );
+  opacity: 0.9;
+}
+.convention-card-glass::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset-inline: 1.25rem;
+  top: 0;
+  z-index: 1;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+  opacity: 0.75;
+}
+.convention-card-glass:hover {
+  transform: translateY(-4px) scale(1.005);
+  border-color: color-mix(in srgb, var(--brand) 24%, var(--glass-border));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 -1px 0 color-mix(in srgb, var(--border) 45%, transparent) inset,
+    0 22px 44px rgba(45, 58, 74, 0.14),
+    0 8px 18px rgba(45, 58, 74, 0.08);
+}
+.dark .convention-card-glass {
+  border-color: color-mix(in srgb, var(--glass-border) 90%, transparent);
+  background:
+    linear-gradient(155deg, color-mix(in srgb, var(--bg-surface) 82%, white) 0%, color-mix(in srgb, var(--glass-bg) 92%, transparent) 48%, color-mix(in srgb, var(--bg-alt) 94%, transparent) 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.07) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.22) inset,
+    0 16px 36px rgba(0, 0, 0, 0.34),
+    0 4px 12px rgba(0, 0, 0, 0.18);
+}
+.dark .convention-card-glass::before {
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.03) 36%,
+    transparent 60%
+  );
+  opacity: 1;
+}
+.dark .convention-card-glass::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+}
+.dark .convention-card-glass:hover {
+  border-color: color-mix(in srgb, var(--brand) 36%, var(--glass-border));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 24px 48px rgba(0, 0, 0, 0.42);
+}
+.convention-card-glass__accent {
+  pointer-events: none;
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 2;
+  width: 3px;
+  border-radius: 1.25rem 0 0 1.25rem;
+  background: linear-gradient(180deg, var(--fma-burgundy), var(--fma-blue));
+  opacity: 0.88;
+}
+[dir="rtl"] .convention-card-glass__accent {
+  inset: 0 0 0 auto;
+  border-radius: 0 1.25rem 1.25rem 0;
+}
+.convention-card-glass__icon {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  height: 3rem;
+  width: 3rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.875rem;
+  border: 1px solid color-mix(in srgb, var(--glass-border) 80%, var(--border));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, #ffffff 70%, transparent) 0%, color-mix(in srgb, var(--glass-bg) 90%, transparent) 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 6px 14px rgba(45, 58, 74, 0.08);
+}
+.dark .convention-card-glass__icon {
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--bg-surface) 78%, white) 0%, color-mix(in srgb, var(--glass-bg) 92%, transparent) 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 6px 16px rgba(0, 0, 0, 0.28);
+}
+.convention-card-glass__body {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-width: 0;
+}
+
 .actualites-empty {
   border-radius: 1.5rem;
   border: 1px dashed color-mix(in srgb, var(--border) 80%, var(--brand));
@@ -2067,6 +2425,55 @@ body {
 }
 
 /* Logo header / footer */
+.site-logo-frame {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.site-logo-frame--header {
+  height: 2rem;
+  width: 9.5rem;
+}
+@media (min-width: 640px) {
+  .site-logo-frame--header {
+    height: 2.25rem;
+    width: 11rem;
+  }
+}
+@media (min-width: 1280px) {
+  .site-logo-frame--header {
+    height: 2.5rem;
+    width: 13rem;
+  }
+}
+@media (min-width: 1536px) {
+  .site-logo-frame--header {
+    width: 15rem;
+  }
+}
+.site-logo-frame--footer {
+  height: 2.5rem;
+  width: 100%;
+  max-width: 13rem;
+}
+@media (min-width: 640px) {
+  .site-logo-frame--footer {
+    height: 2.75rem;
+    max-width: 14rem;
+  }
+}
+@media (min-width: 1024px) {
+  .site-logo-frame--footer {
+    height: 3rem;
+    max-width: 16rem;
+  }
+}
+@media (min-width: 1536px) {
+  .site-logo-frame--footer {
+    height: 3.25rem;
+    max-width: 18rem;
+  }
+}
 .site-logo-plate {
   display: inline-flex;
   align-items: center;

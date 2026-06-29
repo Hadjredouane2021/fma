@@ -7,6 +7,7 @@ import { PublicationCard } from "@/components/common/PublicationCard";
 import { GalleryGrid } from "@/components/common/GalleryGrid";
 import { GalleryFolderList } from "@/components/common/GalleryFolderList";
 import { PageHero } from "@/components/common/PageHero";
+import { SectionBackground } from "@/components/common/SectionBackground";
 import { Section } from "@/components/ui/Section";
 import { Suspense } from "react";
 import { PublicationYearFilter } from "@/components/common/PublicationTypeFilter";
@@ -132,7 +133,7 @@ export default async function PublicationsPage({ params, searchParams }: {
   const showYearFilter = !galleryCategory && yearFilterOptions.length > 0;
 
   return (
-    <div>
+    <SectionBackground id="publications">
       <PageHero locale={l}>
         {activeHeroImage && (
           <PageHeroImage src={activeHeroImage} alt={heroTitle} />
@@ -187,6 +188,6 @@ export default async function PublicationsPage({ params, searchParams }: {
           </>
         )}
       </Section>
-    </div>
+    </SectionBackground>
   );
 }

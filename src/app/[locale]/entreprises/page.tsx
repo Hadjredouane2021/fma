@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, HelpCircle } from "lucide-react";
 import { PageHero } from "@/components/common/PageHero";
 import { PageHeroImage } from "@/components/common/PageHeroImage";
+import { SectionBackground } from "@/components/common/SectionBackground";
 import { EntreprisesProductCard } from "@/components/common/EntreprisesProductCard";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
@@ -55,7 +56,7 @@ export default async function EntreprisesPage({ params }: { params: Promise<{ lo
   const professionnelsProducts = filterEntrepriseProductsByAudience(c.products, "professionnels");
 
   return (
-    <div>
+    <SectionBackground id="entreprises">
       <PageHero locale={l}>
         {heroImage && <PageHeroImage src={heroImage} alt={c.heroTitle[l]} />}
       </PageHero>
@@ -109,6 +110,6 @@ export default async function EntreprisesPage({ params }: { params: Promise<{ lo
           </Button>
         </Link>
       </Section>
-    </div>
+    </SectionBackground>
   );
 }

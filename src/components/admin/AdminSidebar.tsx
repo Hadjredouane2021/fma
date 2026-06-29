@@ -27,6 +27,7 @@ import {
   UserRound,
   Building2,
   BarChart3,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonTabActive } from "@/lib/button-styles";
@@ -70,6 +71,7 @@ const NAV_GROUPS = [
     items: [
       { label: "Menu de navigation", href: "/admin/menu", icon: Menu },
       { label: "Logo du site", href: "/admin/logo", icon: ImageIcon },
+      { label: "Fonds de sections", href: "/admin/fonds-sections", icon: Layers },
       { label: "Footer", href: "/admin/footer", icon: PanelBottom },
       { label: "Paramètres", href: "/admin/parametres", icon: Settings },
     ],

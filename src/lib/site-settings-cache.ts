@@ -29,6 +29,11 @@ import {
   normalizeAdminTheme,
   type AdminThemeSettings,
 } from "@/lib/admin-theme";
+import {
+  DEFAULT_SECTION_BACKGROUNDS,
+  normalizeSectionBackgrounds,
+  type SectionBackgroundsSettings,
+} from "@/lib/section-backgrounds";
 
 export const CACHE_TAGS = {
   layout: "site:layout-settings",
@@ -73,6 +78,7 @@ export type LayoutSiteSettings = {
   spinner: SiteSpinnerSettings;
   theme: SiteThemeSettings;
   adminTheme: AdminThemeSettings;
+  sectionBackgrounds: SectionBackgroundsSettings;
 };
 
 const LAYOUT_KEYS = [
@@ -82,6 +88,7 @@ const LAYOUT_KEYS = [
   DB_KEYS.SITE_SPINNER,
   DB_KEYS.SITE_THEME,
   DB_KEYS.ADMIN_THEME,
+  DB_KEYS.SECTION_BACKGROUNDS,
 ] as const;
 
 export const getLayoutSiteSettings = unstable_cache(
@@ -110,6 +117,9 @@ export const getLayoutSiteSettings = unstable_cache(
         spinner: normalizeSiteSpinner(parse(DB_KEYS.SITE_SPINNER) ?? DEFAULT_SITE_SPINNER),
         theme: normalizeSiteTheme(parse(DB_KEYS.SITE_THEME) ?? DEFAULT_SITE_THEME),
         adminTheme: normalizeAdminTheme(parse(DB_KEYS.ADMIN_THEME) ?? DEFAULT_ADMIN_THEME),
+        sectionBackgrounds: normalizeSectionBackgrounds(
+          parse(DB_KEYS.SECTION_BACKGROUNDS) ?? DEFAULT_SECTION_BACKGROUNDS
+        ),
       };
     } catch (error) {
       console.error("[site-settings-cache] getLayoutSiteSettings failed:", error);
@@ -120,11 +130,12 @@ export const getLayoutSiteSettings = unstable_cache(
         spinner: DEFAULT_SITE_SPINNER,
         theme: DEFAULT_SITE_THEME,
         adminTheme: DEFAULT_ADMIN_THEME,
+        sectionBackgrounds: DEFAULT_SECTION_BACKGROUNDS,
       };
     }
   },
-  ["site-layout-settings:v2"],
-  { tags: [CACHE_TAGS.layout], revalidate: 300 }
+  ["site-layout-settings:v4"],
+  { tags: [CACHE_TAGS.layout], revalidate: 60 }
 );
 
 export function revalidateLayoutSettings() {
@@ -163,4 +174,9 @@ export async function getSiteTheme(): Promise<SiteThemeSettings> {
 export async function getAdminTheme(): Promise<AdminThemeSettings> {
   const { adminTheme } = await getLayoutSiteSettings();
   return adminTheme;
+}
+
+export async function getSectionBackgrounds(): Promise<SectionBackgroundsSettings> {
+  const { sectionBackgrounds } = await getLayoutSiteSettings();
+  return sectionBackgrounds;
 }
