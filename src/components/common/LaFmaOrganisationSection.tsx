@@ -9,21 +9,15 @@ import type { Locale } from "@/types";
 type LaFmaOrganisationSectionProps = {
   locale: Locale;
   title: string;
-  description?: string;
   blocs: LaFmaOrgBloc[];
 };
 
-export function LaFmaOrganisationSection({ locale, title, description, blocs }: LaFmaOrganisationSectionProps) {
+export function LaFmaOrganisationSection({ locale, title, blocs }: LaFmaOrganisationSectionProps) {
   const l = locale;
 
   return (
     <Section className="la-fma-organisation">
       <SectionHeader title={title} />
-      {description ? (
-        <p className="la-fma-valeurs__intro mt-4 max-w-2xl leading-relaxed text-[var(--text-2)]">
-          {description}
-        </p>
-      ) : null}
       <EqualHeightGrid className="la-fma-organisation__grid mt-10 sm:mt-12">
         {blocs.map((bloc, idx) => (
           <article

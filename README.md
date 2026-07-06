@@ -201,7 +201,7 @@ pm2 save && pm2 startup
 
 ```nginx
 server {
-    server_name fma.org.ma www.fma.org.ma;
+    server_name fmsar.org.ma www.fmsar.org.ma;
     location / {
         proxy_pass http://localhost:3000;
         proxy_set_header Host $host;
@@ -215,7 +215,7 @@ server {
 ```
 
 ```bash
-sudo certbot --nginx -d fma.org.ma -d www.fma.org.ma
+sudo certbot --nginx -d fmsar.org.ma -d www.fmsar.org.ma
 ```
 
 ---
@@ -224,9 +224,9 @@ sudo certbot --nginx -d fma.org.ma -d www.fma.org.ma
 
 ```bash
 DATABASE_URL="mysql://fma_user:STRONG_PWD@localhost:3306/fma_prod"
-NEXTAUTH_URL="https://fma.org.ma"
+NEXTAUTH_URL="https://fmsar.org.ma"
 NEXTAUTH_SECRET="$(openssl rand -base64 64)"
-NEXT_PUBLIC_APP_URL="https://fma.org.ma"
+NEXT_PUBLIC_APP_URL="https://fmsar.org.ma"
 SMTP_HOST="smtp.votre-provider.ma"
 SMTP_USER="contact@fma.org.ma"
 SMTP_PASS="votre_mot_de_passe_smtp"

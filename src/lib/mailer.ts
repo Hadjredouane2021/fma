@@ -7,7 +7,7 @@ export const transporter = nodemailer.createTransport({
   auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
 });
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://fma.org.ma";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://fmsar.org.ma";
 
 /* ── Shared layout — full inline styles for email client compatibility ── */
 function emailLayout(content: string, previewText: string): string {

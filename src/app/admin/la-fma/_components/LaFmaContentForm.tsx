@@ -44,7 +44,6 @@ function mergeWithDefaults(data: LaFmaContent): LaFmaContent {
     valeursDescription: data.valeursDescription ?? DEFAULT_LA_FMA_CONTENT.valeursDescription,
     valeurs: data.valeurs?.length ? data.valeurs : DEFAULT_LA_FMA_CONTENT.valeurs,
     organisationSectionTitle: data.organisationSectionTitle ?? DEFAULT_LA_FMA_CONTENT.organisationSectionTitle,
-    organisationDescription: data.organisationDescription ?? DEFAULT_LA_FMA_CONTENT.organisationDescription,
     orgBlocs: data.orgBlocs?.length ? data.orgBlocs : DEFAULT_LA_FMA_CONTENT.orgBlocs,
   };
 }
@@ -399,15 +398,6 @@ export default function LaFmaContentForm({
                     type="text"
                     value={content.organisationSectionTitle[tab]}
                     onChange={(e) => setLoc("organisationSectionTitle", tab, e.target.value)}
-                    className={inputBase}
-                  />
-                </div>
-                <div>
-                  <label className={labelCls}>Description ({tab.toUpperCase()})</label>
-                  <textarea
-                    rows={3}
-                    value={content.organisationDescription[tab]}
-                    onChange={(e) => setLoc("organisationDescription", tab, e.target.value)}
                     className={inputBase}
                   />
                 </div>

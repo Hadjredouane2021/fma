@@ -58,7 +58,6 @@ export interface LaFmaContent {
   valeursDescription: LocalizedString;
   valeurs: LaFmaValeur[];
   organisationSectionTitle: LocalizedString;
-  organisationDescription: LocalizedString;
   orgBlocs: LaFmaOrgBloc[];
   directionSectionTitle: LocalizedString;
   membersSectionTitle: LocalizedString;
@@ -332,11 +331,6 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
     },
   ],
   organisationSectionTitle: { fr: "Organisation", en: "Organisation", ar: "الهيكل التنظيمي" },
-  organisationDescription: {
-    fr: "La FMA est structurée autour d'instances décisionnelles et de comités spécialisés qui assurent la gouvernance et le pilotage stratégique du secteur de l'assurance.",
-    en: "The FMA is structured around decision-making bodies and specialized committees that ensure governance and strategic management of the insurance sector.",
-    ar: "يتمحور هيكل الاتحاد حول هيئات قرارية ولجان متخصصة تضمن الحوكمة والتوجيه الاستراتيجي لقطاع التأمين.",
-  },
   orgBlocs: [
     {
       icon: sameIcon("🏛️"),

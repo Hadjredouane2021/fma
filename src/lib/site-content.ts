@@ -556,10 +556,6 @@ export function normalizeLaFmaContent(input: unknown): LaFmaContent {
       d.organisationSectionTitle,
       DEFAULT_LA_FMA_CONTENT.organisationSectionTitle
     ),
-    organisationDescription: localizedFallback(
-      d.organisationDescription,
-      DEFAULT_LA_FMA_CONTENT.organisationDescription
-    ),
     orgBlocs,
     directionSectionTitle: localizedFallback(
       d.directionSectionTitle,

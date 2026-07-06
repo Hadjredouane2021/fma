@@ -13,6 +13,7 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
     "db:studio": "prisma studio",
+    "db:backup": "powershell -ExecutionPolicy Bypass -File scripts/db-backup.ps1",
     "setup": "npm install && prisma generate && prisma db push && npm run db:seed",
     "fonts:gotham": "node scripts/install-gotham-fonts.mjs",
     "docs:manuel": "node scripts/generate-manuel-pdf.mjs",

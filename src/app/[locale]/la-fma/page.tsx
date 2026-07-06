@@ -122,12 +122,10 @@ export default async function FMAPage({ params }: { params: Promise<{ locale: st
       {(() => {
         const orgBlocs = content.orgBlocs?.length ? content.orgBlocs : DEFAULT_LA_FMA_CONTENT.orgBlocs;
         const orgTitle = content.organisationSectionTitle ?? DEFAULT_LA_FMA_CONTENT.organisationSectionTitle;
-        const orgDesc = content.organisationDescription ?? DEFAULT_LA_FMA_CONTENT.organisationDescription;
         return (
           <LaFmaOrganisationSection
             locale={l}
             title={localizedText(orgTitle, l)}
-            description={localizedText(orgDesc, l) || undefined}
             blocs={orgBlocs}
           />
         );
