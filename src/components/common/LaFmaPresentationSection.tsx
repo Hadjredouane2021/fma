@@ -1,5 +1,6 @@
 import { SectionHeader } from "@/components/common/SectionHeader";
 import { Section } from "@/components/ui/Section";
+import { localizedText } from "@/lib/localized-content";
 import type { LaFmaStat } from "@/lib/la-fma-site-public";
 import type { Locale } from "@/types";
 
@@ -36,7 +37,7 @@ export function LaFmaPresentationSection({
               <div className="la-fma-presentation-stat__accent" aria-hidden />
               <div className="la-fma-presentation-stat__body la-fma-team-card__content">
                 <p className="la-fma-presentation-stat__value font-display">{stat.value}</p>
-                <p className="la-fma-presentation-stat__label">{stat.label[l]}</p>
+                <p className="la-fma-presentation-stat__label">{localizedText(stat.label, l)}</p>
               </div>
             </div>
           ))}

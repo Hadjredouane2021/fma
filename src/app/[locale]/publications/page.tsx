@@ -13,26 +13,39 @@ import { Suspense } from "react";
 import { PublicationYearFilter } from "@/components/common/PublicationTypeFilter";
 import {
   GALLERY_CATEGORIES,
-  GALLERY_CONFIG,
   dbKeyForGallery,
   isGalleryCategory,
   isFolderGalleryCategory,
   parseGalleryData,
 } from "@/lib/galleries";
+import { localizedText } from "@/lib/localized-content";
+import {
+  parsePublicationsHeroImagesFromSetting,
+  publicationsHeroImageUrl,
+} from "@/lib/publications-hero-images";
 import type { Locale, Publication } from "@/types";
 import type { Metadata } from "next";
 
 const DEFAULT_PUBLICATION_TYPE = "chiffres-cles";
 
-const TYPES = [
-  { value: "chiffres-cles",   fr: "Chiffres clés",    en: "Key Figures",  ar: "أرقام رئيسية" },
-  { value: "faits-marquants", fr: "Faits marquants",  en: "Highlights",   ar: "أبرز الأحداث" },
-  { value: "courrier",        fr: "Le Courrier",       en: "Newsletter",   ar: "نشرة التأمين" },
-];
-
-const GALLERY_TABS = GALLERY_CATEGORIES.map((value) => ({ value, ...GALLERY_CONFIG[value].title }));
-
 const HERO_KEY = DB_KEYS.PUBLICATIONS_HERO;
+
+function publicationTypeTitle(t: (key: string) => string, type: string): string {
+  switch (type) {
+    case "chiffres-cles":
+      return t("keyFigures");
+    case "faits-marquants":
+      return t("highlights");
+    case "courrier":
+      return t("magazine");
+    case "interventions-fma":
+      return t("interventionsFma");
+    case "reseaux-sociaux":
+      return t("socialMedia");
+    default:
+      return type;
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -43,36 +56,27 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const { type } = await searchParams;
-  const l = locale as Locale;
   const t = await getTranslations({ locale, namespace: "publications" });
-  const pubType = TYPES.find((t_) => t_.value === type);
-  const galleryType = GALLERY_TABS.find((t_) => t_.value === type);
-  const title = pubType
-    ? (l === "ar" ? pubType.ar : l === "en" ? pubType.en : pubType.fr)
-    : galleryType
-      ? (l === "ar" ? galleryType.ar : l === "en" ? galleryType.en : galleryType.fr)
-      : t("keyFigures");
+  const title = type ? publicationTypeTitle(t, type) : t("keyFigures");
   return { title: `${title} | FMA` };
 }
 
 export default async function PublicationsPage({ params, searchParams }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ type?: string; year?: string; page?: string }>;
+  searchParams: Promise<{ type?: string; year?: string }>;
 }) {
   const { locale } = await params;
-  const { type: typeParam, year, page: pageStr } = await searchParams;
+  const { type: typeParam, year } = await searchParams;
   const l = locale as Locale;
+  const t = await getTranslations({ locale, namespace: "publications" });
 
   if (!typeParam) {
     const qs = new URLSearchParams({ type: DEFAULT_PUBLICATION_TYPE });
     if (year) qs.set("year", year);
-    if (pageStr) qs.set("page", pageStr);
     redirect(`/${locale}/publications?${qs.toString()}`);
   }
 
   const type = typeParam;
-  const page = Number(pageStr) || 1;
-  const limit = 12;
 
   const galleryCategory = isGalleryCategory(type) ? type : null;
   const publicationType = galleryCategory ? null : type;
@@ -94,13 +98,12 @@ export default async function PublicationsPage({ params, searchParams }: {
       ? Promise.resolve([])
       : prisma.publication.findMany({
           where: {
-            status: "PUBLISHED", deletedAt: null,
+            status: "PUBLISHED",
+            deletedAt: null,
             type: publicationType!,
             ...(year ? { year: Number(year) } : {}),
           },
           orderBy: [{ year: "desc" }, { publishedAt: "desc" }],
-          skip: (page - 1) * limit,
-          take: limit,
         }).catch(() => []),
     prisma.setting.findUnique({ where: { key: HERO_KEY } }).catch(() => null),
     galleryCategory
@@ -108,23 +111,15 @@ export default async function PublicationsPage({ params, searchParams }: {
       : Promise.resolve(null),
   ]);
 
-  // Hero image for the active type
-  const heroImages: Record<string, string> = (() => {
-    if (!heroRow) return {};
-    try { return JSON.parse(heroRow.value); } catch { return {}; }
-  })();
-  const activeHeroImage = type && heroImages[type] ? heroImages[type] : null;
+  const heroImages = parsePublicationsHeroImagesFromSetting(heroRow?.value);
+  const activeHeroImage = publicationsHeroImageUrl(heroImages, type, l);
 
   const gallery = galleryCategory ? parseGalleryData(galleryRow?.value, galleryCategory) : null;
 
-  // Active type label
-  const activeType = TYPES.find((t_) => t_.value === type);
-  const activeGalleryTab = GALLERY_TABS.find((t_) => t_.value === type);
-  const heroTitle = activeType
-    ? (l === "ar" ? activeType.ar : l === "en" ? activeType.en : activeType.fr)
-    : activeGalleryTab
-      ? (gallery?.title[l] ?? activeGalleryTab[l])
-      : TYPES[0][l === "ar" ? "ar" : l === "en" ? "en" : "fr"];
+  const heroTitle = gallery
+    ? localizedText({ fr: gallery.title.fr, en: gallery.title.en, ar: gallery.title.ar }, l)
+    : publicationTypeTitle(t, type);
+
   const yearFilterOptions = years
     .filter((y) => y.year)
     .map((y) => ({ value: String(y.year), label: String(y.year) }));
@@ -152,8 +147,8 @@ export default async function PublicationsPage({ params, searchParams }: {
             <Suspense fallback={null}>
               <PublicationYearFilter
                 options={yearFilterOptions}
-                allLabel={l === "ar" ? "كل السنوات" : l === "en" ? "All years" : "Toutes les années"}
-                ariaLabel={l === "ar" ? "تصفية حسب السنة" : l === "en" ? "Filter by year" : "Filtrer par année"}
+                allLabel={t("allYears")}
+                ariaLabel={t("filterByYear")}
                 className="w-full sm:min-w-0 sm:flex-1 sm:max-w-md"
               />
             </Suspense>
@@ -165,12 +160,12 @@ export default async function PublicationsPage({ params, searchParams }: {
             isFolderGallery && gallery.folders && gallery.folders.length > 0 ? (
               <GalleryFolderList folders={gallery.folders} locale={l} category={galleryCategory} />
             ) : (
-              <GalleryGrid items={gallery.items} />
+              <GalleryGrid items={gallery.items} locale={l} />
             )
           ) : (
             <div className="text-center py-20 text-[var(--text-3)]">
               <div className="text-5xl mb-4">🖼️</div>
-              <p>{l === "ar" ? "لا توجد صور" : l === "en" ? "No images found" : "Aucune image trouvée"}</p>
+              <p>{t("noImages")}</p>
             </div>
           )
         ) : (
@@ -178,10 +173,10 @@ export default async function PublicationsPage({ params, searchParams }: {
             {publications.length === 0 ? (
               <div className="text-center py-20 text-[var(--text-3)]">
                 <div className="text-5xl mb-4">📄</div>
-                <p>{l === "ar" ? "لم يتم العثور على منشورات" : l === "en" ? "No publications found" : "Aucune publication trouvée"}</p>
+                <p>{t("noPublications")}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-3 xl:gap-4">
                 {publications.map((pub) => <PublicationCard key={pub.id} publication={pub as Publication} locale={l} />)}
               </div>
             )}

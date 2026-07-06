@@ -8,20 +8,33 @@ import { ImageIcon, Loader2, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { buttonUploadLabel } from "@/lib/button-styles";
+import { ADMIN_LOCALE_TABS, type AdminLocale } from "@/lib/admin-locale";
 import { PAGE_HERO_PREVIEW_CLASS, PAGE_HERO_SIZE_HINT } from "@/lib/page-hero";
+import {
+  EMPTY_PUBLICATION_HERO_LOCALE_URLS,
+  type PublicationHeroLocaleUrls,
+} from "@/lib/publications-hero-images";
 
 const HERO_TYPE = "chiffres-cles";
 
 const inputBase =
   "w-full px-4 py-3 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text-1)] placeholder-[var(--text-3)] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm font-mono";
 
-export default function ChiffresClesHeroImageForm({ initial }: { initial: string }) {
+export default function ChiffresClesHeroImageForm({
+  initial = EMPTY_PUBLICATION_HERO_LOCALE_URLS,
+}: {
+  initial?: PublicationHeroLocaleUrls;
+}) {
   const router = useRouter();
-  const [imageUrl, setImageUrl] = useState(initial);
+  const [images, setImages] = useState<PublicationHeroLocaleUrls>(initial);
+  const [tab, setTab] = useState<AdminLocale>("fr");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+
+  const currentTab = ADMIN_LOCALE_TABS.find((t) => t.key === tab)!;
+  const imageUrl = images[tab];
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -35,8 +48,13 @@ export default function ChiffresClesHeroImageForm({ initial }: { initial: string
       fd.append("folder", "publications-hero");
       const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) { setError(data.message || "Échec de l'upload"); return; }
-      if (typeof data.url === "string") setImageUrl(data.url);
+      if (!res.ok) {
+        setError(data.message || "Échec de l'upload");
+        return;
+      }
+      if (typeof data.url === "string") {
+        setImages((prev) => ({ ...prev, [tab]: data.url }));
+      }
     } catch {
       setError("Erreur réseau lors de l'upload");
     } finally {
@@ -52,10 +70,15 @@ export default function ChiffresClesHeroImageForm({ initial }: { initial: string
       const res = await fetch("/api/admin/site/publications-hero", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [HERO_TYPE]: imageUrl }),
+        body: JSON.stringify({ [HERO_TYPE]: images }),
       });
-      if (res.ok) { setSuccess(true); router.refresh(); }
-      else { const d = await res.json().catch(() => ({})); setError(d.message || "Erreur"); }
+      if (res.ok) {
+        setSuccess(true);
+        router.refresh();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setError(d.message || "Erreur");
+      }
     } catch {
       setError("Erreur réseau");
     } finally {
@@ -65,12 +88,32 @@ export default function ChiffresClesHeroImageForm({ initial }: { initial: string
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] p-6 mb-8">
-      <h2 className="text-sm font-bold text-primary mb-1 flex items-center gap-2">
-        <ImageIcon className="w-4 h-4" />
-        Image hero — page Chiffres clés
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-1">
+        <h2 className="text-sm font-bold text-primary flex items-center gap-2">
+          <ImageIcon className="w-4 h-4" />
+          Image hero — page Chiffres clés
+        </h2>
+        <div className="flex gap-2">
+          {ADMIN_LOCALE_TABS.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setTab(t.key)}
+              className={cn(
+                "px-4 py-2 rounded-xl text-sm font-medium border transition-all",
+                tab === t.key
+                  ? "bg-primary text-white border-primary"
+                  : "bg-[var(--bg-surface)] text-[var(--text-2)] border-[var(--border)] hover:bg-[var(--bg-alt)] hover:text-[var(--text-1)]"
+              )}
+            >
+              {t.flag} {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <p className="text-xs text-[var(--text-3)] mb-4">
-        Affichée en haut de la page Publications → Chiffres clés.
+        Affichée en haut de la page Publications → Chiffres clés pour l&apos;onglet{" "}
+        <strong>{currentTab.label}</strong>. Sur EN/AR, repli sur la photo FR si vide.
         <br />
         Taille recommandée&nbsp;: <span className="text-[var(--text-2)]">{PAGE_HERO_SIZE_HINT}</span>.
       </p>
@@ -78,36 +121,65 @@ export default function ChiffresClesHeroImageForm({ initial }: { initial: string
         <input
           type="text"
           value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
+          onChange={(e) => setImages((prev) => ({ ...prev, [tab]: e.target.value }))}
           className={`${inputBase} flex-1`}
-          placeholder="/uploads/publications-hero/…"
+          placeholder={`/uploads/publications-hero/… (${tab.toUpperCase()})`}
           disabled={uploading}
         />
-        <label className={cn(buttonUploadLabel, "inline-flex items-center gap-2", uploading && "opacity-60 pointer-events-none")}>
+        <label
+          className={cn(
+            buttonUploadLabel,
+            "inline-flex items-center gap-2",
+            uploading && "opacity-60 pointer-events-none"
+          )}
+        >
           <input type="file" accept={ADMIN_IMAGE_ACCEPT} className="hidden" onChange={handleUpload} disabled={uploading} />
-          {uploading ? <><Loader2 className="w-4 h-4 animate-spin" />Envoi…</> : "Importer une photo"}
+          {uploading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Envoi…
+            </>
+          ) : (
+            "Importer une photo"
+          )}
         </label>
       </div>
-      {imageUrl && (
+      {imageUrl ? (
         <div className={cn("mb-4", PAGE_HERO_PREVIEW_CLASS)}>
-          <Image src={imageUrl} alt="Aperçu hero Chiffres clés" fill className="object-cover object-center" unoptimized={imageUrl.startsWith("/uploads")} />
+          <Image
+            src={imageUrl}
+            alt={`Aperçu hero Chiffres clés ${tab}`}
+            fill
+            className="object-cover object-center"
+            unoptimized={imageUrl.startsWith("/uploads")}
+          />
           <button
             type="button"
-            onClick={() => setImageUrl("")}
+            onClick={() => setImages((prev) => ({ ...prev, [tab]: "" }))}
             className="absolute top-2 right-2 bg-red-600 text-white rounded-lg p-1.5 hover:bg-red-700 transition-colors"
             title="Supprimer"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
-      )}
+      ) : null}
       <div className="flex items-center gap-4">
-        <Button type="button" variant="primary" shape="rounded" size="md" onClick={handleSave} disabled={saving || uploading} isLoading={saving}>
+        <Button
+          type="button"
+          variant="primary"
+          shape="rounded"
+          size="md"
+          onClick={handleSave}
+          disabled={saving || uploading}
+          isLoading={saving}
+        >
           {!saving && <Save className="w-4 h-4" />}
           Enregistrer
         </Button>
-        {success && <span className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Enregistré ✓</span>}
-        {error && <span className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</span>}
+        {success ? (
+          <span className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Enregistré ✓</span>
+        ) : null}
+        {error ? <span className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</span> : null}
       </div>
     </div>
   );

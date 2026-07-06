@@ -8,10 +8,14 @@ import {
   PARTICULIERS_KEY,
   type ParticuliersContent,
 } from "@/lib/particuliers-site-public";
+import {
+  parseParticuliersHeroImageUrlsFromSetting,
+  type ParticuliersHeroImageUrls,
+} from "@/lib/particuliers-hero-image";
 
 export type ParticuliersPageData = {
   content: ParticuliersContent;
-  heroImage: string | null;
+  heroImages: ParticuliersHeroImageUrls;
 };
 
 export const getParticuliersPageData = unstable_cache(
@@ -31,14 +35,17 @@ export const getParticuliersPageData = unstable_cache(
       }
       return {
         content,
-        heroImage: heroRow?.value?.trim() || null,
+        heroImages: parseParticuliersHeroImageUrlsFromSetting(heroRow?.value),
       };
     } catch (error) {
       console.error("[particuliers-cache] getParticuliersPageData failed:", error);
-      return { content: DEFAULT_PARTICULIERS_CONTENT, heroImage: null };
+      return {
+        content: DEFAULT_PARTICULIERS_CONTENT,
+        heroImages: { fr: "", en: "", ar: "" },
+      };
     }
   },
-  ["site-particuliers-page:v1"],
+  ["site-particuliers-page:v2"],
   { tags: [CACHE_TAGS.particuliers], revalidate: 300 }
 );
 

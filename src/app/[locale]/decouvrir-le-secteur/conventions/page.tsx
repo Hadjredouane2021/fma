@@ -7,6 +7,10 @@ import { formatDate } from "@/lib/utils";
 import { PageHero } from "@/components/common/PageHero";
 import { SectionBackground } from "@/components/common/SectionBackground";
 import { Section } from "@/components/ui/Section";
+import {
+  conventionsHeroImageUrl,
+  parseConventionsHeroImageUrlsFromSetting,
+} from "@/lib/conventions-hero-image";
 import type { Locale } from "@/types";
 
 export default async function ConventionsPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -16,7 +20,8 @@ export default async function ConventionsPage({ params }: { params: Promise<{ lo
     prisma.convention.findMany({ where: { status: "PUBLISHED" }, orderBy: [{ order: "asc" }, { signedAt: "desc" }] }).catch(() => []),
     prisma.setting.findUnique({ where: { key: DB_KEYS.CONVENTIONS_HERO } }).catch(() => null),
   ]);
-  const heroImage = heroImageRow?.value ?? "";
+  const heroImages = parseConventionsHeroImageUrlsFromSetting(heroImageRow?.value);
+  const heroImage = conventionsHeroImageUrl(heroImages, l);
 
   return (
     <SectionBackground id="conventions">

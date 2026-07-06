@@ -9,6 +9,10 @@ import { Section } from "@/components/ui/Section";
 import NewsFilter from "./_components/NewsFilter";
 import { ActualitesPagination } from "./_components/ActualitesPagination";
 import { SectionBackground } from "@/components/common/SectionBackground";
+import {
+  actualitesHeroImageUrl,
+  parseActualitesHeroImageUrlsFromSetting,
+} from "@/lib/actualites-hero-image";
 import type { Locale, Post } from "@/types";
 import type { Metadata } from "next";
 
@@ -62,7 +66,8 @@ export default async function ActualitesPage({
     getTranslations({ locale, namespace: "news" }),
   ]);
 
-  const heroImage = heroRow?.value?.trim() || null;
+  const heroImages = parseActualitesHeroImageUrlsFromSetting(heroRow?.value);
+  const heroImage = actualitesHeroImageUrl(heroImages, l);
   const totalPages = Math.ceil(total / limit);
   const showFeatured = page === 1 && !q && posts.length > 0;
   const featuredPost = showFeatured ? posts[0] : null;

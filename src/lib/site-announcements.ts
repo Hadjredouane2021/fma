@@ -26,26 +26,35 @@ const publicationSelect = {
   descriptionEn: true,
   descriptionAr: true,
   coverImage: true,
-  pdfFile: true,
-  readMoreUrl: true,
+  pdfFileFr: true,
+  pdfFileEn: true,
+  pdfFileAr: true,
+  readMoreUrlFr: true,
+  readMoreUrlEn: true,
+  readMoreUrlAr: true,
 } as const;
 
 export async function fetchSiteAnnouncements(): Promise<{
   news: AnnouncementPost | null;
   publication: AnnouncementPublication | null;
 }> {
-  const [news, publication] = await Promise.all([
-    prisma.post.findFirst({
-      where: { status: "PUBLISHED", deletedAt: null, announcePopup: true },
-      select: postSelect,
-      orderBy: { publishedAt: "desc" },
-    }),
-    prisma.publication.findFirst({
-      where: { status: "PUBLISHED", deletedAt: null, announcePopup: true },
-      select: publicationSelect,
-      orderBy: { publishedAt: "desc" },
-    }),
-  ]);
+  try {
+    const [news, publication] = await Promise.all([
+      prisma.post.findFirst({
+        where: { status: "PUBLISHED", deletedAt: null, announcePopup: true },
+        select: postSelect,
+        orderBy: { publishedAt: "desc" },
+      }),
+      prisma.publication.findFirst({
+        where: { status: "PUBLISHED", deletedAt: null, announcePopup: true },
+        select: publicationSelect,
+        orderBy: { publishedAt: "desc" },
+      }),
+    ]);
 
-  return { news, publication };
+    return { news, publication };
+  } catch (error) {
+    console.error("[site-announcements] fetchSiteAnnouncements failed:", error);
+    return { news: null, publication: null };
+  }
 }

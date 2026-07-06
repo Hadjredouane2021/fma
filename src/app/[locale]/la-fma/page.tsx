@@ -10,8 +10,15 @@ import { LaFmaValeursSection } from "@/components/common/LaFmaValeursSection";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import { Section } from "@/components/ui/Section";
 import { getLaFmaContent } from "@/lib/site-content";
-import { getLaFmaPageData } from "@/lib/la-fma-page-cache";
+import { getLaFmaPageData, laFmaStatsImageUrl } from "@/lib/la-fma-page-cache";
 import { DEFAULT_LA_FMA_CONTENT } from "@/lib/la-fma-site-public";
+import {
+  fmaMemberName,
+  fmaMemberCategoryLabel,
+  localizedText,
+  teamMemberName,
+  teamMemberTitle,
+} from "@/lib/localized-content";
 import { cn } from "@/lib/utils";
 import type { Locale, TeamMember, Member } from "@/types";
 import type { Metadata } from "next";
@@ -19,14 +26,8 @@ import type { Metadata } from "next";
 export const revalidate = 300;
 
 function OrgCard({ member, locale }: { member: TeamMember; locale: Locale }) {
-  const name =
-    locale === "ar" ? member.nameAr || member.nameFr
-    : locale === "en" ? member.nameEn || member.nameFr
-    : member.nameFr;
-  const title =
-    locale === "ar" ? member.titleAr || member.titleFr || ""
-    : locale === "en" ? member.titleEn || member.titleFr || ""
-    : member.titleFr || "";
+  const name = teamMemberName(member, locale);
+  const title = teamMemberTitle(member, locale);
 
   return (
     <div
@@ -85,8 +86,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const l = (locale as Locale) ?? "fr";
   const page = await getLaFmaContent();
   return {
-    title: `${page.heroTitle[l]} | FMA`,
-    description: page.heroSubtitle[l],
+    title: `${localizedText(page.heroTitle, l)} | FMA`,
+    description: localizedText(page.heroSubtitle, l),
   };
 }
 
@@ -95,24 +96,25 @@ export default async function FMAPage({ params }: { params: Promise<{ locale: st
   const l = locale as Locale;
 
   const [pageData, content] = await Promise.all([getLaFmaPageData(), getLaFmaContent()]);
-  const { members, direction: allTeam, comiteDirecteur, statsImageUrl } = pageData;
+  const { members, direction: allTeam, comiteDirecteur, statsImages } = pageData;
+  const statsImageUrl = laFmaStatsImageUrl(statsImages, l);
 
   return (
     <SectionBackground id="la-fma">
       <PageHero locale={l}>
-        <PageHeroImage src={statsImageUrl} alt={content.heroTitle[l]} />
+        <PageHeroImage src={statsImageUrl} alt={localizedText(content.heroTitle, l)} />
       </PageHero>
 
       <LaFmaPresentationSection
         locale={l}
-        title={content.presentationTitle[l]}
-        bodyHtml={content.presentationP1[l]}
+        title={localizedText(content.presentationTitle, l)}
+        bodyHtml={localizedText(content.presentationP1, l)}
         stats={content.stats}
       />
 
       <LaFmaMissionsSection
         locale={l}
-        title={content.missionsSectionTitle[l]}
+        title={localizedText(content.missionsSectionTitle, l)}
         missions={content.missions}
       />
 
@@ -120,8 +122,14 @@ export default async function FMAPage({ params }: { params: Promise<{ locale: st
       {(() => {
         const orgBlocs = content.orgBlocs?.length ? content.orgBlocs : DEFAULT_LA_FMA_CONTENT.orgBlocs;
         const orgTitle = content.organisationSectionTitle ?? DEFAULT_LA_FMA_CONTENT.organisationSectionTitle;
+        const orgDesc = content.organisationDescription ?? DEFAULT_LA_FMA_CONTENT.organisationDescription;
         return (
-          <LaFmaOrganisationSection locale={l} title={orgTitle[l]} blocs={orgBlocs} />
+          <LaFmaOrganisationSection
+            locale={l}
+            title={localizedText(orgTitle, l)}
+            description={localizedText(orgDesc, l) || undefined}
+            blocs={orgBlocs}
+          />
         );
       })()}
 
@@ -145,8 +153,8 @@ export default async function FMAPage({ params }: { params: Promise<{ locale: st
         return (
           <LaFmaValeursSection
             locale={l}
-            title={valeursTitle[l]}
-            description={valeursDesc[l] || undefined}
+            title={localizedText(valeursTitle, l)}
+            description={localizedText(valeursDesc, l) || undefined}
             valeurs={valeurs}
           />
         );
@@ -155,17 +163,18 @@ export default async function FMAPage({ params }: { params: Promise<{ locale: st
       {/* Équipe — organigramme hiérarchique */}
       {allTeam.length > 0 && (
         <Section>
-            <SectionHeader
-              title={l === "ar" ? "الفريق التشغيلي" : l === "en" ? "The Operational Team" : "L'Équipe Opérationnelle"}
-            />
+            <SectionHeader title={localizedText(content.directionSectionTitle, l)} />
             <OrgChart members={allTeam} locale={l} />
         </Section>
       )}
 
       {/* Membres */}
       {members.length > 0 && (() => {
+        const categoryLabels = content.memberCategories ?? DEFAULT_LA_FMA_CONTENT.memberCategories;
+        const categoryOtherLabel =
+          content.memberCategoryOtherLabel ?? DEFAULT_LA_FMA_CONTENT.memberCategoryOtherLabel;
         const grouped = members.reduce<Record<string, Member[]>>((acc, m) => {
-          const cat = m.category?.trim() || "Autres";
+          const cat = m.category?.trim() || "";
           if (!acc[cat]) acc[cat] = [];
           acc[cat].push(m);
           return acc;
@@ -175,24 +184,27 @@ export default async function FMAPage({ params }: { params: Promise<{ locale: st
           const orderB = Math.min(...grouped[b].map((m) => m.order));
           return orderA - orderB;
         });
-        const hasCategories = categories.length > 1 || (categories.length === 1 && categories[0] !== "Autres");
+        const hasCategories = categories.length > 1 || (categories.length === 1 && categories[0] !== "");
         return (
           <Section>
-              <SectionHeader title={content.membersSectionTitle[l]} />
+              <SectionHeader title={localizedText(content.membersSectionTitle, l)} />
               <div className="mt-12 space-y-12">
-                {categories.map((cat) => (
-                  <div key={cat}>
+                {categories.map((catSlug) => (
+                  <div key={catSlug || "__other__"}>
                     {hasCategories && (
-                      <h3 className="text-sm font-bold text-primary uppercase tracking-widest mb-6 text-center">{cat}</h3>
+                      <h3
+                        dir={l === "ar" ? "rtl" : "ltr"}
+                        className={cn(
+                          "text-sm font-bold text-primary tracking-widest mb-6 text-center",
+                          l !== "ar" && "uppercase"
+                        )}
+                      >
+                        {fmaMemberCategoryLabel(catSlug || null, l, categoryLabels, categoryOtherLabel)}
+                      </h3>
                     )}
                     <div className="la-fma-members-grid">
-                      {grouped[cat].map((member) => {
-                        const memberName =
-                          l === "ar"
-                            ? member.nameAr || member.nameFr
-                            : l === "en"
-                              ? member.nameEn || member.nameFr
-                              : member.nameFr;
+                      {grouped[catSlug].map((member) => {
+                        const memberName = fmaMemberName(member, l);
                         return (
                         <div
                           key={member.id}

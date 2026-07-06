@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { localizedText } from "@/lib/localized-content";
 import { formatDate } from "@/lib/utils";
 import { PageHero } from "@/components/common/PageHero";
 import { SectionBackground } from "@/components/common/SectionBackground";
@@ -16,19 +17,19 @@ export default async function RecherchePage({ params, searchParams }: {
   const { q } = await searchParams;
   const l = locale as Locale;
 
-  let posts: { id: string; slug: string; titleFr: string; titleEn?: string | null; excerptFr?: string | null; publishedAt?: Date | null; createdAt: Date }[] = [];
-  let publications: { id: string; slug: string; titleFr: string; titleEn?: string | null; type: string; year?: number | null }[] = [];
+  let posts: { id: string; slug: string; titleFr: string; titleEn?: string | null; titleAr?: string | null; excerptFr?: string | null; publishedAt?: Date | null; createdAt: Date }[] = [];
+  let publications: { id: string; slug: string; titleFr: string; titleEn?: string | null; titleAr?: string | null; type: string; year?: number | null }[] = [];
 
   if (q && q.length >= 2) {
     [posts, publications] = await Promise.all([
       prisma.post.findMany({
-        where: { status: "PUBLISHED", deletedAt: null, OR: [{ titleFr: { contains: q } }, { titleEn: { contains: q } }, { excerptFr: { contains: q } }] },
-        select: { id: true, slug: true, titleFr: true, titleEn: true, excerptFr: true, publishedAt: true, createdAt: true },
+        where: { status: "PUBLISHED", deletedAt: null, OR: [{ titleFr: { contains: q } }, { titleEn: { contains: q } }, { titleAr: { contains: q } }, { excerptFr: { contains: q } }] },
+        select: { id: true, slug: true, titleFr: true, titleEn: true, titleAr: true, excerptFr: true, publishedAt: true, createdAt: true },
         take: 10,
       }),
       prisma.publication.findMany({
-        where: { status: "PUBLISHED", deletedAt: null, OR: [{ titleFr: { contains: q } }, { titleEn: { contains: q } }, { descriptionFr: { contains: q } }] },
-        select: { id: true, slug: true, titleFr: true, titleEn: true, type: true, year: true },
+        where: { status: "PUBLISHED", deletedAt: null, OR: [{ titleFr: { contains: q } }, { titleEn: { contains: q } }, { titleAr: { contains: q } }, { descriptionFr: { contains: q } }] },
+        select: { id: true, slug: true, titleFr: true, titleEn: true, titleAr: true, type: true, year: true },
         take: 10,
       }),
     ]).catch(() => [[], []]);
@@ -68,7 +69,7 @@ export default async function RecherchePage({ params, searchParams }: {
                 {posts.map((post) => (
                   <Link key={post.id} href={`/${locale}/actualites/${post.slug}`} className="block glass-liquid rounded-2xl p-5 card-hover">
                     <h3 className="relative z-10 font-bold text-primary mb-1 hover:text-gold transition-colors">
-                      {l === "en" ? (post.titleEn || post.titleFr) : post.titleFr}
+                      {localizedText({ fr: post.titleFr, en: post.titleEn, ar: post.titleAr }, l)}
                     </h3>
                     {post.excerptFr && <p className="relative z-10 text-sm text-[var(--text-2)] line-clamp-2">{post.excerptFr}</p>}
                     <p className="relative z-10 text-xs text-[var(--text-3)] mt-2">{formatDate(post.publishedAt || post.createdAt, l)}</p>
@@ -86,7 +87,9 @@ export default async function RecherchePage({ params, searchParams }: {
               <div className="space-y-3">
                 {publications.map((pub) => (
                   <Link key={pub.id} href={`/${locale}/publications`} className="block glass-liquid rounded-2xl p-5 card-hover">
-                    <h3 className="relative z-10 font-bold text-primary mb-1">{l === "en" ? (pub.titleEn || pub.titleFr) : pub.titleFr}</h3>
+                    <h3 className="relative z-10 font-bold text-primary mb-1">
+                      {localizedText({ fr: pub.titleFr, en: pub.titleEn, ar: pub.titleAr }, l)}
+                    </h3>
                     <p className="relative z-10 text-xs text-[var(--text-3)] mt-1">{pub.type} {pub.year ? `• ${pub.year}` : ""}</p>
                   </Link>
                 ))}

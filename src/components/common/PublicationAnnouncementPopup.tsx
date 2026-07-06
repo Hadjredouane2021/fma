@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import { buttonBase, buttonPrimary, buttonSizes } from "@/lib/button-styles";
 import { isPdfUrl } from "@/components/common/PdfViewerModal";
 import { truncate, cn } from "@/lib/utils";
+import { localizedText } from "@/lib/localized-content";
 import type { AnnouncementPublication } from "@/lib/publications-cache";
 import type { Locale } from "@/types";
 import {
@@ -50,13 +51,19 @@ function localized(
   field: "title" | "description"
 ): string {
   if (field === "title") {
-    if (locale === "ar") return announcement.titleAr || announcement.titleFr;
-    if (locale === "en") return announcement.titleEn || announcement.titleFr;
-    return announcement.titleFr;
+    return localizedText(
+      { fr: announcement.titleFr, en: announcement.titleEn, ar: announcement.titleAr },
+      locale
+    );
   }
-  if (locale === "ar") return announcement.descriptionAr || announcement.descriptionFr || "";
-  if (locale === "en") return announcement.descriptionEn || announcement.descriptionFr || "";
-  return announcement.descriptionFr || "";
+  return localizedText(
+    {
+      fr: announcement.descriptionFr,
+      en: announcement.descriptionEn,
+      ar: announcement.descriptionAr,
+    },
+    locale
+  );
 }
 
 function isDismissed(announcement: AnnouncementPublication): boolean {
@@ -84,7 +91,22 @@ function dismiss(announcement: AnnouncementPublication) {
 }
 
 function resolveCta(announcement: AnnouncementPublication, locale: Locale) {
-  const readMore = announcement.readMoreUrl?.trim() || "";
+  const readMore = localizedText(
+    {
+      fr: announcement.readMoreUrlFr,
+      en: announcement.readMoreUrlEn,
+      ar: announcement.readMoreUrlAr,
+    },
+    locale
+  ).trim();
+  const pdfFile = localizedText(
+    {
+      fr: announcement.pdfFileFr,
+      en: announcement.pdfFileEn,
+      ar: announcement.pdfFileAr,
+    },
+    locale
+  ).trim();
   if (readMore && !isPdfUrl(readMore)) {
     return {
       href: readMore,
@@ -92,9 +114,9 @@ function resolveCta(announcement: AnnouncementPublication, locale: Locale) {
       label: locale === "ar" ? "اقرأ المزيد" : locale === "en" ? "Read more" : "Lire la suite",
     };
   }
-  if (announcement.pdfFile?.trim()) {
+  if (pdfFile) {
     return {
-      href: announcement.pdfFile.trim(),
+      href: pdfFile,
       external: true,
       label: locale === "ar" ? "عرض PDF" : locale === "en" ? "View PDF" : "Consulter le PDF",
     };

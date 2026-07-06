@@ -12,7 +12,7 @@ export function HomeHeroBackgroundPreview({
   alt = "Aperçu du fond du hero",
 }: HomeHeroBackgroundPreviewProps) {
   return (
-    <div className="relative w-full min-h-[max(28rem,100dvh)] overflow-hidden">
+    <div className="hero-home--has-photo relative w-full min-h-[max(28rem,100dvh)] overflow-hidden">
       <div className="hero-bg-photo">
         <Image
           src={src}

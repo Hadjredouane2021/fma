@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import AdminShell from "@/components/admin/AdminShell";
 import { AdminThemeStyle } from "@/components/admin/AdminThemeStyle";
-import { getSiteLogo, getSiteSpinner } from "@/lib/site-settings-cache";
+import { DbUnavailableBanner } from "@/components/common/DbUnavailableBanner";
+import { getSiteLogo, getSiteSpinner, isDatabaseUnavailable } from "@/lib/site-settings-cache";
 
 export const metadata: Metadata = {
   title: "Administration | FMA",
@@ -9,10 +10,15 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminRootLayout({ children }: { children: React.ReactNode }) {
-  const [siteSpinner, siteLogo] = await Promise.all([getSiteSpinner(), getSiteLogo()]);
+  const [siteSpinner, siteLogo, dbUnavailable] = await Promise.all([
+    getSiteSpinner(),
+    getSiteLogo(),
+    isDatabaseUnavailable(),
+  ]);
   return (
     <>
       <AdminThemeStyle />
+      {dbUnavailable && <DbUnavailableBanner />}
       <AdminShell spinnerImageUrl={siteSpinner.imageUrl} logoUrl={siteLogo.imageUrl}>
         {children}
       </AdminShell>

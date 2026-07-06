@@ -3,6 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import type { Publication, Locale } from "@/types";
 import { cn } from "@/lib/utils";
+import { localizedText, publicationTitle } from "@/lib/localized-content";
 import { resolvePublicationDisplayDate } from "@/lib/publication-date";
 import { isPdfUrl, PdfViewerModal } from "@/components/common/PdfViewerModal";
 
@@ -56,18 +57,25 @@ function PublicationDateCalendar({ publication, locale }: { publication: Publica
 
   return (
     <div
-      className="publication-date-calendar relative z-10 flex h-[4.25rem] w-[4.25rem] shrink-0 flex-col rounded-xl text-center"
+      className={cn(
+        "publication-date-calendar relative z-10 flex shrink-0 flex-col rounded-xl text-center",
+        "h-14 w-14 sm:h-[4.25rem] sm:w-[4.25rem] lg:mx-auto lg:h-[3.75rem] lg:w-[3.75rem]"
+      )}
       aria-label={dateLabel}
       title={dateLabel}
     >
-      <div className="publication-date-calendar__band shrink-0 px-1 py-1 text-[10px] font-bold uppercase leading-none tracking-wide">
+      <div className="publication-date-calendar__band shrink-0 px-1 py-0.5 text-[9px] font-bold uppercase leading-none tracking-wide sm:py-1 sm:text-[10px]">
         {bandLabel}
       </div>
       <div className="publication-date-calendar__body flex min-h-0 flex-1 flex-col items-center justify-center px-1">
         <span
           className={cn(
             "publication-date-calendar__day font-display font-bold leading-none tabular-nums",
-            mode === "full" ? "text-xl" : mode === "month-year" ? "text-lg" : "text-base"
+            mode === "full"
+              ? "text-lg sm:text-xl"
+              : mode === "month-year"
+                ? "text-base sm:text-lg"
+                : "text-sm sm:text-base"
           )}
         >
           {mainLabel}
@@ -106,16 +114,17 @@ function ActionLink({
 }
 
 export function PublicationCard({ publication, locale, className }: PublicationCardProps) {
-  const title =
-    locale === "ar"
-      ? publication.titleAr || publication.titleFr
-      : locale === "en"
-        ? publication.titleEn || publication.titleFr
-        : publication.titleFr;
+  const title = publicationTitle(publication, locale);
   const typeLabel = typeLabels[publication.type]?.[locale] || publication.type;
 
-  const readMore = publication.readMoreUrl?.trim() || "";
-  const pdfFile = publication.pdfFile?.trim() || "";
+  const pdfFile = localizedText(
+    { fr: publication.pdfFileFr, en: publication.pdfFileEn, ar: publication.pdfFileAr },
+    locale
+  );
+  const readMore = localizedText(
+    { fr: publication.readMoreUrlFr, en: publication.readMoreUrlEn, ar: publication.readMoreUrlAr },
+    locale
+  );
   const readMoreIsPdf = Boolean(readMore && isPdfUrl(readMore));
   const pdfUrl = pdfFile || (readMoreIsPdf ? readMore : "");
   const externalReadMore = readMore && !readMoreIsPdf ? readMore : "";
@@ -127,26 +136,28 @@ export function PublicationCard({ publication, locale, className }: PublicationC
   const showReadMore = Boolean(externalReadMore);
   const showFooter = showPdfAction || showReadMore;
 
-  const cardClass = cn(
-    "glass-liquid flex w-full flex-col overflow-hidden rounded-2xl card-hover transition-colors",
-    className
-  );
+  const cardClass = cn("publication-card-glass flex w-full flex-col", className);
 
   const actionClass =
-    "group/action relative z-10 inline-flex items-center gap-2 text-sm font-bold text-accent transition-all hover:gap-3 hover:text-primary";
+    "group/action relative z-10 inline-flex items-center gap-1.5 text-xs font-bold text-accent transition-all hover:gap-2 hover:text-primary sm:gap-2 sm:text-sm";
 
   return (
     <div className={cardClass}>
-      <div className="relative z-10 flex items-center gap-4 px-4 py-4">
+      <div className="publication-card-glass__accent" aria-hidden />
+      <div className="publication-card-glass__main flex items-start gap-3 px-3 py-3.5 sm:items-center sm:gap-4 sm:px-4 sm:py-4 lg:flex-col lg:items-stretch lg:gap-2.5 lg:px-3.5 lg:py-3.5">
         <PublicationDateCalendar publication={publication} locale={locale} />
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold leading-snug text-[var(--text-1)] line-clamp-2">{title}</p>
-          {meta ? <p className="mt-0.5 text-xs text-[var(--text-3)]">{meta}</p> : null}
+        <div className="min-w-0 flex-1 lg:w-full">
+          <p className="text-[13px] font-semibold leading-snug text-[var(--text-1)] line-clamp-3 sm:text-sm sm:line-clamp-2 lg:text-center lg:text-xs lg:leading-relaxed lg:line-clamp-4">
+            {title}
+          </p>
+          {meta ? (
+            <p className="mt-1 text-[11px] text-[var(--text-3)] sm:text-xs lg:text-center">{meta}</p>
+          ) : null}
         </div>
       </div>
 
       {showFooter ? (
-        <div className="relative z-10 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[var(--border)]/40 px-4 py-3">
+        <div className="publication-card-glass__footer flex flex-wrap items-center justify-start gap-x-4 gap-y-2 px-3 py-2.5 sm:gap-x-5 sm:px-4 sm:py-3 lg:justify-center">
           {showPdfAction ? (
             showReadMore ? (
               <PdfViewerModal url={pdfUrl} title={title} locale={locale} className="inline-flex">

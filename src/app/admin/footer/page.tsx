@@ -6,7 +6,7 @@ export default async function AdminFooterPage() {
   const content = await getFooterContent();
   return (
     <>
-      <AdminPageHeader title="Footer" subtitle="Coordonnées, réseaux sociaux et description affichés en bas de chaque page" />
+      <AdminPageHeader title="Footer" subtitle="Textes multilingues (FR, EN, AR), coordonnées et réseaux sociaux affichés en bas de chaque page" />
       <main className="p-8">
         <FooterForm initial={content} />
       </main>

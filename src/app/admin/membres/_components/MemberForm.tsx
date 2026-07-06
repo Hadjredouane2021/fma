@@ -2,15 +2,27 @@
 
 import Image from "next/image";
 import { ADMIN_IMAGE_ACCEPT } from "@/lib/admin-upload";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Save } from "lucide-react";
+import { Eye, Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
+import { buttonTabActive, buttonTabInactive } from "@/lib/button-styles";
+import { ADMIN_LOCALE_TABS, type AdminLocale } from "@/lib/admin-locale";
+import { localizedText } from "@/lib/localized-content";
+import {
+  DEFAULT_LA_FMA_CONTENT,
+  DEFAULT_MEMBER_CATEGORIES,
+  type LaFmaMemberCategory,
+} from "@/lib/la-fma-site-public";
+import { resolveMemberCategorySlug, type MemberCategoryConfig } from "@/lib/member-categories-shared";
+import type { Locale } from "@/types";
 
 const inputBase =
   "w-full px-4 py-3 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text-1)] placeholder-[var(--text-3)] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors";
 const labelCls = "block text-xs font-semibold text-[var(--text-2)] uppercase tracking-wide mb-2";
 const fieldGroupCard = "rounded-xl border border-[var(--border)] p-4 space-y-3";
+const card = "bg-[var(--bg)] border border-[var(--border)] rounded-2xl p-6";
 
 export type MemberFormInitial = {
   id: string;
@@ -30,14 +42,34 @@ export type MemberFormInitial = {
 interface MemberFormProps {
   initial?: MemberFormInitial | null;
   defaultOrder?: number;
+  categoryConfig?: MemberCategoryConfig;
 }
 
-export default function MemberForm({ initial, defaultOrder = 0 }: MemberFormProps) {
+function defaultCategoryConfig(): MemberCategoryConfig {
+  return {
+    categories: DEFAULT_MEMBER_CATEGORIES,
+    otherLabel: DEFAULT_LA_FMA_CONTENT.memberCategoryOtherLabel,
+    extraSlugs: [],
+  };
+}
+
+export default function MemberForm({
+  initial,
+  defaultOrder = 0,
+  categoryConfig = defaultCategoryConfig(),
+}: MemberFormProps) {
   const router = useRouter();
   const isEdit = Boolean(initial?.id);
+  const [tab, setTab] = useState<AdminLocale>("fr");
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+
+  const { categories, otherLabel, extraSlugs } = categoryConfig;
+  const resolvedInitialCategory = useMemo(
+    () => resolveMemberCategorySlug(initial?.category, categories),
+    [initial?.category, categories]
+  );
 
   const [form, setForm] = useState({
     nameFr: initial?.nameFr ?? "",
@@ -48,10 +80,33 @@ export default function MemberForm({ initial, defaultOrder = 0 }: MemberFormProp
     descriptionFr: initial?.descriptionFr ?? "",
     descriptionEn: initial?.descriptionEn ?? "",
     descriptionAr: initial?.descriptionAr ?? "",
-    category: initial?.category ?? "",
+    category: resolvedInitialCategory,
     order: initial?.order ?? defaultOrder,
     active: initial?.active ?? true,
   });
+
+  const currentTab = ADMIN_LOCALE_TABS.find((t) => t.key === tab)!;
+  const l = tab as Locale;
+  const knownSlugs = new Set(categories.map((c) => c.slug));
+  const categoryIsKnown = !form.category || knownSlugs.has(form.category);
+  const categoryLabel =
+    tab === "ar" ? "الفئة" : tab === "en" ? "Category" : "Catégorie";
+
+  const categoryOptions = useMemo(() => {
+    const options: { slug: string; label: string }[] = categories.map((c) => ({
+      slug: c.slug,
+      label: localizedText(c.label, l),
+    }));
+    for (const slug of extraSlugs) {
+      if (!knownSlugs.has(slug)) {
+        options.push({ slug, label: slug });
+      }
+    }
+    if (form.category && !knownSlugs.has(form.category) && !extraSlugs.includes(form.category)) {
+      options.push({ slug: form.category, label: form.category });
+    }
+    return options;
+  }, [categories, extraSlugs, form.category, knownSlugs, l]);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -84,10 +139,11 @@ export default function MemberForm({ initial, defaultOrder = 0 }: MemberFormProp
     try {
       const method = isEdit ? "PUT" : "POST";
       const url = isEdit ? `/api/admin/members/${initial!.id}` : "/api/admin/members";
+      const category = resolveMemberCategorySlug(form.category, categories);
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, category }),
       });
       if (res.ok) {
         router.push("/admin/membres");
@@ -104,36 +160,122 @@ export default function MemberForm({ initial, defaultOrder = 0 }: MemberFormProp
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
-      <div className={fieldGroupCard}>
-        <h3 className="text-sm font-bold text-primary">Identité</h3>
-        <div>
-          <label className={labelCls}>Raison sociale (FR) — obligatoire</label>
-          <input
-            type="text"
-            value={form.nameFr}
-            onChange={(e) => setForm((p) => ({ ...p, nameFr: e.target.value }))}
-            className={inputBase}
-            required
-          />
+      <div className={`${card} space-y-6`}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            {ADMIN_LOCALE_TABS.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => setTab(t.key)}
+                className={cn(
+                  "rounded-xl px-4 py-2 text-sm font-medium",
+                  tab === t.key ? buttonTabActive : buttonTabInactive
+                )}
+              >
+                {t.flag} {t.label}
+              </button>
+            ))}
+          </div>
+          <a
+            href={`/${tab}/la-fma`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Aperçu La FMA ({currentTab.label})
+          </a>
         </div>
-        <div>
-          <label className={labelCls}>Nom (EN)</label>
-          <input
-            type="text"
-            value={form.nameEn}
-            onChange={(e) => setForm((p) => ({ ...p, nameEn: e.target.value }))}
-            className={inputBase}
-          />
-        </div>
-        <div>
-          <label className={labelCls}>Nom (AR)</label>
-          <input
-            type="text"
-            value={form.nameAr}
-            onChange={(e) => setForm((p) => ({ ...p, nameAr: e.target.value }))}
-            className={inputBase}
-            dir="rtl"
-          />
+        <p className="text-xs text-[var(--text-3)]">
+          Raison sociale et libellé de catégorie selon la langue active. Le slug de catégorie reste commun à toutes les langues en BDD ; les traductions des groupes se gèrent sur la page Membres FMA.
+        </p>
+        <div className="space-y-4" dir={currentTab.dir}>
+          <div>
+            <label className={labelCls}>
+              {tab === "ar" ? "الاسم" : tab === "en" ? "Company name" : "Raison sociale"}
+              {tab === "fr" ? " — obligatoire" : ""}
+            </label>
+            {tab === "fr" && (
+              <input
+                type="text"
+                value={form.nameFr}
+                onChange={(e) => setForm((p) => ({ ...p, nameFr: e.target.value }))}
+                className={inputBase}
+                required
+              />
+            )}
+            {tab === "en" && (
+              <input
+                type="text"
+                value={form.nameEn}
+                onChange={(e) => setForm((p) => ({ ...p, nameEn: e.target.value }))}
+                className={inputBase}
+                placeholder="Company name in English…"
+              />
+            )}
+            {tab === "ar" && (
+              <input
+                type="text"
+                value={form.nameAr}
+                onChange={(e) => setForm((p) => ({ ...p, nameAr: e.target.value }))}
+                className={inputBase}
+                placeholder="اسم الشركة بالعربية…"
+              />
+            )}
+          </div>
+
+          <div>
+            <label className={labelCls}>{categoryLabel}</label>
+            <select
+              value={categoryIsKnown ? form.category : "__custom__"}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === "__custom__") return;
+                setForm((p) => ({ ...p, category: value }));
+              }}
+              className={inputBase}
+            >
+              <option value="">{localizedText(otherLabel, l)}</option>
+              {categoryOptions.map((opt) => (
+                <option key={opt.slug} value={opt.slug}>
+                  {opt.label}
+                </option>
+              ))}
+              {!categoryIsKnown && form.category ? (
+                <option value="__custom__">{form.category}</option>
+              ) : null}
+            </select>
+            {!categoryIsKnown ? (
+              <input
+                type="text"
+                list="member-category-slugs"
+                value={form.category}
+                onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
+                className={cn(inputBase, "mt-2")}
+                placeholder="assureurs, reassureurs…"
+                dir="ltr"
+              />
+            ) : null}
+            <datalist id="member-category-slugs">
+              {categories.map((c: LaFmaMemberCategory) => (
+                <option key={c.slug} value={c.slug} />
+              ))}
+              {extraSlugs.map((slug) => (
+                <option key={slug} value={slug} />
+              ))}
+            </datalist>
+            {form.category ? (
+              <p className="mt-1 font-mono text-[10px] text-[var(--text-3)]" dir="ltr">
+                slug BDD : {form.category}
+              </p>
+            ) : null}
+            {initial?.category && initial.category !== resolvedInitialCategory ? (
+              <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                Ancienne valeur « {initial.category} » convertie en slug « {resolvedInitialCategory} » à l’enregistrement.
+              </p>
+            ) : null}
+          </div>
         </div>
       </div>
 
@@ -170,21 +312,11 @@ export default function MemberForm({ initial, defaultOrder = 0 }: MemberFormProp
             placeholder="https://"
           />
         </div>
-        <div>
-          <label className={labelCls}>Catégorie (slug interne)</label>
-          <input
-            type="text"
-            value={form.category}
-            onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
-            className={inputBase}
-            placeholder="assureurs, reassureurs…"
-          />
-          <p className="mt-1 text-xs text-[var(--text-3)]">Champ libre pour vos filtres ou exports ; la page La FMA affiche tous les membres actifs (max. 12 par ordre).</p>
-        </div>
       </div>
 
       <div className={fieldGroupCard}>
         <h3 className="text-sm font-bold text-primary">Description (optionnel)</h3>
+        <p className="text-xs text-[var(--text-3)]">Stockée en BDD — non affichée sur la page La FMA actuellement.</p>
         <div>
           <label className={labelCls}>Description (FR)</label>
           <textarea rows={3} value={form.descriptionFr} onChange={(e) => setForm((p) => ({ ...p, descriptionFr: e.target.value }))} className={inputBase} />

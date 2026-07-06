@@ -5,7 +5,16 @@ import { useTranslations } from "next-intl";
 import { Mail, Phone, MapPin, ArrowUpRight, ChevronDown } from "lucide-react";
 import type { Locale } from "@/types";
 import type { FooterContent } from "@/lib/footer-site-public";
-import { footerPhoneTelHref, parseFooterPhones } from "@/lib/footer-site-public";
+import {
+  footerAddress,
+  footerContactTitle,
+  footerCopyrightLine,
+  footerDescription,
+  footerNavigationTitle,
+  footerPhoneTelHref,
+  footerUsefulLinksTitle,
+  parseFooterPhones,
+} from "@/lib/footer-site-public";
 import { resolveLogoHref, type SiteLogoSettings } from "@/lib/site-logo";
 import { SiteLogoFromSettings } from "@/components/common/SiteLogo";
 import { resolveHref, type MenuContent, type MenuItem } from "@/lib/menu-site-public";
@@ -149,6 +158,11 @@ export default function Footer({
   const col1 = items.slice(0, mid);
   const col2 = items.slice(mid);
   const phones = parseFooterPhones(footerContent.phone);
+  const description = footerDescription(footerContent, locale);
+  const navigationTitle = footerNavigationTitle(footerContent, locale);
+  const usefulLinksTitle = footerUsefulLinksTitle(footerContent, locale);
+  const contactTitle = footerContactTitle(footerContent, locale);
+  const address = footerAddress(footerContent, locale);
 
   const logoImageClassName = "site-footer__logo-img transition-opacity duration-200";
 
@@ -173,6 +187,12 @@ export default function Footer({
               </span>
             </Link>
 
+            {description ? (
+              <p className="site-footer__description site-footer__muted mt-3 max-w-sm text-sm leading-relaxed opacity-80">
+                {description}
+              </p>
+            ) : null}
+
             {/* Social */}
             {social.length > 0 && (
               <div className="site-footer__social">
@@ -194,9 +214,7 @@ export default function Footer({
 
           {/* Navigation col 1 */}
           <div className="site-footer__nav-col site-footer__nav-col--primary">
-            <p className="site-footer__section-title">
-              {locale === "ar" ? "التنقل" : locale === "en" ? "Navigation" : "Navigation"}
-            </p>
+            <p className="site-footer__section-title">{navigationTitle}</p>
             <ul className="site-footer__nav-list">
               {col1.map((item) => (
                 <FooterAccordion key={item.id} item={item} locale={locale} />
@@ -206,9 +224,7 @@ export default function Footer({
 
           {/* Navigation col 2 */}
           <div className="site-footer__nav-col site-footer__nav-col--secondary">
-            <p className="site-footer__section-title">
-              {locale === "ar" ? "روابط مفيدة" : locale === "en" ? "Useful links" : "Liens utiles"}
-            </p>
+            <p className="site-footer__section-title">{usefulLinksTitle}</p>
             <ul className="site-footer__nav-list">
               {col2.map((item) => (
                 <FooterAccordion key={item.id} item={item} locale={locale} />
@@ -218,12 +234,12 @@ export default function Footer({
 
           {/* Contact */}
           <div className="site-footer__contact site-footer__contact-col min-w-0">
-            <p className="site-footer__section-title">Contact</p>
+            <p className="site-footer__section-title">{contactTitle}</p>
             <ul className="site-footer__contact-list">
-              {footerContent.address && (
+              {address && (
                 <li className="site-footer__contact-item">
                   <MapPin className="site-footer__contact-icon" />
-                  <span className="site-footer__contact-text site-footer__muted leading-relaxed" style={{ whiteSpace: "pre-line" }}>{footerContent.address}</span>
+                  <span className="site-footer__contact-text site-footer__muted leading-relaxed" style={{ whiteSpace: "pre-line" }}>{address}</span>
                 </li>
               )}
               {phones.length > 0 && (
@@ -259,7 +275,7 @@ export default function Footer({
       <div className="relative border-t site-footer__divider">
         <div className="container-custom site-footer__bottom">
           <span className="site-footer__muted site-footer__copyright opacity-70 font-medium tracking-wide">
-            © {new Date().getFullYear()} Fédération Marocaine de l&apos;Assurance. {t("rights")}.
+            {footerCopyrightLine(footerContent, locale)}
           </span>
           <div className="site-footer__legal-links">
             {[

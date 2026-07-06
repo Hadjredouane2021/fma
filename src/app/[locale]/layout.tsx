@@ -9,6 +9,7 @@ import { NavigationProgress } from "@/components/common/NavigationProgress";
 import { SpinnerLogoProvider } from "@/components/common/SpinnerLogoProvider";
 import { SiteThemeStyle } from "@/components/common/SiteThemeStyle";
 import { SiteSectionBackgroundsStyle } from "@/components/common/SiteSectionBackgroundsStyle";
+import { DbUnavailableBanner } from "@/components/common/DbUnavailableBanner";
 import { getLayoutSiteSettings } from "@/lib/site-settings-cache";
 import { fetchSiteAnnouncements } from "@/lib/site-announcements";
 import { SiteAnnouncementPopupsClient } from "@/components/common/SiteAnnouncementPopupsClient";
@@ -35,13 +36,14 @@ export default async function LocaleLayout({
     getLayoutSiteSettings(),
     fetchSiteAnnouncements(),
   ]);
-  const { footer: footerContent, menu: menuContent, logo: siteLogo, spinner: siteSpinner } = layoutSettings;
+  const { footer: footerContent, menu: menuContent, logo: siteLogo, spinner: siteSpinner, dbUnavailable } = layoutSettings;
 
   return (
     <NextIntlClientProvider messages={messages}>
       <SpinnerLogoProvider imageUrl={siteSpinner.imageUrl}>
         <SiteThemeStyle />
         <SiteSectionBackgroundsStyle />
+        {dbUnavailable && <DbUnavailableBanner />}
         <LocaleAttributes locale={locale as Locale} />
         <NavigationProgress />
         <Header locale={locale as Locale} menuContent={menuContent} siteLogo={siteLogo} />

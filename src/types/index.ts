@@ -77,9 +77,13 @@ export interface Publication {
   descriptionFr?: string | null;
   descriptionEn?: string | null;
   descriptionAr?: string | null;
-  pdfFile?: string | null;
+  pdfFileFr?: string | null;
+  pdfFileEn?: string | null;
+  pdfFileAr?: string | null;
   coverImage?: string | null;
-  readMoreUrl?: string | null;
+  readMoreUrlFr?: string | null;
+  readMoreUrlEn?: string | null;
+  readMoreUrlAr?: string | null;
   year?: number | null;
   status: Status;
   featured: boolean;

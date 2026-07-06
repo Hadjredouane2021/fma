@@ -4,6 +4,7 @@ import { Pencil, Eye } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { DB_KEYS } from "@/lib/db-keys";
+import { parseActualitesHeroImageUrlsFromSetting } from "@/lib/actualites-hero-image";
 import DeleteButton from "./_components/DeleteButton";
 import ActualitesHeroImageForm from "./_components/ActualitesHeroImageForm";
 
@@ -16,7 +17,7 @@ export default async function AdminActualitesPage() {
     }).catch(() => []),
     prisma.setting.findUnique({ where: { key: DB_KEYS.ACTUALITES_HERO } }).catch(() => null),
   ]);
-  const heroImageUrl = heroRow?.value ?? "";
+  const heroImages = parseActualitesHeroImageUrlsFromSetting(heroRow?.value);
 
   return (
     <>
@@ -27,7 +28,7 @@ export default async function AdminActualitesPage() {
       />
 
       <main className="p-8">
-        <ActualitesHeroImageForm initial={heroImageUrl} />
+        <ActualitesHeroImageForm initial={heroImages} />
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] shadow-sm dark:shadow-none">
           <table className="w-full text-sm">
             <thead>

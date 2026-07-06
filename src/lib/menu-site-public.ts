@@ -76,3 +76,68 @@ export function createEmptyMenuChild(): MenuChild {
 export function resolveHref(href: string, locale: string): string {
   return href.replace(/\[locale\]/g, locale);
 }
+
+function strLabel(value: unknown, fallback: string): string {
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
+}
+
+function normalizeMenuChild(
+  input: unknown,
+  fallback?: MenuChild
+): MenuChild | null {
+  if (!input || typeof input !== "object") return fallback ?? null;
+  const d = input as Partial<MenuChild>;
+  const id = typeof d.id === "string" && d.id ? d.id : fallback?.id;
+  if (!id) return null;
+
+  const labelFr = strLabel(d.labelFr, fallback?.labelFr ?? "");
+  return {
+    id,
+    labelFr,
+    labelEn: strLabel(d.labelEn, fallback?.labelEn ?? labelFr),
+    labelAr: strLabel(d.labelAr, fallback?.labelAr ?? labelFr),
+    href: typeof d.href === "string" ? d.href : fallback?.href ?? "",
+  };
+}
+
+function normalizeMenuItem(input: unknown, fallback?: MenuItem): MenuItem | null {
+  if (!input || typeof input !== "object") return fallback ?? null;
+  const d = input as Partial<MenuItem>;
+  const id = typeof d.id === "string" && d.id ? d.id : fallback?.id;
+  if (!id) return null;
+
+  const labelFr = strLabel(d.labelFr, fallback?.labelFr ?? "");
+  const fallbackChildren = fallback?.children ?? [];
+  const rawChildren = Array.isArray(d.children) ? d.children : [];
+  const children = rawChildren.length
+    ? rawChildren
+        .map((child, index) =>
+          normalizeMenuChild(child, fallbackChildren.find((c) => c.id === (child as MenuChild).id) ?? fallbackChildren[index])
+        )
+        .filter((child): child is MenuChild => child !== null)
+    : fallbackChildren;
+
+  return {
+    id,
+    labelFr,
+    labelEn: strLabel(d.labelEn, fallback?.labelEn ?? labelFr),
+    labelAr: strLabel(d.labelAr, fallback?.labelAr ?? labelFr),
+    href: typeof d.href === "string" ? d.href : fallback?.href ?? "",
+    children,
+  };
+}
+
+/** Fusionne le menu BDD avec les libellés par défaut (notamment AR). */
+export function normalizeMenuContent(input: unknown): MenuContent {
+  if (!input || typeof input !== "object") return DEFAULT_MENU_CONTENT;
+  const d = input as Partial<MenuContent>;
+  if (!Array.isArray(d.items) || d.items.length === 0) return DEFAULT_MENU_CONTENT;
+
+  const items = d.items
+    .map((item) =>
+      normalizeMenuItem(item, DEFAULT_MENU_CONTENT.items.find((f) => f.id === (item as MenuItem).id))
+    )
+    .filter((item): item is MenuItem => item !== null);
+
+  return items.length > 0 ? { items } : DEFAULT_MENU_CONTENT;
+}

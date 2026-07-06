@@ -1,14 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Menu, X, Search, ChevronDown, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { buttonSegmentActive, buttonSegmentInactive } from "@/lib/button-styles";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { resolveHref, type MenuContent } from "@/lib/menu-site-public";
 import { resolveLogoHref, type SiteLogoSettings } from "@/lib/site-logo";
 import { SiteLogoFromSettings } from "@/components/common/SiteLogo";
+import { Link as LocaleLink, usePathname } from "@/i18n/navigation";
+import { buildLocaleSwitchHref } from "@/i18n/locale-switch";
 import type { Locale } from "@/types";
 
 const localeLabels: Record<string, string> = { fr: "FR", en: "EN", ar: "ع" };
@@ -26,10 +28,14 @@ export default function Header({
   siteLogo: SiteLogoSettings;
 }) {
   const t = useTranslations("nav");
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const localeHref = (target: Locale) => buildLocaleSwitchHref(target, pathname, searchParams);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [langOpen, setLangOpen] = useState(false);
+  const [mobileLangOpen, setMobileLangOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -39,7 +45,10 @@ export default function Header({
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
+    else {
+      document.body.style.overflow = "";
+      setMobileLangOpen(false);
+    }
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
@@ -49,6 +58,7 @@ export default function Header({
     : item.labelFr;
 
   const logoHref = resolveLogoHref(siteLogo.linkUrl, locale);
+  const isRtl = locale === "ar";
 
   return (
     <>
@@ -77,14 +87,14 @@ export default function Header({
 
         {/* Recherche + langue + thème — desktop xl+ */}
         <div className="site-header-actions">
-          <Link
-            href={`/${locale}/recherche`}
+          <LocaleLink
+            href="/recherche"
             prefetch
             aria-label={t("search")}
             className="flex h-[2.125rem] w-[2.125rem] items-center justify-center rounded-full text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--hover-bg)] transition-all duration-200"
           >
             <Search className="h-4 w-4" />
-          </Link>
+          </LocaleLink>
           <div className="relative">
             <button
               type="button"
@@ -110,7 +120,7 @@ export default function Header({
                   {locales.map((l) => (
                     <Link
                       key={l}
-                      href={`/${l}`}
+                      href={localeHref(l)}
                       onClick={() => setLangOpen(false)}
                       className={cn(
                         "flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors duration-100",
@@ -121,7 +131,7 @@ export default function Header({
                     >
                       <span className="text-base leading-none">{localeFlags[l]}</span>
                       <span>{localeNames[l]}</span>
-                      {locale === l && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--brand)]" />}
+                      {locale === l && <span className="ms-auto w-1.5 h-1.5 rounded-full bg-[var(--brand)]" />}
                     </Link>
                   ))}
                 </div>
@@ -132,7 +142,7 @@ export default function Header({
         </div>
 
         {/* ── NAV BAR (pleine largeur, menu centré entre logo et actions) ── */}
-        <div className="site-header-bar" dir="ltr">
+        <div className="site-header-bar" dir={isRtl ? "rtl" : "ltr"}>
           <nav className="site-header-nav" aria-label="Navigation principale">
               {menuContent.items.map((item) => (
                 <div
@@ -172,7 +182,7 @@ export default function Header({
                               className="group/dd flex items-center justify-between rounded-xl px-3.5 py-2.5 text-[13px] font-medium text-[var(--text-2)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-1)] transition-colors duration-100"
                             >
                               <span>{label(child)}</span>
-                              <ArrowUpRight className="w-3 h-3 opacity-0 group-hover/dd:opacity-40 transition-opacity -translate-y-0.5 translate-x-0.5" />
+                              <ArrowUpRight className="w-3 h-3 opacity-0 group-hover/dd:opacity-40 transition-opacity -translate-y-0.5 translate-x-0.5 rtl:-translate-x-0.5" />
                             </Link>
                           ))}
                         </div>
@@ -184,15 +194,15 @@ export default function Header({
           </nav>
 
           {/* Tablette / mobile : recherche + menu */}
-          <div className="ml-auto flex flex-shrink-0 items-center gap-1.5 xl:hidden">
-            <Link
-              href={`/${locale}/recherche`}
+          <div className="ms-auto flex flex-shrink-0 items-center gap-1.5 xl:hidden">
+            <LocaleLink
+              href="/recherche"
               prefetch
               aria-label={t("search")}
               className="p-2.5 rounded-xl text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--hover-bg)] transition-all duration-200"
             >
               <Search className="w-[17px] h-[17px]" />
-            </Link>
+            </LocaleLink>
             <button
               type="button"
               onClick={() => setIsOpen(!isOpen)}
@@ -245,7 +255,7 @@ export default function Header({
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3">
+        <nav className="flex-1 overflow-y-auto py-4 px-3" dir={isRtl ? "rtl" : "ltr"}>
           {menuContent.items.map((item) => (
             <div key={item.id} className="mb-0.5">
               {item.children.length > 0 ? (
@@ -258,8 +268,8 @@ export default function Header({
                     {label(item)}
                     <ChevronDown className={cn("w-4 h-4 text-[var(--text-3)] transition-transform duration-200", mobileExpanded === item.id && "rotate-180")} />
                   </button>
-                  <div className={cn("overflow-hidden transition-all duration-200", mobileExpanded === item.id ? "max-h-96 opacity-100" : "max-h-0 opacity-0")}>
-                    <div className="ml-3 pl-3 border-l border-[var(--border)] py-1 space-y-0.5">
+                    <div className={cn("overflow-hidden transition-all duration-200", mobileExpanded === item.id ? "max-h-96 opacity-100" : "max-h-0 opacity-0")}>
+                    <div className="ms-3 ps-3 border-s border-[var(--border)] py-1 space-y-0.5">
                       {item.children.map((child) => (
                         <Link
                           key={child.id}
@@ -292,21 +302,59 @@ export default function Header({
         {/* Drawer footer */}
         <div className="border-t border-[var(--border)] px-5 py-4 space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              {locales.map((l) => (
-                <Link
-                  key={l}
-                  href={`/${l}`}
-                  onClick={() => setIsOpen(false)}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMobileLangOpen((v) => !v)}
+                onBlur={() => setTimeout(() => setMobileLangOpen(false), 150)}
+                className="site-header-lang-btn"
+                aria-label={localeNames[locale]}
+                aria-expanded={mobileLangOpen}
+              >
+                <span>{localeFlags[locale]}</span>
+                <span className="site-header-lang-code">{localeLabels[locale]}</span>
+                <ChevronDown
                   className={cn(
-                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold transition-all duration-200",
-                    locale === l ? buttonSegmentActive : buttonSegmentInactive
+                    "h-3 w-3 opacity-40 transition-transform duration-150",
+                    mobileLangOpen && "rotate-180"
                   )}
-                >
-                  <span>{localeFlags[l]}</span>
-                  <span>{localeLabels[l]}</span>
-                </Link>
-              ))}
+                />
+              </button>
+              <div
+                className={cn(
+                  "absolute bottom-full left-0 z-[80] mb-1 pb-1",
+                  "transition-[opacity,visibility] duration-100",
+                  mobileLangOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+                )}
+              >
+                <div className="site-header-dropdown relative overflow-hidden rounded-xl min-w-[150px]">
+                  <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[var(--brand)] via-[var(--mauve)] to-[var(--blue)]" />
+                  <div className="p-1.5 pt-2.5">
+                    {locales.map((l) => (
+                      <Link
+                        key={l}
+                        href={localeHref(l)}
+                        onClick={() => {
+                          setMobileLangOpen(false);
+                          setIsOpen(false);
+                        }}
+                        className={cn(
+                          "flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors duration-100",
+                          locale === l
+                            ? "text-[var(--text-1)] bg-[var(--hover-bg)] font-semibold"
+                            : "text-[var(--text-2)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-1)]"
+                        )}
+                      >
+                        <span className="text-base leading-none">{localeFlags[l]}</span>
+                        <span>{localeNames[l]}</span>
+                        {locale === l && (
+                          <span className="ms-auto w-1.5 h-1.5 rounded-full bg-[var(--brand)]" />
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
             <ThemeToggle compact />
           </div>

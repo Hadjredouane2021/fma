@@ -7,6 +7,7 @@ import {
   normalizeEntreprisesContent,
   type EntreprisesContent,
 } from "@/lib/entreprises-site-public";
+import { parseEntreprisesHeroImageUrlsFromSetting } from "@/lib/entreprises-hero-image";
 import EntreprisesForm from "./_components/EntreprisesForm";
 import EntreprisesHeroImageForm from "./_components/EntreprisesHeroImageForm";
 
@@ -25,7 +26,7 @@ export default async function AdminEntreprisesPage() {
     getContent(),
     prisma.setting.findUnique({ where: { key: DB_KEYS.ENTREPRISES_HERO } }).catch(() => null),
   ]);
-  const heroImage = heroRow?.value ?? "";
+  const heroImages = parseEntreprisesHeroImageUrlsFromSetting(heroRow?.value);
 
   return (
     <>
@@ -34,7 +35,7 @@ export default async function AdminEntreprisesPage() {
         subtitle="Gérez le contenu de la page Entreprises : hero, produits, FAQ et bloc CTA."
       />
       <main className="p-8">
-        <EntreprisesHeroImageForm initial={heroImage} />
+        <EntreprisesHeroImageForm initial={heroImages} />
         <EntreprisesForm initial={content} />
       </main>
     </>

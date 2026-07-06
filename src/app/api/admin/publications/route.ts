@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateSlug } from "@/lib/utils";
-import { publicationDataFromBody } from "@/lib/admin-publication-dto";
+import { publicationDataFromBody, publicationSlugFromData } from "@/lib/admin-publication-dto";
 import { resolvePublicationPublishedAt } from "@/lib/publication-date";
 import { syncAnnouncementPopup, revalidateAnnouncementPages } from "@/lib/announcement-popup";
 
@@ -29,13 +29,18 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
   try {
     const body = await req.json();
-    if (!body.titleFr) return NextResponse.json({ message: "Titre requis" }, { status: 400 });
+    const data = publicationDataFromBody(body);
+    if (!data) {
+      return NextResponse.json(
+        { message: "Renseignez un titre dans au moins une langue (FR, EN ou AR)" },
+        { status: 400 }
+      );
+    }
 
-    let slug = (typeof body.slug === "string" && body.slug.trim()) || generateSlug(String(body.titleFr));
+    let slug = publicationSlugFromData(data);
+    if (!data.slug) slug = generateSlug(slug);
     const existing = await prisma.publication.findUnique({ where: { slug } });
     if (existing) slug = `${slug}-${Date.now()}`;
-
-    const data = publicationDataFromBody(body);
     if (data.status !== "PUBLISHED") data.announcePopup = false;
 
     const pub = await prisma.publication.create({

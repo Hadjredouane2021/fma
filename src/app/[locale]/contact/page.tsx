@@ -7,6 +7,10 @@ import ContactForm from "./_components/ContactForm";
 import { prisma } from "@/lib/prisma";
 import { DB_KEYS } from "@/lib/db-keys";
 import { getContactContent } from "@/lib/contact-site-public";
+import {
+  contactHeroImageUrl,
+  parseContactHeroImageUrlsFromSetting,
+} from "@/lib/contact-hero-image";
 import type { Locale } from "@/types";
 import type { Metadata } from "next";
 
@@ -25,7 +29,8 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     getContactContent(),
     prisma.setting.findUnique({ where: { key: DB_KEYS.CONTACT_HERO } }).catch(() => null),
   ]);
-  const heroImage = heroRow?.value?.trim() || null;
+  const heroImages = parseContactHeroImageUrlsFromSetting(heroRow?.value);
+  const heroImage = contactHeroImageUrl(heroImages, l);
 
   const infos = [
     { icon: MapPin, label: t("address"), value: content.address },

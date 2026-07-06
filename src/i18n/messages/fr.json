@@ -76,9 +76,18 @@
     "keyFigures": "Chiffres clés",
     "highlights": "Faits marquants",
     "magazine": "Le courrier de l'assurance",
+    "interventionsFma": "Interventions FMA",
+    "socialMedia": "Réseaux sociaux",
     "download": "Télécharger",
     "year": "Année",
-    "allYears": "Toutes les années"
+    "allYears": "Toutes les années",
+    "filterByYear": "Filtrer par année",
+    "noPublications": "Aucune publication trouvée",
+    "noImages": "Aucune image trouvée",
+    "readMore": "Lire la suite",
+    "prev": "Précédent",
+    "next": "Suivant",
+    "galleryPhoto": "Galerie photo"
   },
   "individuals": {
     "title": "Particuliers",

@@ -7,6 +7,7 @@ import {
   PARTICULIERS_KEY,
   type ParticuliersContent,
 } from "@/lib/particuliers-site-public";
+import { parseParticuliersHeroImageUrlsFromSetting } from "@/lib/particuliers-hero-image";
 import ParticuliersForm from "./_components/ParticuliersForm";
 import ParticuliersHeroImageForm from "./_components/ParticuliersHeroImageForm";
 
@@ -25,7 +26,7 @@ export default async function AdminParticuliersPage() {
     getContent(),
     prisma.setting.findUnique({ where: { key: DB_KEYS.PARTICULIERS_HERO } }).catch(() => null),
   ]);
-  const heroImage = heroRow?.value ?? "";
+  const heroImages = parseParticuliersHeroImageUrlsFromSetting(heroRow?.value);
 
   return (
     <>
@@ -34,7 +35,7 @@ export default async function AdminParticuliersPage() {
         subtitle="Gérez le contenu de la page Particuliers : hero, cartes d'assurance et bloc CTA."
       />
       <main className="p-8">
-        <ParticuliersHeroImageForm initial={heroImage} />
+        <ParticuliersHeroImageForm initial={heroImages} />
         <ParticuliersForm initial={content} />
       </main>
     </>

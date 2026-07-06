@@ -76,9 +76,18 @@
     "keyFigures": "أرقام رئيسية",
     "highlights": "أبرز الأحداث",
     "magazine": "نشرة التأمين",
+    "interventionsFma": "تدخلات الاتحاد",
+    "socialMedia": "الشبكات الاجتماعية",
     "download": "تحميل",
     "year": "السنة",
-    "allYears": "جميع السنوات"
+    "allYears": "جميع السنوات",
+    "filterByYear": "تصفية حسب السنة",
+    "noPublications": "لم يتم العثور على منشورات",
+    "noImages": "لا توجد صور",
+    "readMore": "اقرأ المزيد",
+    "prev": "السابق",
+    "next": "التالي",
+    "galleryPhoto": "معرض الصور"
   },
   "individuals": {
     "title": "الأفراد",

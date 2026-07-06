@@ -8,10 +8,14 @@ import {
   normalizeEntreprisesContent,
   type EntreprisesContent,
 } from "@/lib/entreprises-site-public";
+import {
+  parseEntreprisesHeroImageUrlsFromSetting,
+  type EntreprisesHeroImageUrls,
+} from "@/lib/entreprises-hero-image";
 
 export type EntreprisesPageData = {
   content: EntreprisesContent;
-  heroImage: string | null;
+  heroImages: EntreprisesHeroImageUrls;
 };
 
 export const getEntreprisesPageData = unstable_cache(
@@ -31,14 +35,17 @@ export const getEntreprisesPageData = unstable_cache(
       }
       return {
         content,
-        heroImage: heroRow?.value?.trim() || null,
+        heroImages: parseEntreprisesHeroImageUrlsFromSetting(heroRow?.value),
       };
     } catch (error) {
       console.error("[entreprises-cache] getEntreprisesPageData failed:", error);
-      return { content: DEFAULT_ENTREPRISES_CONTENT, heroImage: null };
+      return {
+        content: DEFAULT_ENTREPRISES_CONTENT,
+        heroImages: { fr: "", en: "", ar: "" },
+      };
     }
   },
-  ["site-entreprises-page:v1"],
+  ["site-entreprises-page:v2"],
   { tags: [CACHE_TAGS.entreprises], revalidate: 300 }
 );
 

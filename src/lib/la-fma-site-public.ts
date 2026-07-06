@@ -5,28 +5,44 @@
 
 export type LocalizedString = { fr: string; en: string; ar: string };
 
+function sameIcon(icon: string): LocalizedString {
+  return { fr: icon, en: icon, ar: icon };
+}
+
 export interface LaFmaStat {
   value: string;
   label: LocalizedString;
 }
 
 export interface LaFmaMission {
-  icon: string;
+  icon: LocalizedString;
   title: LocalizedString;
   description: LocalizedString;
 }
 
 export interface LaFmaOrgBloc {
-  icon: string;
+  icon: LocalizedString;
   title: LocalizedString;
   description: LocalizedString;
 }
 
 export interface LaFmaValeur {
-  icon: string;
+  icon: LocalizedString;
   title: LocalizedString;
   description: LocalizedString;
 }
+
+/** Libellés multilingues des groupes membres (slug = champ `category` en BDD). */
+export interface LaFmaMemberCategory {
+  slug: string;
+  label: LocalizedString;
+}
+
+export const DEFAULT_MEMBER_CATEGORY_OTHER: LocalizedString = {
+  fr: "Autres",
+  en: "Other",
+  ar: "أخرى",
+};
 
 export interface LaFmaContent {
   heroBadge: LocalizedString;
@@ -46,6 +62,8 @@ export interface LaFmaContent {
   orgBlocs: LaFmaOrgBloc[];
   directionSectionTitle: LocalizedString;
   membersSectionTitle: LocalizedString;
+  memberCategoryOtherLabel: LocalizedString;
+  memberCategories: LaFmaMemberCategory[];
 }
 
 export const LA_FMA_STATS_MIN = 1;
@@ -62,7 +80,7 @@ export function createEmptyLaFmaStat(): LaFmaStat {
 
 export function createEmptyLaFmaMission(): LaFmaMission {
   return {
-    icon: "📌",
+    icon: sameIcon("📌"),
     title: { fr: "", en: "", ar: "" },
     description: { fr: "", en: "", ar: "" },
   };
@@ -70,7 +88,7 @@ export function createEmptyLaFmaMission(): LaFmaMission {
 
 export function createEmptyLaFmaValeur(): LaFmaValeur {
   return {
-    icon: "⭐",
+    icon: sameIcon("⭐"),
     title: { fr: "", en: "", ar: "" },
     description: { fr: "", en: "", ar: "" },
   };
@@ -78,10 +96,109 @@ export function createEmptyLaFmaValeur(): LaFmaValeur {
 
 export function createEmptyLaFmaOrgBloc(): LaFmaOrgBloc {
   return {
-    icon: "📌",
+    icon: sameIcon("📌"),
     title: { fr: "", en: "", ar: "" },
     description: { fr: "", en: "", ar: "" },
   };
+}
+
+export function createEmptyLaFmaMemberCategory(): LaFmaMemberCategory {
+  return { slug: "", label: { fr: "", en: "", ar: "" } };
+}
+
+/** Catégories membres FMA — slug = champ `category` en BDD. */
+export const DEFAULT_MEMBER_CATEGORIES: LaFmaMemberCategory[] = [
+  {
+    slug: "assureurs",
+    label: {
+      fr: "Entreprises d'assurances",
+      en: "Insurance companies",
+      ar: "شركات التأمين",
+    },
+  },
+  {
+    slug: "reassureurs",
+    label: {
+      fr: "Réassureurs",
+      en: "Reinsurers",
+      ar: "شركات إعادة التأمين",
+    },
+  },
+  {
+    slug: "takaful",
+    label: {
+      fr: "Entreprises Takaful",
+      en: "Takaful companies",
+      ar: "شركات التأمين التكافلي",
+    },
+  },
+  {
+    slug: "assistance",
+    label: {
+      fr: "Entreprises d'assistance",
+      en: "Entreprises d'assistance",
+      ar: "شركات المساعدة",
+    },
+  },
+  {
+    slug: "assurance-credit",
+    label: {
+      fr: "Entreprises pratiquant exclusivement l'assurance crédit",
+      en: "COMPANIES OPERATING EXCLUSIVELY IN CREDIT INSURANCE",
+      ar: "الشركات التي تمارس التأمين الائتماني حصريًا",
+    },
+  },
+];
+
+/** Fusionne les catégories en BDD avec les libellés par défaut (ordre des défauts conservé). */
+export function mergeMemberCategories(
+  stored: LaFmaMemberCategory[],
+  defaults: LaFmaMemberCategory[] = DEFAULT_MEMBER_CATEGORIES
+): LaFmaMemberCategory[] {
+  const deduped = new Map<string, LaFmaMemberCategory>();
+  for (const item of stored) {
+    const slug = item.slug.trim();
+    if (!slug) continue;
+    const prev = deduped.get(slug);
+    if (!prev) {
+      deduped.set(slug, item);
+      continue;
+    }
+    deduped.set(slug, {
+      slug,
+      label: {
+        fr: prev.label.fr?.trim() || item.label.fr,
+        en: prev.label.en?.trim() || item.label.en,
+        ar: prev.label.ar?.trim() || item.label.ar,
+      },
+    });
+  }
+
+  const storedBySlug = deduped;
+  const merged: LaFmaMemberCategory[] = [];
+
+  for (const def of defaults) {
+    const s = storedBySlug.get(def.slug);
+    if (s) {
+      merged.push({
+        slug: def.slug,
+        label: {
+          fr: s.label.fr?.trim() || def.label.fr,
+          en: s.label.en?.trim() || def.label.en,
+          ar: s.label.ar?.trim() || def.label.ar,
+        },
+      });
+      storedBySlug.delete(def.slug);
+    } else {
+      merged.push(def);
+    }
+  }
+
+  for (const rest of storedBySlug.values()) {
+    merged.push(rest);
+  }
+
+  return merged;
 }
 
 export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
@@ -116,7 +233,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
   missionsSectionTitle: { fr: "Nos Missions", en: "Our Missions", ar: "مهامنا" },
   missions: [
     {
-      icon: "🏛️",
+      icon: sameIcon("🏛️"),
       title: { fr: "Représentation & Défense", en: "Representation & Advocacy", ar: "التمثيل والدفاع" },
       description: {
         fr: "La FMA représente et défend les intérêts collectifs du secteur auprès des pouvoirs publics et des institutions nationales et internationales.",
@@ -125,7 +242,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
     {
-      icon: "📊",
+      icon: sameIcon("📊"),
       title: { fr: "Études & Statistiques", en: "Studies & Statistics", ar: "الدراسات والإحصاء" },
       description: {
         fr: "Production et diffusion des statistiques du marché marocain de l'assurance, réalisation d'études sectorielles.",
@@ -134,7 +251,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
     {
-      icon: "🤝",
+      icon: sameIcon("🤝"),
       title: { fr: "Relations Sociales", en: "Social Relations", ar: "العلاقات الاجتماعية" },
       description: {
         fr: "Gestion du dialogue social et des conventions collectives du secteur de l'assurance.",
@@ -143,7 +260,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
     {
-      icon: "🎓",
+      icon: sameIcon("🎓"),
       title: { fr: "Formation", en: "Training", ar: "التكوين" },
       description: {
         fr: "Organisation de formations professionnelles et soutien au développement des compétences.",
@@ -152,7 +269,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
     {
-      icon: "🌐",
+      icon: sameIcon("🌐"),
       title: { fr: "Relations Internationales", en: "International Relations", ar: "العلاقات الدولية" },
       description: {
         fr: "Développement des relations avec les fédérations d'assurance étrangères et les organismes internationaux.",
@@ -161,7 +278,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
     {
-      icon: "📢",
+      icon: sameIcon("📢"),
       title: { fr: "Communication", en: "Communication", ar: "التواصل" },
       description: {
         fr: "Information du grand public et promotion de la culture assurantielle au Maroc.",
@@ -178,7 +295,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
   },
   valeurs: [
     {
-      icon: "🤝",
+      icon: sameIcon("🤝"),
       title: { fr: "Solidarité", en: "Solidarity", ar: "التضامن" },
       description: {
         fr: "Nous œuvrons collectivement pour renforcer la cohésion du secteur et défendre les intérêts communs de nos membres.",
@@ -187,7 +304,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
     {
-      icon: "🏆",
+      icon: sameIcon("🏆"),
       title: { fr: "Excellence", en: "Excellence", ar: "التميز" },
       description: {
         fr: "Nous visons les plus hauts standards de qualité dans toutes nos activités, publications et services aux membres.",
@@ -196,7 +313,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
     {
-      icon: "💡",
+      icon: sameIcon("💡"),
       title: { fr: "Innovation", en: "Innovation", ar: "الابتكار" },
       description: {
         fr: "Nous accompagnons la transformation digitale et réglementaire du secteur de l'assurance au Maroc.",
@@ -205,7 +322,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
     {
-      icon: "🔍",
+      icon: sameIcon("🔍"),
       title: { fr: "Transparence", en: "Transparency", ar: "الشفافية" },
       description: {
         fr: "Nous produisons et diffusons des données fiables sur le marché marocain de l'assurance pour informer les décideurs.",
@@ -222,7 +339,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
   },
   orgBlocs: [
     {
-      icon: "🏛️",
+      icon: sameIcon("🏛️"),
       title: { fr: "Assemblée Générale", en: "General Assembly", ar: "الجمعية العامة" },
       description: {
         fr: "Instance suprême de la FMA. Elle regroupe l'ensemble des sociétés membres et se réunit au moins une fois par an pour approuver les orientations stratégiques.",
@@ -231,7 +348,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
     {
-      icon: "👥",
+      icon: sameIcon("👥"),
       title: { fr: "Conseil d'Administration", en: "Board of Directors", ar: "مجلس الإدارة" },
       description: {
         fr: "Organe de gouvernance élu par l'Assemblée Générale. Il fixe les orientations de la fédération, supervise les activités et veille à l'application des décisions.",
@@ -240,7 +357,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
     {
-      icon: "📋",
+      icon: sameIcon("📋"),
       title: { fr: "Bureau Directeur", en: "Executive Bureau", ar: "المكتب التنفيذي" },
       description: {
         fr: "Émanation du Conseil d'Administration, le Bureau Directeur prend en charge la gestion courante et assure le suivi des dossiers entre les sessions du Conseil.",
@@ -249,7 +366,7 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
     {
-      icon: "⚙️",
+      icon: sameIcon("⚙️"),
       title: { fr: "Comités Techniques", en: "Technical Committees", ar: "اللجان التقنية" },
       description: {
         fr: "Plusieurs comités spécialisés (techniques, juridiques, communication…) travaillent en concertation avec les membres pour faire avancer les dossiers sectoriels.",
@@ -258,6 +375,8 @@ export const DEFAULT_LA_FMA_CONTENT: LaFmaContent = {
       },
     },
   ],
-  directionSectionTitle: { fr: "Direction Générale", en: "General Management", ar: "الإدارة العامة" },
+  directionSectionTitle: { fr: "L'Équipe Opérationnelle", en: "The Operational Team", ar: "الفريق التشغيلي" },
   membersSectionTitle: { fr: "Nos Membres", en: "Our Members", ar: "أعضاؤنا" },
+  memberCategoryOtherLabel: DEFAULT_MEMBER_CATEGORY_OTHER,
+  memberCategories: DEFAULT_MEMBER_CATEGORIES,
 };

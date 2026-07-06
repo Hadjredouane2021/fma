@@ -16,6 +16,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const body = await req.json();
     const data = publicationDataFromBody(body);
+    if (!data) {
+      return NextResponse.json(
+        { message: "Renseignez un titre dans au moins une langue (FR, EN ou AR)" },
+        { status: 400 }
+      );
+    }
     if (data.status !== "PUBLISHED") data.announcePopup = false;
 
     const pub = await prisma.publication.update({

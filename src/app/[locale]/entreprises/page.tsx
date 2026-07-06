@@ -10,6 +10,7 @@ import {
   filterEntrepriseProductsByAudience,
 } from "@/lib/entreprises-site-public";
 import { getEntreprisesPageData } from "@/lib/entreprises-cache";
+import { entreprisesHeroImageUrl } from "@/lib/entreprises-hero-image";
 import type { EntreprisesContent } from "@/lib/entreprises-site-public";
 import type { Locale } from "@/types";
 import type { Metadata } from "next";
@@ -51,7 +52,8 @@ function ProductSection({
 export default async function EntreprisesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const l = locale as Locale;
-  const { content: c, heroImage } = await getEntreprisesPageData();
+  const { content: c, heroImages } = await getEntreprisesPageData();
+  const heroImage = entreprisesHeroImageUrl(heroImages, l);
   const entreprisesProducts = filterEntrepriseProductsByAudience(c.products, "entreprises");
   const professionnelsProducts = filterEntrepriseProductsByAudience(c.products, "professionnels");
 

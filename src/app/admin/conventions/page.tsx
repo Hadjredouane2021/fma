@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { formatDate } from "@/lib/utils";
 import { DB_KEYS } from "@/lib/db-keys";
+import { parseConventionsHeroImageUrlsFromSetting } from "@/lib/conventions-hero-image";
 import DeleteConventionButton from "./_components/DeleteConventionButton";
 import ConventionsHeroImageForm from "./_components/ConventionsHeroImageForm";
 
@@ -12,7 +13,7 @@ export default async function AdminConventionsPage() {
     prisma.convention.findMany({ orderBy: [{ order: "asc" }, { signedAt: "desc" }, { titleFr: "asc" }] }).catch(() => []),
     prisma.setting.findUnique({ where: { key: DB_KEYS.CONVENTIONS_HERO } }).catch(() => null),
   ]);
-  const heroImage = heroImageRow?.value ?? "";
+  const heroImages = parseConventionsHeroImageUrlsFromSetting(heroImageRow?.value);
 
   return (
     <>
@@ -23,7 +24,7 @@ export default async function AdminConventionsPage() {
       />
 
       <main className="p-8">
-        <ConventionsHeroImageForm initial={heroImage} />
+        <ConventionsHeroImageForm initial={heroImages} />
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] shadow-sm dark:shadow-none">
           <table className="w-full text-sm">
             <thead>

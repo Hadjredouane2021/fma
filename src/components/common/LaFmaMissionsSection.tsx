@@ -2,6 +2,7 @@ import { EqualHeightGrid } from "@/components/common/EqualHeightGrid";
 import { LaFmaPremiumCard } from "@/components/common/LaFmaPremiumCard";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import { Section } from "@/components/ui/Section";
+import { localizedText } from "@/lib/localized-content";
 import type { LaFmaMission } from "@/lib/la-fma-site-public";
 import type { Locale } from "@/types";
 
@@ -27,9 +28,9 @@ export function LaFmaMissionsSection({ locale, title, missions }: LaFmaMissionsS
             <div className="la-fma-org-card__accent" aria-hidden />
             <div className="la-fma-team-card__content flex h-full min-h-0 flex-col">
               <LaFmaPremiumCard
-                icon={mission.icon}
-                title={mission.title[l]}
-                description={mission.description[l]}
+                icon={localizedText(mission.icon, l)}
+                title={localizedText(mission.title, l)}
+                description={localizedText(mission.description, l)}
                 showAccent={false}
               />
             </div>

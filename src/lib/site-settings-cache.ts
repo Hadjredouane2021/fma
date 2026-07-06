@@ -3,10 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { DB_KEYS } from "@/lib/db-keys";
 import {
   DEFAULT_FOOTER_CONTENT,
+  normalizeFooterContent,
   type FooterContent,
 } from "@/lib/footer-site-public";
 import {
   DEFAULT_MENU_CONTENT,
+  normalizeMenuContent,
   type MenuContent,
 } from "@/lib/menu-site-public";
 import {
@@ -45,32 +47,6 @@ export const CACHE_TAGS = {
   publicationsAnnouncement: "site:publications-announcement",
 } as const;
 
-function normalizeFooterContent(input: unknown): FooterContent {
-  if (!input || typeof input !== "object") return DEFAULT_FOOTER_CONTENT;
-  const d = input as Partial<FooterContent>;
-  const str = (v: unknown, fb: string) => (typeof v === "string" && v.trim() ? v.trim() : fb);
-  return {
-    descriptionFr: str(d.descriptionFr, DEFAULT_FOOTER_CONTENT.descriptionFr),
-    descriptionEn: str(d.descriptionEn, DEFAULT_FOOTER_CONTENT.descriptionEn),
-    descriptionAr: str(d.descriptionAr, DEFAULT_FOOTER_CONTENT.descriptionAr),
-    address: str(d.address, DEFAULT_FOOTER_CONTENT.address),
-    phone: str(d.phone, DEFAULT_FOOTER_CONTENT.phone),
-    email: str(d.email, DEFAULT_FOOTER_CONTENT.email),
-    facebook: str(d.facebook, DEFAULT_FOOTER_CONTENT.facebook),
-    linkedin: str(d.linkedin, DEFAULT_FOOTER_CONTENT.linkedin),
-    twitter: str(d.twitter, DEFAULT_FOOTER_CONTENT.twitter),
-    youtube: str(d.youtube, DEFAULT_FOOTER_CONTENT.youtube),
-    instagram: str(d.instagram, DEFAULT_FOOTER_CONTENT.instagram),
-  };
-}
-
-function normalizeMenuContent(input: unknown): MenuContent {
-  if (!input || typeof input !== "object") return DEFAULT_MENU_CONTENT;
-  const d = input as Partial<MenuContent>;
-  if (!Array.isArray(d.items) || d.items.length === 0) return DEFAULT_MENU_CONTENT;
-  return d as MenuContent;
-}
-
 export type LayoutSiteSettings = {
   footer: FooterContent;
   menu: MenuContent;
@@ -79,6 +55,7 @@ export type LayoutSiteSettings = {
   theme: SiteThemeSettings;
   adminTheme: AdminThemeSettings;
   sectionBackgrounds: SectionBackgroundsSettings;
+  dbUnavailable: boolean;
 };
 
 const LAYOUT_KEYS = [
@@ -120,6 +97,7 @@ export const getLayoutSiteSettings = unstable_cache(
         sectionBackgrounds: normalizeSectionBackgrounds(
           parse(DB_KEYS.SECTION_BACKGROUNDS) ?? DEFAULT_SECTION_BACKGROUNDS
         ),
+        dbUnavailable: false,
       };
     } catch (error) {
       console.error("[site-settings-cache] getLayoutSiteSettings failed:", error);
@@ -131,10 +109,11 @@ export const getLayoutSiteSettings = unstable_cache(
         theme: DEFAULT_SITE_THEME,
         adminTheme: DEFAULT_ADMIN_THEME,
         sectionBackgrounds: DEFAULT_SECTION_BACKGROUNDS,
+        dbUnavailable: true,
       };
     }
   },
-  ["site-layout-settings:v4"],
+  ["site-layout-settings:v5"],
   { tags: [CACHE_TAGS.layout], revalidate: 60 }
 );
 
@@ -179,4 +158,9 @@ export async function getAdminTheme(): Promise<AdminThemeSettings> {
 export async function getSectionBackgrounds(): Promise<SectionBackgroundsSettings> {
   const { sectionBackgrounds } = await getLayoutSiteSettings();
   return sectionBackgrounds;
+}
+
+export async function isDatabaseUnavailable(): Promise<boolean> {
+  const { dbUnavailable } = await getLayoutSiteSettings();
+  return dbUnavailable;
 }

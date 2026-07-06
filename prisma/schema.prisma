@@ -116,9 +116,13 @@ model Publication {
   descriptionFr String?   @db.Text
   descriptionEn String?   @db.Text
   descriptionAr String?   @db.Text
-  pdfFile       String?
+  pdfFileFr     String?   @map("pdfFile")
+  pdfFileEn     String?
+  pdfFileAr     String?
+  readMoreUrlFr String?   @map("readMoreUrl")
+  readMoreUrlEn String?
+  readMoreUrlAr String?
   coverImage    String?
-  readMoreUrl   String?
   year          Int?
   status        Status    @default(DRAFT)
   featured      Boolean   @default(false)

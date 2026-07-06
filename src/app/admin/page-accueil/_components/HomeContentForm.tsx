@@ -72,10 +72,13 @@ export default function HomeContentForm({
         figureCaption: { ...c.keyFiguresSection.figureCaption, [lang]: v },
       },
     }));
-  const setKeyFiguresImage = (imageUrl: string) =>
+  const setKeyFiguresImage = (lang: Locale, imageUrl: string) =>
     setContent((c) => ({
       ...c,
-      keyFiguresSection: { ...c.keyFiguresSection, imageUrl },
+      keyFiguresSection: {
+        ...c.keyFiguresSection,
+        imageUrl: { ...c.keyFiguresSection.imageUrl, [lang]: imageUrl },
+      },
     }));
 
   const setCtaLabel = (idx: 1 | 2, lang: Locale, v: string) =>
@@ -178,7 +181,7 @@ export default function HomeContentForm({
         setError(data.message || "Échec de l'upload");
         return;
       }
-      if (typeof data.url === "string") setKeyFiguresImage(data.url);
+      if (typeof data.url === "string") setKeyFiguresImage(tab, data.url);
     } catch {
       setError("Erreur réseau lors de l'upload");
     } finally {
@@ -583,14 +586,14 @@ export default function HomeContentForm({
         </div>
 
         <div>
-          <label className={labelCls}>Image illustrative (colonne gauche)</label>
+          <label className={labelCls}>Image illustrative (colonne gauche) — {currentTab.label}</label>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <input
               type="text"
-              value={content.keyFiguresSection.imageUrl}
-              onChange={(e) => setKeyFiguresImage(e.target.value)}
+              value={content.keyFiguresSection.imageUrl[tab]}
+              onChange={(e) => setKeyFiguresImage(tab, e.target.value)}
               className={`${inputBase} font-mono text-sm flex-1`}
-              placeholder="/key-figures-growth.png"
+              placeholder={`/key-figures-growth.png (${tab.toUpperCase()})`}
             />
             <label
               className={cn(
@@ -603,9 +606,15 @@ export default function HomeContentForm({
               Importer
             </label>
           </div>
-          {content.keyFiguresSection.imageUrl && (
+          {content.keyFiguresSection.imageUrl[tab] && (
             <div className="relative mt-3 h-40 w-28 overflow-hidden rounded-xl border border-[var(--border)]">
-              <Image src={content.keyFiguresSection.imageUrl} alt="Aperçu chiffres clés" fill className="object-cover" unoptimized={content.keyFiguresSection.imageUrl.startsWith("/uploads")} />
+              <Image
+                src={content.keyFiguresSection.imageUrl[tab]}
+                alt={`Aperçu chiffres clés ${tab}`}
+                fill
+                className="object-cover"
+                unoptimized={content.keyFiguresSection.imageUrl[tab].startsWith("/uploads")}
+              />
             </div>
           )}
         </div>

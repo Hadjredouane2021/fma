@@ -2,8 +2,8 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { getLaFmaContent } from "@/lib/site-content";
 import { prisma } from "@/lib/prisma";
 import { DB_KEYS } from "@/lib/db-keys";
+import { parseLaFmaStatsImagesFromSetting } from "@/lib/la-fma-stats-image";
 import LaFmaContentForm from "./_components/LaFmaContentForm";
-import LaFmaStatsImageForm from "./_components/LaFmaStatsImageForm";
 
 export const metadata = {
   title: "La FMA — Admin FMA",
@@ -25,8 +25,10 @@ export default async function AdminLaFmaPage() {
         subtitle="Textes affichés sur /fr/la-fma (et équivalents EN/AR). Les photos direction se gèrent dans Équipe ; les logos sociétés membres dans Membres FMA."
       />
       <main className="p-8">
-        <LaFmaStatsImageForm initial={statsImageRow?.value ?? ""} />
-        <LaFmaContentForm initial={content} />
+        <LaFmaContentForm
+          initial={content}
+          statsImagesInitial={parseLaFmaStatsImagesFromSetting(statsImageRow?.value)}
+        />
       </main>
     </>
   );

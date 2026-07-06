@@ -20,6 +20,8 @@ import {
   LA_FMA_VALEURS_MAX,
 } from "@/lib/la-fma-site-public";
 import type { Locale } from "@/lib/site-content";
+import LaFmaStatsImageForm from "./LaFmaStatsImageForm";
+import type { LaFmaStatsImages } from "@/lib/la-fma-stats-image";
 
 const TABS: { key: Locale; flag: string; label: string; dir: "ltr" | "rtl" }[] = [
   { key: "fr", flag: "🇫🇷", label: "Français", dir: "ltr" },
@@ -47,7 +49,13 @@ function mergeWithDefaults(data: LaFmaContent): LaFmaContent {
   };
 }
 
-export default function LaFmaContentForm({ initial }: { initial: LaFmaContent }) {
+export default function LaFmaContentForm({
+  initial,
+  statsImagesInitial,
+}: {
+  initial: LaFmaContent;
+  statsImagesInitial?: LaFmaStatsImages;
+}) {
   const router = useRouter();
   const [content, setContent] = useState<LaFmaContent>(() => mergeWithDefaults(initial));
   const [tab, setTab] = useState<Locale>("fr");
@@ -90,10 +98,10 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
       return { ...c, stats: c.stats.filter((_, i) => i !== idx) };
     });
 
-  const setMissionIcon = (idx: number, v: string) =>
+  const setMissionIcon = (idx: number, lang: Locale, v: string) =>
     setContent((c) => {
       const next = [...c.missions];
-      next[idx] = { ...next[idx], icon: v };
+      next[idx] = { ...next[idx], icon: { ...next[idx].icon, [lang]: v } };
       return { ...c, missions: next };
     });
   const setMissionTitle = (idx: number, lang: Locale, v: string) =>
@@ -109,10 +117,10 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
       return { ...c, missions: next };
     });
 
-  const setValeurIcon = (idx: number, v: string) =>
+  const setValeurIcon = (idx: number, lang: Locale, v: string) =>
     setContent((c) => {
       const next = [...c.valeurs];
-      next[idx] = { ...next[idx], icon: v };
+      next[idx] = { ...next[idx], icon: { ...next[idx].icon, [lang]: v } };
       return { ...c, valeurs: next };
     });
   const setValeurTitle = (idx: number, lang: Locale, v: string) =>
@@ -144,10 +152,10 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
       next[idx] = { ...next[idx], title: { ...next[idx].title, [lang]: v } };
       return { ...c, orgBlocs: next };
     });
-  const setOrgBlocIcon = (idx: number, v: string) =>
+  const setOrgBlocIcon = (idx: number, lang: Locale, v: string) =>
     setContent((c) => {
       const next = [...c.orgBlocs];
-      next[idx] = { ...next[idx], icon: v };
+      next[idx] = { ...next[idx], icon: { ...next[idx].icon, [lang]: v } };
       return { ...c, orgBlocs: next };
     });
   const setOrgBlocDesc = (idx: number, lang: Locale, v: string) =>
@@ -270,6 +278,7 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
                     className={inputBase}
                   />
                 </div>
+                <LaFmaStatsImageForm initial={statsImagesInitial} activeTab={tab} embedded />
               </div>
             </div>
           </div>
@@ -370,6 +379,92 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
 
           <div className="border-b border-[var(--border)] pb-6">
             <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
+              <h3 className="text-sm font-bold text-primary">Organisation</h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addOrgBloc}
+                className="gap-1.5 shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                Ajouter un bloc
+              </Button>
+            </div>
+            <div className={fieldGroupCard}>
+              <div className="space-y-3">
+                <div>
+                  <label className={labelCls}>Titre de section ({tab.toUpperCase()})</label>
+                  <input
+                    type="text"
+                    value={content.organisationSectionTitle[tab]}
+                    onChange={(e) => setLoc("organisationSectionTitle", tab, e.target.value)}
+                    className={inputBase}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Description ({tab.toUpperCase()})</label>
+                  <textarea
+                    rows={3}
+                    value={content.organisationDescription[tab]}
+                    onChange={(e) => setLoc("organisationDescription", tab, e.target.value)}
+                    className={inputBase}
+                  />
+                </div>
+              </div>
+              <div className="mt-6 space-y-4 border-t border-[var(--border)] pt-6">
+                {content.orgBlocs.map((b, idx) => (
+                  <div key={idx} className="rounded-lg border border-[var(--border)] bg-[var(--bg-alt)]/50 p-4 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-[var(--text-3)]">Bloc {idx + 1}</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeOrgBloc(idx)}
+                        disabled={content.orgBlocs.length <= 1}
+                        className="gap-1.5 text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-950/30"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Supprimer
+                      </Button>
+                    </div>
+                    <div>
+                      <label className={labelCls}>Titre ({tab.toUpperCase()})</label>
+                      <input
+                        type="text"
+                        value={b.title[tab]}
+                        onChange={(e) => setOrgBlocTitle(idx, tab, e.target.value)}
+                        className={inputBase}
+                      />
+                    </div>
+                    <LaFmaIconField
+                      value={b.icon[tab] ?? ""}
+                      onChange={(val) => setOrgBlocIcon(idx, tab, val)}
+                      label={`Icône (${tab.toUpperCase()})`}
+                      labelCls={labelCls}
+                      inputBase={inputBase}
+                      compact
+                      suffix={
+                        <div className="min-w-0">
+                          <label className={labelCls}>Description ({tab.toUpperCase()})</label>
+                          <input
+                            type="text"
+                            value={b.description[tab]}
+                            onChange={(e) => setOrgBlocDesc(idx, tab, e.target.value)}
+                            className={inputBase}
+                          />
+                        </div>
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="border-b border-[var(--border)] pb-6">
+            <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
               <h3 className="text-sm font-bold text-primary">Missions</h3>
               <Button
                 type="button"
@@ -424,9 +519,9 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
                     />
                   </div>
                   <LaFmaIconField
-                    value={m.icon}
-                    onChange={(v) => setMissionIcon(idx, v)}
-                    label="Icône (photo ou emoji)"
+                    value={m.icon[tab]}
+                    onChange={(v) => setMissionIcon(idx, tab, v)}
+                    label={`Icône (${tab.toUpperCase()})`}
                     labelCls={labelCls}
                     inputBase={inputBase}
                     compact
@@ -462,7 +557,7 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
                 Ajouter une valeur
               </Button>
             </div>
-            <div className={`mb-4 ${fieldGroupCard}`}>
+            <div className={fieldGroupCard}>
               <div className="space-y-3">
                 <div>
                   <label className={labelCls}>Titre de section ({tab.toUpperCase()})</label>
@@ -483,147 +578,55 @@ export default function LaFmaContentForm({ initial }: { initial: LaFmaContent })
                   />
                 </div>
               </div>
-            </div>
-            <div className="space-y-6">
-              {content.valeurs.map((v, idx) => (
-                <div key={`valeur-${idx}`} className={fieldGroupCard}>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="text-xs font-semibold text-[var(--text-3)]">
-                      Valeur {idx + 1} / {content.valeurs.length}
+              <div className="mt-6 space-y-4 border-t border-[var(--border)] pt-6">
+                {content.valeurs.map((v, idx) => (
+                  <div key={`valeur-${idx}`} className="rounded-lg border border-[var(--border)] bg-[var(--bg-alt)]/50 p-4 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="text-xs font-semibold text-[var(--text-3)]">
+                        Valeur {idx + 1} / {content.valeurs.length}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeValeur(idx)}
+                        disabled={content.valeurs.length <= 1}
+                        className="gap-1.5 text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-950/30"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Supprimer
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeValeur(idx)}
-                      disabled={content.valeurs.length <= 1}
-                      className="gap-1.5 text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-950/30"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      Supprimer
-                    </Button>
-                  </div>
-                  <LaFmaIconField
-                    value={v.icon}
-                    onChange={(val) => setValeurIcon(idx, val)}
-                    label="Icône (photo ou emoji)"
-                    labelCls={labelCls}
-                    inputBase={inputBase}
-                    compact
-                    suffix={
-                      <div className="min-w-0">
-                        <label className={labelCls}>Titre ({tab.toUpperCase()})</label>
-                        <input
-                          type="text"
-                          value={v.title[tab]}
-                          onChange={(e) => setValeurTitle(idx, tab, e.target.value)}
-                          className={inputBase}
-                        />
-                      </div>
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="border-b border-[var(--border)] pb-6">
-            <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
-              <h3 className="text-sm font-bold text-primary">Organisation</h3>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addOrgBloc}
-                className="gap-1.5 shrink-0"
-              >
-                <Plus className="w-4 h-4" />
-                Ajouter un bloc
-              </Button>
-            </div>
-            <div className={`mb-4 ${fieldGroupCard}`}>
-              <div className="space-y-3">
-                <div>
-                  <label className={labelCls}>Titre de section ({tab.toUpperCase()})</label>
-                  <input
-                    type="text"
-                    value={content.organisationSectionTitle[tab]}
-                    onChange={(e) => setLoc("organisationSectionTitle", tab, e.target.value)}
-                    className={inputBase}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              {content.orgBlocs.map((b, idx) => (
-                <div key={idx} className={fieldGroupCard}>
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-xs font-semibold text-[var(--text-3)]">Bloc {idx + 1}</span>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeOrgBloc(idx)}
-                      disabled={content.orgBlocs.length <= 1}
-                      className="gap-1.5 text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-950/30"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      Supprimer
-                    </Button>
-                  </div>
-                  <LaFmaIconField
-                    value={b.icon ?? ""}
-                    onChange={(val) => setOrgBlocIcon(idx, val)}
-                    label="Icône (photo ou emoji)"
-                    labelCls={labelCls}
-                    inputBase={inputBase}
-                    compact
-                    suffix={
-                      <div className="min-w-0">
-                        <label className={labelCls}>Description ({tab.toUpperCase()})</label>
-                        <input
-                          type="text"
-                          value={b.description[tab]}
-                          onChange={(e) => setOrgBlocDesc(idx, tab, e.target.value)}
-                          className={inputBase}
-                        />
-                      </div>
-                    }
-                  />
-                  <div>
-                    <label className={labelCls}>Titre ({tab.toUpperCase()})</label>
-                    <input
-                      type="text"
-                      value={b.title[tab]}
-                      onChange={(e) => setOrgBlocTitle(idx, tab, e.target.value)}
-                      className={inputBase}
+                    <div>
+                      <label className={labelCls}>Titre ({tab.toUpperCase()})</label>
+                      <input
+                        type="text"
+                        value={v.title[tab]}
+                        onChange={(e) => setValeurTitle(idx, tab, e.target.value)}
+                        className={inputBase}
+                      />
+                    </div>
+                    <LaFmaIconField
+                      value={v.icon[tab]}
+                      onChange={(val) => setValeurIcon(idx, tab, val)}
+                      label={`Icône (${tab.toUpperCase()})`}
+                      labelCls={labelCls}
+                      inputBase={inputBase}
+                      compact
+                      suffix={
+                        <div className="min-w-0">
+                          <label className={labelCls}>Description ({tab.toUpperCase()})</label>
+                          <input
+                            type="text"
+                            value={v.description[tab]}
+                            onChange={(e) => setValeurDesc(idx, tab, e.target.value)}
+                            className={inputBase}
+                          />
+                        </div>
+                      }
                     />
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-bold text-primary mb-4">Autres titres de section</h3>
-            <div className="space-y-6">
-              <div className={fieldGroupCard}>
-                <label className={labelCls}>Bloc Direction (si des membres d’équipe sont affichés)</label>
-                <input
-                  type="text"
-                  value={content.directionSectionTitle[tab]}
-                  onChange={(e) => setLoc("directionSectionTitle", tab, e.target.value)}
-                  className={inputBase}
-                />
-              </div>
-              <div className={fieldGroupCard}>
-                <label className={labelCls}>Bloc Membres (logos)</label>
-                <input
-                  type="text"
-                  value={content.membersSectionTitle[tab]}
-                  onChange={(e) => setLoc("membersSectionTitle", tab, e.target.value)}
-                  className={inputBase}
-                />
+                ))}
               </div>
             </div>
           </div>

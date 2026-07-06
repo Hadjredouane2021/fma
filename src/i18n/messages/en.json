@@ -76,9 +76,18 @@
     "keyFigures": "Key Figures",
     "highlights": "Highlights",
     "magazine": "Insurance Newsletter",
+    "interventionsFma": "FMA Interventions",
+    "socialMedia": "Social media",
     "download": "Download",
     "year": "Year",
-    "allYears": "All years"
+    "allYears": "All years",
+    "filterByYear": "Filter by year",
+    "noPublications": "No publications found",
+    "noImages": "No images found",
+    "readMore": "Read more",
+    "prev": "Previous",
+    "next": "Next",
+    "galleryPhoto": "Photo gallery"
   },
   "individuals": {
     "title": "Individuals",

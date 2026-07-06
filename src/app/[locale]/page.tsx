@@ -59,6 +59,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const globalFigureCfg = home.keyFiguresSection.globalFigure;
   const hasGlobalFigure = globalFigureCfg.valueSource !== "manual" || Boolean(globalFigureCfg.value);
   const GLOBAL_FIGURE = hasGlobalFigure ? resolveHomeKeyFigure(globalFigureCfg, chiffresCles, l) : undefined;
+  const keyFiguresImageUrl =
+    home.keyFiguresSection.imageUrl[l]?.trim() || home.keyFiguresSection.imageUrl.fr?.trim() || "";
 
   const interventionsFma = homeGalleries.interventionsFma;
   const interventionsFmaItems = getGalleryCarouselItems(interventionsFma).map((item) => ({
@@ -114,15 +116,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         )}
 
         <div className="container-custom hero-home__inner relative z-10">
-            <div
-              className="inline-flex items-center gap-2.5 glass-panel text-[var(--text-2)] text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] px-4 py-2 sm:px-5 sm:py-2.5 rounded-full mb-6 sm:mb-8 animate-fade-in-up shadow-sm"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-primary to-accent shadow-sm" />
-              {home.badge[l]}
+          <div className="hero-home__content">
+            <div className="hero-home__badge inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 glass-panel text-[var(--text-2)] text-[9px] font-bold uppercase tracking-[0.1em] px-3 py-1.5 sm:text-[11px] sm:tracking-[0.2em] sm:px-5 sm:py-2.5 rounded-full mb-5 sm:mb-8 animate-fade-in-up shadow-sm">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br from-primary to-accent shadow-sm" />
+              <span className="min-w-0 leading-snug">{home.badge[l]}</span>
             </div>
             <h1
               className={cn(
-                "max-w-[18ch] text-[clamp(1.875rem,4.5vw,3.75rem)] font-bold text-[var(--text-1)] leading-[1.05] mb-5 sm:mb-7 tracking-tight animate-fade-in-up sm:max-w-[20ch] xl:max-w-[22ch]",
+                "hero-home__title font-bold text-[var(--text-1)] leading-[1.05] mb-4 sm:mb-7 tracking-tight animate-fade-in-up",
                 displayFont && "font-display"
               )}
               style={{ animationDelay: "0.08s" }}
@@ -130,23 +131,24 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               {home.title[l]}
             </h1>
             <p
-              className="mb-8 max-w-lg text-base leading-relaxed font-medium text-[var(--text-1)] animate-fade-in-up sm:mb-10 sm:max-w-xl sm:text-lg md:text-xl"
+              className="mb-7 max-w-full text-[0.9375rem] leading-relaxed font-medium text-[var(--text-1)] animate-fade-in-up sm:mb-10 sm:max-w-xl sm:text-lg md:text-xl"
               style={{ animationDelay: "0.15s" }}
             >
               {home.subtitle[l]}
             </p>
-            <div className="flex flex-wrap gap-3 sm:gap-4 animate-fade-in-up" style={{ animationDelay: "0.22s" }}>
+            <div className="flex flex-wrap gap-2.5 sm:gap-4 animate-fade-in-up" style={{ animationDelay: "0.22s" }}>
               <Link href={`/${locale}/${home.cta1.href}`}>
-                <Button variant="primary" size="lg">
+                <Button variant="primary" size="lg" className="w-full sm:w-auto">
                   {home.cta1.label[l]} <ArrowRight className="w-5 h-5" />
                 </Button>
               </Link>
               <Link href={`/${locale}/${home.cta2.href}`}>
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   {home.cta2.label[l]}
                 </Button>
               </Link>
             </div>
+          </div>
         </div>
       </section>
 
@@ -155,7 +157,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         eyebrow={home.keyFiguresSection.eyebrow[l] ?? ""}
         figures={KEY_FIGURES}
         locale={locale}
-        imageUrl={home.keyFiguresSection.imageUrl}
+        imageUrl={keyFiguresImageUrl}
         figureCaption={home.keyFiguresSection.figureCaption[l] ?? ""}
         globalFigure={GLOBAL_FIGURE}
       />

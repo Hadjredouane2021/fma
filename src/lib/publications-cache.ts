@@ -13,29 +13,39 @@ export type AnnouncementPublication = {
   descriptionEn: string | null;
   descriptionAr: string | null;
   coverImage: string | null;
-  pdfFile: string | null;
-  readMoreUrl: string | null;
+  pdfFileFr: string | null;
+  pdfFileEn: string | null;
+  pdfFileAr: string | null;
+  readMoreUrlFr: string | null;
+  readMoreUrlEn: string | null;
+  readMoreUrlAr: string | null;
 };
+
+const announcementSelect = {
+  id: true,
+  slug: true,
+  updatedAt: true,
+  titleFr: true,
+  titleEn: true,
+  titleAr: true,
+  descriptionFr: true,
+  descriptionEn: true,
+  descriptionAr: true,
+  coverImage: true,
+  pdfFileFr: true,
+  pdfFileEn: true,
+  pdfFileAr: true,
+  readMoreUrlFr: true,
+  readMoreUrlEn: true,
+  readMoreUrlAr: true,
+} as const;
 
 export const getAnnouncementPublication = unstable_cache(
   async (): Promise<AnnouncementPublication | null> => {
     try {
       return await prisma.publication.findFirst({
         where: { status: "PUBLISHED", deletedAt: null, announcePopup: true },
-        select: {
-          id: true,
-          slug: true,
-          updatedAt: true,
-          titleFr: true,
-          titleEn: true,
-          titleAr: true,
-          descriptionFr: true,
-          descriptionEn: true,
-          descriptionAr: true,
-          coverImage: true,
-          pdfFile: true,
-          readMoreUrl: true,
-        },
+        select: announcementSelect,
         orderBy: { publishedAt: "desc" },
       });
     } catch (error) {
@@ -43,7 +53,7 @@ export const getAnnouncementPublication = unstable_cache(
       return null;
     }
   },
-  ["publications:announcement-popup:v1"],
+  ["publications:announcement-popup:v2"],
   { tags: [CACHE_TAGS.publicationsAnnouncement], revalidate: 120 }
 );
 

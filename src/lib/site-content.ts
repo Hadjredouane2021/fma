@@ -14,10 +14,15 @@ import {
   type LaFmaMission,
   type LaFmaValeur,
   type LaFmaOrgBloc,
+  type LaFmaMemberCategory,
+  createEmptyLaFmaMemberCategory,
+  mergeMemberCategories,
+  DEFAULT_MEMBER_CATEGORIES,
 } from "@/lib/la-fma-site-public";
-export type { LaFmaContent, LaFmaStat, LaFmaMission, LaFmaValeur, LaFmaOrgBloc } from "@/lib/la-fma-site-public";
+export type { LaFmaContent, LaFmaStat, LaFmaMission, LaFmaValeur, LaFmaOrgBloc, LaFmaMemberCategory } from "@/lib/la-fma-site-public";
 export { DEFAULT_LA_FMA_CONTENT } from "@/lib/la-fma-site-public";
 import { normalizeLaFmaIcon } from "@/lib/la-fma-icon";
+import { resolveMemberCategorySlug } from "@/lib/member-categories-shared";
 import {
   createEmptyHomeKeyFigure,
   createEmptyHomeGlobalFigure,
@@ -93,8 +98,8 @@ export interface HomeGlobalFigure {
 export interface HomeKeyFiguresSection {
   /** Titre de la section (affiché en majuscules). */
   eyebrow: LocalizedString;
-  /** Image illustrative à gauche (URL publique). */
-  imageUrl: string;
+  /** Image illustrative à gauche (URL publique), par langue. */
+  imageUrl: LocalizedString;
   /** Légende sous chaque chiffre (ex. « des primes émises »). */
   figureCaption: LocalizedString;
   /** Grande carte "Chiffre d'affaires global" affichée au-dessus de la grille. */
@@ -165,7 +170,11 @@ export const DEFAULT_HOME_CONTENT: HomeContent = {
       en: "Key figures H1 2024",
       ar: "أرقام رئيسية النصف الأول 2024",
     },
-    imageUrl: "/key-figures-growth.png",
+    imageUrl: {
+      fr: "/key-figures-growth.png",
+      en: "",
+      ar: "",
+    },
     figureCaption: {
       fr: "des primes émises",
       en: "of premiums issued",
@@ -235,6 +244,27 @@ function normalizeGlobalFigure(input: unknown): HomeGlobalFigure {
     description: localizedFallback(d.description as Partial<LocalizedString> | undefined, { fr: "", en: "", ar: "" }),
     valueSource,
     chiffresClesRowId: typeof d.chiffresClesRowId === "string" ? d.chiffresClesRowId : def.chiffresClesRowId,
+  };
+}
+
+function normalizeLocalizedImageUrl(
+  input: unknown,
+  fallback: LocalizedString
+): LocalizedString {
+  if (typeof input === "string") {
+    const v = input.trim();
+    return v ? { fr: v, en: "", ar: "" } : { ...fallback };
+  }
+
+  if (!input || typeof input !== "object") {
+    return { ...fallback };
+  }
+
+  const d = input as Partial<LocalizedString>;
+  return {
+    fr: typeof d.fr === "string" ? d.fr.trim() : "",
+    en: typeof d.en === "string" ? d.en.trim() : "",
+    ar: typeof d.ar === "string" ? d.ar.trim() : "",
   };
 }
 
@@ -315,10 +345,10 @@ export function normalizeHomeContent(input: unknown): HomeContent {
     keyFigures,
     keyFiguresSection: {
       eyebrow: normalizeKeyFiguresEyebrow(d.keyFiguresSection),
-      imageUrl:
-        typeof d.keyFiguresSection?.imageUrl === "string" && d.keyFiguresSection.imageUrl.trim()
-          ? d.keyFiguresSection.imageUrl.trim()
-          : DEFAULT_HOME_CONTENT.keyFiguresSection.imageUrl,
+      imageUrl: normalizeLocalizedImageUrl(
+        d.keyFiguresSection?.imageUrl,
+        DEFAULT_HOME_CONTENT.keyFiguresSection.imageUrl
+      ),
       figureCaption: localizedFallback(
         d.keyFiguresSection?.figureCaption,
         DEFAULT_HOME_CONTENT.keyFiguresSection.figureCaption
@@ -347,7 +377,7 @@ export const getHomeContent = unstable_cache(
       return DEFAULT_HOME_CONTENT;
     }
   },
-  ["site-content:home:v5"],
+  ["site-content:home:v6"],
   { tags: [HOME_TAG], revalidate: 300 }
 );
 
@@ -380,11 +410,32 @@ function normalizeLaFmaStat(input: unknown, fallback: LaFmaStat): LaFmaStat {
   };
 }
 
+function normalizeLaFmaLocalizedIcon(
+  input: unknown,
+  fallback: LocalizedString
+): LocalizedString {
+  if (typeof input === "string") {
+    const v = normalizeLaFmaIcon(input);
+    return v ? { fr: v, en: "", ar: "" } : { ...fallback };
+  }
+
+  if (!input || typeof input !== "object") {
+    return { ...fallback };
+  }
+
+  const d = input as Partial<LocalizedString>;
+  return {
+    fr: normalizeLaFmaIcon(String(d.fr ?? "").trim()),
+    en: normalizeLaFmaIcon(String(d.en ?? "").trim()),
+    ar: normalizeLaFmaIcon(String(d.ar ?? "").trim()),
+  };
+}
+
 function normalizeLaFmaMission(input: unknown, fallback: LaFmaMission): LaFmaMission {
   if (!input || typeof input !== "object") return { ...fallback };
   const m = input as Partial<LaFmaMission>;
   return {
-    icon: normalizeLaFmaIcon((m.icon ?? "").toString().trim()) || fallback.icon,
+    icon: normalizeLaFmaLocalizedIcon(m.icon, fallback.icon),
     title: localizedFallback(m.title as Partial<LocalizedString> | undefined, fallback.title),
     description: localizedFallback(
       m.description as Partial<LocalizedString> | undefined,
@@ -397,7 +448,7 @@ function normalizeLaFmaValeur(input: unknown, fallback: LaFmaValeur): LaFmaValeu
   if (!input || typeof input !== "object") return { ...fallback };
   const v = input as Partial<LaFmaValeur>;
   return {
-    icon: normalizeLaFmaIcon((v.icon ?? "").toString().trim()) || fallback.icon,
+    icon: normalizeLaFmaLocalizedIcon(v.icon, fallback.icon),
     title: localizedFallback(v.title as Partial<LocalizedString> | undefined, fallback.title),
     description: localizedFallback(v.description as Partial<LocalizedString> | undefined, fallback.description),
   };
@@ -407,9 +458,20 @@ function normalizeOrgBloc(input: unknown, fallback: LaFmaOrgBloc): LaFmaOrgBloc 
   if (!input || typeof input !== "object") return { ...fallback };
   const b = input as Partial<LaFmaOrgBloc>;
   return {
-    icon: normalizeLaFmaIcon((b.icon ?? "").toString().trim()) || fallback.icon,
+    icon: normalizeLaFmaLocalizedIcon(b.icon, fallback.icon),
     title: localizedFallback(b.title as Partial<LocalizedString> | undefined, fallback.title),
     description: localizedFallback(b.description as Partial<LocalizedString> | undefined, fallback.description),
+  };
+}
+
+function normalizeMemberCategory(input: unknown, fallback: LaFmaMemberCategory): LaFmaMemberCategory {
+  if (!input || typeof input !== "object") return { ...fallback };
+  const b = input as Partial<LaFmaMemberCategory>;
+  const rawSlug = String(b.slug ?? fallback.slug).trim();
+  const slug = resolveMemberCategorySlug(rawSlug, DEFAULT_MEMBER_CATEGORIES) || rawSlug;
+  return {
+    slug,
+    label: localizedFallback(b.label as Partial<LocalizedString> | undefined, fallback.label),
   };
 }
 
@@ -448,11 +510,25 @@ export function normalizeLaFmaContent(input: unknown): LaFmaContent {
           .map((v) => normalizeLaFmaValeur(v, emptyValeur));
 
   const orgBlocsIn = Array.isArray(d.orgBlocs) ? d.orgBlocs : [];
-  const emptyOrgBloc: LaFmaOrgBloc = { icon: "📌", title: { fr: "", en: "", ar: "" }, description: { fr: "", en: "", ar: "" } };
+  const emptyOrgBloc: LaFmaOrgBloc = {
+    icon: { fr: "📌", en: "📌", ar: "📌" },
+    title: { fr: "", en: "", ar: "" },
+    description: { fr: "", en: "", ar: "" },
+  };
   const orgBlocs: LaFmaOrgBloc[] =
     orgBlocsIn.length === 0
       ? DEFAULT_LA_FMA_CONTENT.orgBlocs
       : orgBlocsIn.map((b) => normalizeOrgBloc(b, emptyOrgBloc));
+
+  const categoriesIn = Array.isArray(d.memberCategories) ? d.memberCategories : [];
+  const emptyCategory = createEmptyLaFmaMemberCategory();
+  const memberCategories: LaFmaMemberCategory[] =
+    categoriesIn.length === 0
+      ? DEFAULT_LA_FMA_CONTENT.memberCategories
+      : mergeMemberCategories(
+          categoriesIn.map((c) => normalizeMemberCategory(c, emptyCategory)).filter((c) => c.slug),
+          DEFAULT_LA_FMA_CONTENT.memberCategories
+        );
 
   return {
     heroBadge: localizedFallback(d.heroBadge, DEFAULT_LA_FMA_CONTENT.heroBadge),
@@ -493,6 +569,11 @@ export function normalizeLaFmaContent(input: unknown): LaFmaContent {
       d.membersSectionTitle,
       DEFAULT_LA_FMA_CONTENT.membersSectionTitle
     ),
+    memberCategoryOtherLabel: localizedFallback(
+      d.memberCategoryOtherLabel,
+      DEFAULT_LA_FMA_CONTENT.memberCategoryOtherLabel
+    ),
+    memberCategories,
   };
 }
 

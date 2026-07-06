@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getParticuliersPageData } from "@/lib/particuliers-cache";
+import { particuliersHeroImageUrl } from "@/lib/particuliers-hero-image";
 import type { Locale } from "@/types";
 import type { Metadata } from "next";
 
@@ -22,7 +23,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function ParticuliersPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const l = locale as Locale;
-  const { content: c, heroImage } = await getParticuliersPageData();
+  const { content: c, heroImages } = await getParticuliersPageData();
+  const heroImage = particuliersHeroImageUrl(heroImages, l);
 
   return (
     <SectionBackground id="particuliers">

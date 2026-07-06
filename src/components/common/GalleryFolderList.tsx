@@ -10,6 +10,7 @@ import {
   DialogCloseButton,
   DialogTitle,
 } from "@/components/ui/Dialog";
+import { localizedText } from "@/lib/localized-content";
 import { getFolderCoverUrl, type FolderGalleryCategory, type GalleryFolder } from "@/lib/galleries";
 import { cn, localPublicImageUnoptimized } from "@/lib/utils";
 import type { Locale } from "@/types";
@@ -25,20 +26,16 @@ function isSocialGallery(category?: FolderGalleryCategory) {
 }
 
 function localizedHtml(folder: GalleryFolder, locale: Locale): string {
-  return (
-    folder.description[locale]?.trim() ||
-    folder.description.fr?.trim() ||
-    folder.description.en?.trim() ||
-    ""
+  return localizedText(
+    { fr: folder.description.fr, en: folder.description.en, ar: folder.description.ar },
+    locale
   );
 }
 
 function localizedTitle(folder: GalleryFolder, locale: Locale): string {
-  return (
-    folder.title[locale]?.trim() ||
-    folder.title.fr?.trim() ||
-    folder.title.en?.trim() ||
-    ""
+  return localizedText(
+    { fr: folder.title.fr, en: folder.title.en, ar: folder.title.ar },
+    locale
   );
 }
 

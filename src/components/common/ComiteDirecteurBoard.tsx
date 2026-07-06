@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { teamMemberName, teamMemberTitle } from "@/lib/localized-content";
 import type { Locale, TeamMember } from "@/types";
 
 export const COMITE_DIRECTEUR_SECTION_TITLE: Record<Locale, string> = {
@@ -8,20 +9,13 @@ export const COMITE_DIRECTEUR_SECTION_TITLE: Record<Locale, string> = {
   ar: "يتكون المجلس التوجيهي حالياً على النحو التالي:",
 };
 
+
 function localizedName(member: TeamMember, locale: Locale) {
-  return locale === "ar"
-    ? member.nameAr || member.nameFr
-    : locale === "en"
-      ? member.nameEn || member.nameFr
-      : member.nameFr;
+  return teamMemberName(member, locale);
 }
 
 function localizedTitle(member: TeamMember, locale: Locale) {
-  return locale === "ar"
-    ? member.titleAr || member.titleFr || ""
-    : locale === "en"
-      ? member.titleEn || member.titleFr || ""
-      : member.titleFr || "";
+  return teamMemberTitle(member, locale);
 }
 
 function getGroupLabel(members: TeamMember[], locale: Locale) {
