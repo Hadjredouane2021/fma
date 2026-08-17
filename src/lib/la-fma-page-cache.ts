@@ -59,7 +59,7 @@ export const getLaFmaPageData = unstable_cache(
       };
     }
   },
-  ["la-fma-page-data:v2"],
+  ["la-fma-page-data:v3"],
   { tags: [LA_FMA_PAGE_TAG], revalidate: 300 }
 );
 

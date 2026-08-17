@@ -18,19 +18,20 @@ function figureDecimals(fig: KeyFigure): number {
   return 0;
 }
 
+const REINSURANCE_WORD = /r[ée]assurance|reinsurance|إعادة\s*التأمين/i;
+const EXCLUSIVE_WORD = /exclusiv|حصري/i;
+const ACCEPTANCE_WORD = /acceptation|acceptance|قبول/i;
+
 function isAcceptationEnReassurance(label: string): boolean {
   return (
-    /acceptation/i.test(label) &&
-    /réassurance|reassurance/i.test(label) &&
-    !/exclusive/i.test(label)
+    ACCEPTANCE_WORD.test(label) &&
+    REINSURANCE_WORD.test(label) &&
+    !EXCLUSIVE_WORD.test(label)
   );
 }
 
 function isReassuranceExclusiveLabel(label: string): boolean {
-  return (
-    /réassurance\s+exclusive|reassurance\s+exclusive/i.test(label) ||
-    /acceptations?\s*[-–]?\s*(réassurance|reassurance)\s+exclusive/i.test(label)
-  );
+  return REINSURANCE_WORD.test(label) && EXCLUSIVE_WORD.test(label);
 }
 
 type FigureUnit =
@@ -79,7 +80,7 @@ function mergeReinsuranceColumn(units: FigureUnit[]): FigureUnit[] {
   const stackUnitIdx = units.findIndex(
     (u) =>
       u.type === "stack" &&
-      (/réassurance\s+exclusive|reassurance\s+exclusive/i.test(u.title) ||
+      (isReassuranceExclusiveLabel(u.title) ||
         u.figures.some((f) => isReassuranceExclusiveLabel(f.figure.label)))
   );
 

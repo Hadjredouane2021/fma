@@ -7,6 +7,10 @@ import { UsefulLinksGrid, usefulLinksPageCopy } from "@/components/common/Useful
 import { Section } from "@/components/ui/Section";
 import type { Locale } from "@/types";
 import type { Metadata } from "next";
+import {
+  liensUtilesHeroImageUrl,
+  parseLiensUtilesHeroImageUrlsFromSetting,
+} from "@/lib/liens-utiles-hero-image";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -43,7 +47,10 @@ export default async function LiensUtilesPage({ params }: { params: Promise<{ lo
     prisma.setting.findUnique({ where: { key: DB_KEYS.LIENS_UTILES_HERO } }).catch(() => null),
   ]);
 
-  const heroImage = heroRow?.value?.trim() || null;
+  const heroImage = liensUtilesHeroImageUrl(
+    parseLiensUtilesHeroImageUrlsFromSetting(heroRow?.value),
+    l
+  );
 
   const items = links.map((link) => ({
     id: link.id,

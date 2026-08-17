@@ -1,0 +1,17 @@
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+SHELL ["powershell", "-NoProfile", "-Command"]
+
+RUN $ErrorActionPreference = 'Stop'; \
+    $ProgressPreference = 'SilentlyContinue'; \
+    Invoke-WebRequest -Uri 'https://nodejs.org/dist/v22.23.1/node-v22.23.1-x64.msi' -OutFile 'C:\node.msi'; \
+    Start-Process msiexec.exe -ArgumentList '/i', 'C:\node.msi', '/quiet', '/norestart' -Wait; \
+    Remove-Item 'C:\node.msi'
+
+ENV PATH="C:\\Program Files\\nodejs;${PATH}"
+
+WORKDIR C:/app
+
+EXPOSE 3000
+
+CMD ["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "-NoProfile", "-Command", "$gw = (Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object RouteMetric | Select-Object -First 1 -ExpandProperty NextHop); $env:DATABASE_URL = \"mysql://root:@$($gw):3306/fma_db\"; Write-Host \"Using DATABASE_URL=$env:DATABASE_URL\"; npm run dev"]

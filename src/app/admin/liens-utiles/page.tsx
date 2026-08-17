@@ -6,6 +6,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { DB_KEYS } from "@/lib/db-keys";
 import DeleteUsefulLinkButton from "./_components/DeleteUsefulLinkButton";
 import LiensUtilesHeroImageForm from "./_components/LiensUtilesHeroImageForm";
+import { parseLiensUtilesHeroImageUrlsFromSetting } from "@/lib/liens-utiles-hero-image";
 
 export default async function AdminLiensUtilesPage() {
   const [links, heroRow] = await Promise.all([
@@ -14,7 +15,7 @@ export default async function AdminLiensUtilesPage() {
       .catch(() => []),
     prisma.setting.findUnique({ where: { key: DB_KEYS.LIENS_UTILES_HERO } }).catch(() => null),
   ]);
-  const heroImage = heroRow?.value ?? "";
+  const heroImage = parseLiensUtilesHeroImageUrlsFromSetting(heroRow?.value);
 
   return (
     <>

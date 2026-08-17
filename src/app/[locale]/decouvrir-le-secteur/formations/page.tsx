@@ -11,6 +11,7 @@ import {
   sortFormationsByDate,
 } from "@/lib/formations-site-public";
 import { getFormationsPageData } from "@/lib/formations-cache";
+import { formationsHeroImageUrl } from "@/lib/formations-hero-image";
 import type { Locale } from "@/types";
 import type { Metadata } from "next";
 
@@ -26,7 +27,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function FormationsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const l = locale as Locale;
-  const { content: c, heroImage } = await getFormationsPageData();
+  const { content: c, heroImages } = await getFormationsPageData();
+  const heroImage = formationsHeroImageUrl(heroImages, l);
   const formations = sortFormationsByDate(filterActiveFormations(c.formations));
 
   return (

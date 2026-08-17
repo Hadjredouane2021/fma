@@ -10,6 +10,7 @@ import {
 } from "@/lib/formations-site-public";
 import FormationsForm from "./_components/FormationsForm";
 import FormationsHeroImageForm from "./_components/FormationsHeroImageForm";
+import { parseFormationsHeroImageUrlsFromSetting } from "@/lib/formations-hero-image";
 
 async function getContent(): Promise<FormationsContent> {
   const row = await prisma.setting.findUnique({ where: { key: FORMATIONS_KEY } }).catch(() => null);
@@ -39,7 +40,7 @@ export default async function AdminFormationsPage() {
     getContent(),
     prisma.setting.findUnique({ where: { key: DB_KEYS.FORMATIONS_HERO } }).catch(() => null),
   ]);
-  const heroImage = heroRow?.value ?? "";
+  const heroImage = parseFormationsHeroImageUrlsFromSetting(heroRow?.value);
 
   return (
     <>

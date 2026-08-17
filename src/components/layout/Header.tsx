@@ -5,18 +5,87 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Menu, X, Search, ChevronDown, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "@/components/common/ThemeToggle";
-import { resolveHref, type MenuContent } from "@/lib/menu-site-public";
+import { resolveHref, type MenuContent, type MenuItem } from "@/lib/menu-site-public";
 import { resolveLogoHref, type SiteLogoSettings } from "@/lib/site-logo";
+import { LocaleFlag } from "@/components/common/LocaleFlag";
 import { SiteLogoFromSettings } from "@/components/common/SiteLogo";
 import { Link as LocaleLink, usePathname } from "@/i18n/navigation";
 import { buildLocaleSwitchHref } from "@/i18n/locale-switch";
 import type { Locale } from "@/types";
 
-const localeLabels: Record<string, string> = { fr: "FR", en: "EN", ar: "ع" };
-const localeFlags: Record<string, string> = { fr: "🇫🇷", en: "🇬🇧", ar: "🇲🇦" };
-const localeNames: Record<string, string> = { fr: "Français", en: "English", ar: "العربية" };
+const localeNames: Record<Locale, string> = { fr: "Français", en: "English", ar: "العربية" };
+const localeCodes: Record<Locale, string> = { fr: "FR", en: "EN", ar: "AR" };
 const locales: Locale[] = ["fr", "en", "ar"];
+
+function menuPath(href: string): string {
+  const withoutLocale = href.replace(/^\/\[locale\]/, "") || "/";
+  const path = withoutLocale.split("?")[0] || "/";
+  return path.startsWith("/") ? path : `/${path}`;
+}
+
+function isPathActive(href: string, pathname: string): boolean {
+  const path = menuPath(href);
+  if (path === "/") return pathname === "/";
+  return pathname === path || pathname.startsWith(`${path}/`);
+}
+
+function isItemActive(item: MenuItem, pathname: string): boolean {
+  if (isPathActive(item.href, pathname)) return true;
+  return item.children.some((child) => isPathActive(child.href, pathname));
+}
+
+function LangFlags({
+  locale,
+  localeHref,
+  onNavigate,
+  dropUp = false,
+}: {
+  locale: Locale;
+  localeHref: (target: Locale) => string;
+  onNavigate?: () => void;
+  dropUp?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className={cn("site-header-langs", dropUp && "is-dropup")}>
+      <button
+        type="button"
+        className="site-header-lang-btn"
+        aria-label={localeNames[locale]}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        onClick={() => setOpen((v) => !v)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+      >
+        <LocaleFlag locale={locale} className="site-header-lang-flag__img" />
+        <span className="site-header-lang-code">{localeCodes[locale]}</span>
+        <ChevronDown className={cn("site-header-lang-caret", open && "is-open")} />
+      </button>
+      <div className={cn("site-header-lang-menu", open && "is-open")} role="listbox" aria-label="Langue">
+        {locales.map((l) => (
+          <Link
+            key={l}
+            href={localeHref(l)}
+            hrefLang={l}
+            role="option"
+            aria-selected={locale === l}
+            aria-label={localeNames[l]}
+            onClick={() => {
+              setOpen(false);
+              onNavigate?.();
+            }}
+            className={cn("site-header-lang-option", locale === l && "is-active")}
+          >
+            <LocaleFlag locale={l} className="site-header-lang-flag__img" />
+            <span className="site-header-lang-option-code">{localeCodes[l]}</span>
+            <span className="site-header-lang-option-name">{localeNames[l]}</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Header({
   locale,
@@ -34,8 +103,6 @@ export default function Header({
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
-  const [langOpen, setLangOpen] = useState(false);
-  const [mobileLangOpen, setMobileLangOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -45,11 +112,10 @@ export default function Header({
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
-    else {
+    else document.body.style.overflow = "";
+    return () => {
       document.body.style.overflow = "";
-      setMobileLangOpen(false);
-    }
-    return () => { document.body.style.overflow = ""; };
+    };
   }, [isOpen]);
 
   const label = (item: { labelFr: string; labelEn: string; labelAr: string }) =>
@@ -70,7 +136,6 @@ export default function Header({
       >
         <div className="site-header-deco" aria-hidden />
 
-        {/* Logo — ancré sur le header, bord gauche de l'écran */}
         <Link
           href={logoHref}
           prefetch
@@ -85,128 +150,96 @@ export default function Header({
           />
         </Link>
 
-        {/* Recherche + langue + thème — desktop xl+ */}
         <div className="site-header-actions">
           <LocaleLink
             href="/recherche"
             prefetch
             aria-label={t("search")}
-            className="flex h-[2.125rem] w-[2.125rem] items-center justify-center rounded-full text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--hover-bg)] transition-all duration-200"
+            className="site-header-icon-btn"
           >
             <Search className="h-4 w-4" />
           </LocaleLink>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setLangOpen((v) => !v)}
-              onBlur={() => setTimeout(() => setLangOpen(false), 150)}
-              className="site-header-lang-btn"
-              aria-label={localeNames[locale]}
-            >
-              <span>{localeFlags[locale]}</span>
-              <span className="site-header-lang-code">{localeLabels[locale]}</span>
-              <ChevronDown className={cn("h-3 w-3 opacity-40 transition-transform duration-150", langOpen && "rotate-180")} />
-            </button>
-            <div
-              className={cn(
-                "absolute top-full right-0 pt-1 z-[80]",
-                "transition-[opacity,visibility] duration-100",
-                langOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
-              )}
-            >
-              <div className="site-header-dropdown relative overflow-hidden rounded-xl min-w-[150px]">
-                <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[var(--brand)] via-[var(--mauve)] to-[var(--blue)]" />
-                <div className="p-1.5 pt-2.5">
-                  {locales.map((l) => (
-                    <Link
-                      key={l}
-                      href={localeHref(l)}
-                      onClick={() => setLangOpen(false)}
-                      className={cn(
-                        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors duration-100",
-                        locale === l
-                          ? "text-[var(--text-1)] bg-[var(--hover-bg)] font-semibold"
-                          : "text-[var(--text-2)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-1)]"
-                      )}
-                    >
-                      <span className="text-base leading-none">{localeFlags[l]}</span>
-                      <span>{localeNames[l]}</span>
-                      {locale === l && <span className="ms-auto w-1.5 h-1.5 rounded-full bg-[var(--brand)]" />}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-          <ThemeToggle compact />
+          <span className="site-header-actions-sep" aria-hidden />
+          <LangFlags locale={locale} localeHref={localeHref} />
         </div>
 
-        {/* ── NAV BAR (pleine largeur, menu centré entre logo et actions) ── */}
         <div className="site-header-bar" dir={isRtl ? "rtl" : "ltr"}>
           <nav className="site-header-nav" aria-label="Navigation principale">
-              {menuContent.items.map((item) => (
-                <div
-                  key={item.id}
-                  className={cn("relative shrink-0 z-[1]", item.children.length > 0 && "group/navdropdown")}
-                >
-                  <Link
-                    href={resolveHref(item.href, locale)}
-                    prefetch
-                    className="site-header-nav-link"
-                  >
-                    <span className="site-header-nav-label">
-                      {label(item)}
-                    </span>
-                    {item.children.length > 0 && (
-                      <ChevronDown className="h-3 w-3 shrink-0 opacity-40 transition-transform duration-150 group-hover/navdropdown:rotate-180 group-hover/navdropdown:opacity-70" />
-                    )}
-                  </Link>
+            <div className="site-header-nav-shell">
+              {menuContent.items.map((item) => {
+                const active = isItemActive(item, pathname);
+                const hasChildren = item.children.length > 0;
+                const isCta = item.id === "contact";
 
-                  {item.children.length > 0 && (
-                    <div
+                return (
+                  <div
+                    key={item.id}
+                    className={cn("site-header-nav-item", hasChildren && "has-submenu")}
+                  >
+                    <Link
+                      href={resolveHref(item.href, locale)}
+                      prefetch
+                      aria-current={active ? "page" : undefined}
                       className={cn(
-                        "absolute top-full left-1/2 z-[80] w-[min(100vw-2rem,18rem)] -translate-x-1/2 pt-1",
-                        "pointer-events-none invisible opacity-0",
-                        "transition-[opacity,visibility] duration-100",
-                        "group-hover/navdropdown:pointer-events-auto group-hover/navdropdown:visible group-hover/navdropdown:opacity-100"
+                        "site-header-nav-link",
+                        isCta && "site-header-nav-link--cta",
+                        active && "is-active"
                       )}
                     >
-                      <div className="site-header-dropdown relative overflow-hidden rounded-2xl">
-                        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[var(--brand)] via-[var(--mauve)] to-[var(--blue)]" />
-                        <div className="p-2 pt-3">
-                          {item.children.map((child) => (
-                            <Link
-                              key={child.id}
-                              href={resolveHref(child.href, locale)}
-                              prefetch
-                              className="group/dd flex items-center justify-between rounded-xl px-3.5 py-2.5 text-[13px] font-medium text-[var(--text-2)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-1)] transition-colors duration-100"
-                            >
-                              <span>{label(child)}</span>
-                              <ArrowUpRight className="w-3 h-3 opacity-0 group-hover/dd:opacity-40 transition-opacity -translate-y-0.5 translate-x-0.5 rtl:-translate-x-0.5" />
-                            </Link>
-                          ))}
+                      <span className="site-header-nav-label">{label(item)}</span>
+                      {hasChildren && (
+                        <ChevronDown className="site-header-nav-caret" aria-hidden />
+                      )}
+                    </Link>
+
+                    {hasChildren && (
+                      <div className="site-header-submenu">
+                        <div className="site-header-dropdown">
+                          <div className="site-header-dropdown__accent" aria-hidden />
+                          <p className="site-header-dropdown__kicker">{label(item)}</p>
+                          <div className="site-header-dropdown__list">
+                            {item.children.map((child) => {
+                              const childActive = isPathActive(child.href, pathname);
+                              return (
+                                <Link
+                                  key={child.id}
+                                  href={resolveHref(child.href, locale)}
+                                  prefetch
+                                  aria-current={childActive ? "page" : undefined}
+                                  className={cn(
+                                    "site-header-dropdown__link",
+                                    childActive && "is-active"
+                                  )}
+                                >
+                                  <span>{label(child)}</span>
+                                  <ArrowUpRight className="site-header-dropdown__icon" aria-hidden />
+                                </Link>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </nav>
 
-          {/* Tablette / mobile : recherche + menu */}
           <div className="ms-auto flex flex-shrink-0 items-center gap-1.5 xl:hidden">
+            <LangFlags locale={locale} localeHref={localeHref} />
             <LocaleLink
               href="/recherche"
               prefetch
               aria-label={t("search")}
-              className="p-2.5 rounded-xl text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--hover-bg)] transition-all duration-200"
+              className="site-header-icon-btn"
             >
               <Search className="w-[17px] h-[17px]" />
             </LocaleLink>
             <button
               type="button"
               onClick={() => setIsOpen(!isOpen)}
-              className="ml-1 p-2 rounded-xl text-[var(--text-2)] hover:bg-[var(--hover-bg)] transition-colors"
+              className="site-header-menu-btn"
               aria-expanded={isOpen}
               aria-label="Menu"
             >
@@ -216,16 +249,13 @@ export default function Header({
         </div>
       </header>
 
-      {/* ── MOBILE DRAWER ── */}
-      {/* Backdrop */}
       <div
         onClick={() => setIsOpen(false)}
         className={cn(
-          "fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 xl:hidden",
+          "fixed inset-0 z-40 bg-black/45 backdrop-blur-sm transition-opacity duration-300 xl:hidden",
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
       />
-      {/* Drawer panel */}
       <div
         className={cn(
           "site-header-drawer fixed top-0 right-0 bottom-0 z-50 flex w-[min(88vw,360px)] flex-col xl:hidden",
@@ -233,7 +263,6 @@ export default function Header({
           isOpen ? "translate-x-0" : "pointer-events-none translate-x-full"
         )}
       >
-        {/* Drawer header */}
         <div className="site-header-drawer-head flex items-center justify-between px-5 h-16">
           <div className="flex items-center gap-2.5">
             <SiteLogoFromSettings
@@ -254,111 +283,72 @@ export default function Header({
           </button>
         </div>
 
-        {/* Nav items */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3" dir={isRtl ? "rtl" : "ltr"}>
-          {menuContent.items.map((item) => (
-            <div key={item.id} className="mb-0.5">
-              {item.children.length > 0 ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setMobileExpanded(mobileExpanded === item.id ? null : item.id)}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-semibold text-[var(--text-1)] hover:bg-[var(--hover-bg)] transition-colors"
+        <nav className="flex-1 overflow-y-auto py-5 px-3" dir={isRtl ? "rtl" : "ltr"}>
+          {menuContent.items.map((item) => {
+            const active = isItemActive(item, pathname);
+            const isCta = item.id === "contact";
+            return (
+              <div key={item.id} className="mb-1">
+                {item.children.length > 0 ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setMobileExpanded(mobileExpanded === item.id ? null : item.id)}
+                      className={cn(
+                        "site-header-drawer-link w-full",
+                        active && "is-active"
+                      )}
+                    >
+                      {label(item)}
+                      <ChevronDown
+                        className={cn(
+                          "w-4 h-4 text-current/50 transition-transform duration-200",
+                          mobileExpanded === item.id && "rotate-180"
+                        )}
+                      />
+                    </button>
+                    <div
+                      className={cn(
+                        "overflow-hidden transition-all duration-200",
+                        mobileExpanded === item.id ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                      )}
+                    >
+                      <div className="ms-3 mt-1 space-y-0.5 border-s border-[var(--border)] py-1 ps-3">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.id}
+                            href={resolveHref(child.href, locale)}
+                            prefetch
+                            onClick={() => setIsOpen(false)}
+                            className={cn(
+                              "site-header-drawer-sublink",
+                              isPathActive(child.href, pathname) && "is-active"
+                            )}
+                          >
+                            {label(child)}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <Link
+                    href={resolveHref(item.href, locale)}
+                    prefetch
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "site-header-drawer-link",
+                      isCta && "site-header-drawer-link--cta",
+                      active && "is-active"
+                    )}
                   >
                     {label(item)}
-                    <ChevronDown className={cn("w-4 h-4 text-[var(--text-3)] transition-transform duration-200", mobileExpanded === item.id && "rotate-180")} />
-                  </button>
-                    <div className={cn("overflow-hidden transition-all duration-200", mobileExpanded === item.id ? "max-h-96 opacity-100" : "max-h-0 opacity-0")}>
-                    <div className="ms-3 ps-3 border-s border-[var(--border)] py-1 space-y-0.5">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.id}
-                          href={resolveHref(child.href, locale)}
-                          prefetch
-                          onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--hover-bg)] transition-colors"
-                        >
-                          <span className="w-1 h-1 rounded-full bg-[var(--fma-taupe)] flex-shrink-0" />
-                          {label(child)}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <Link
-                  href={resolveHref(item.href, locale)}
-                  prefetch
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center px-4 py-3 rounded-xl text-[14px] font-semibold text-[var(--text-1)] hover:bg-[var(--hover-bg)] transition-colors"
-                >
-                  {label(item)}
-                </Link>
-              )}
-            </div>
-          ))}
-        </nav>
-
-        {/* Drawer footer */}
-        <div className="border-t border-[var(--border)] px-5 py-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setMobileLangOpen((v) => !v)}
-                onBlur={() => setTimeout(() => setMobileLangOpen(false), 150)}
-                className="site-header-lang-btn"
-                aria-label={localeNames[locale]}
-                aria-expanded={mobileLangOpen}
-              >
-                <span>{localeFlags[locale]}</span>
-                <span className="site-header-lang-code">{localeLabels[locale]}</span>
-                <ChevronDown
-                  className={cn(
-                    "h-3 w-3 opacity-40 transition-transform duration-150",
-                    mobileLangOpen && "rotate-180"
-                  )}
-                />
-              </button>
-              <div
-                className={cn(
-                  "absolute bottom-full left-0 z-[80] mb-1 pb-1",
-                  "transition-[opacity,visibility] duration-100",
-                  mobileLangOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+                  </Link>
                 )}
-              >
-                <div className="site-header-dropdown relative overflow-hidden rounded-xl min-w-[150px]">
-                  <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[var(--brand)] via-[var(--mauve)] to-[var(--blue)]" />
-                  <div className="p-1.5 pt-2.5">
-                    {locales.map((l) => (
-                      <Link
-                        key={l}
-                        href={localeHref(l)}
-                        onClick={() => {
-                          setMobileLangOpen(false);
-                          setIsOpen(false);
-                        }}
-                        className={cn(
-                          "flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors duration-100",
-                          locale === l
-                            ? "text-[var(--text-1)] bg-[var(--hover-bg)] font-semibold"
-                            : "text-[var(--text-2)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-1)]"
-                        )}
-                      >
-                        <span className="text-base leading-none">{localeFlags[l]}</span>
-                        <span>{localeNames[l]}</span>
-                        {locale === l && (
-                          <span className="ms-auto w-1.5 h-1.5 rounded-full bg-[var(--brand)]" />
-                        )}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
               </div>
-            </div>
-            <ThemeToggle compact />
-          </div>
-        </div>
+            );
+          })}
+        </nav>
       </div>
     </>
   );

@@ -9,10 +9,15 @@ import {
   prismaFormationToItem,
   type FormationsContent,
 } from "@/lib/formations-site-public";
+import {
+  EMPTY_FORMATIONS_HERO_IMAGE_URLS,
+  parseFormationsHeroImageUrlsFromSetting,
+  type FormationsHeroImageUrls,
+} from "@/lib/formations-hero-image";
 
 export type FormationsPageData = {
   content: FormationsContent;
-  heroImage: string | null;
+  heroImages: FormationsHeroImageUrls;
 };
 
 export const getFormationsPageData = unstable_cache(
@@ -42,11 +47,11 @@ export const getFormationsPageData = unstable_cache(
       }
       return {
         content,
-        heroImage: heroRow?.value?.trim() || null,
+        heroImages: parseFormationsHeroImageUrlsFromSetting(heroRow?.value),
       };
     } catch (error) {
       console.error("[formations-cache] getFormationsPageData failed:", error);
-      return { content: DEFAULT_FORMATIONS_CONTENT, heroImage: null };
+      return { content: DEFAULT_FORMATIONS_CONTENT, heroImages: EMPTY_FORMATIONS_HERO_IMAGE_URLS };
     }
   },
   ["site-formations-page:v1"],

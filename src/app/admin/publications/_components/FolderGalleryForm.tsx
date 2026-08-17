@@ -20,7 +20,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { buttonUploadLabel } from "@/lib/button-styles";
+import { buttonTabActive, buttonTabInactive, buttonUploadLabel } from "@/lib/button-styles";
+import { ADMIN_LOCALE_TABS } from "@/lib/admin-locale";
 import {
   createEmptyGalleryFolder,
   type FolderGalleryCategory,
@@ -318,20 +319,18 @@ export default function FolderGalleryForm({
                   </div>
 
                   <div>
-                    <div className="mb-2 flex gap-2">
-                      {(["fr", "en", "ar"] as const).map((lang) => (
+                    <div className="mb-2 flex flex-wrap gap-2">
+                      {ADMIN_LOCALE_TABS.map((t) => (
                         <button
-                          key={lang}
+                          key={t.key}
                           type="button"
-                          onClick={() => setLangTab(lang)}
+                          onClick={() => setLangTab(t.key)}
                           className={cn(
-                            "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
-                            langTab === lang
-                              ? "bg-primary text-white"
-                              : "bg-[var(--bg)] text-[var(--text-2)] hover:bg-[var(--bg-alt)]"
+                            "rounded-xl px-3 py-1.5 text-sm font-medium",
+                            langTab === t.key ? buttonTabActive : buttonTabInactive
                           )}
                         >
-                          {lang.toUpperCase()}
+                          {t.flag} {t.label}
                         </button>
                       ))}
                     </div>

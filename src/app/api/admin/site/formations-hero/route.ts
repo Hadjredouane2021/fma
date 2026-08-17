@@ -3,6 +3,12 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DB_KEYS } from "@/lib/db-keys";
 import { revalidateFormationsContent } from "@/lib/formations-cache";
+import {
+  EMPTY_FORMATIONS_HERO_IMAGE_URLS,
+  normalizeFormationsHeroImageUrls,
+  parseFormationsHeroImageUrlsFromSetting,
+  type FormationsHeroImageUrls,
+} from "@/lib/formations-hero-image";
 
 const KEY = DB_KEYS.FORMATIONS_HERO;
 
@@ -14,18 +20,21 @@ export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
   const row = await prisma.setting.findUnique({ where: { key: KEY } }).catch(() => null);
-  return NextResponse.json({ imageUrl: row?.value ?? "" });
+  return NextResponse.json(parseFormationsHeroImageUrlsFromSetting(row?.value));
 }
 
 export async function PUT(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
-  const { imageUrl } = (await req.json()) as { imageUrl: string };
+  const body = await req.json().catch(() => null);
+  const normalized: FormationsHeroImageUrls = body
+    ? normalizeFormationsHeroImageUrls(body)
+    : EMPTY_FORMATIONS_HERO_IMAGE_URLS;
   await prisma.setting.upsert({
     where: { key: KEY },
-    update: { value: imageUrl ?? "", group: "site" },
-    create: { key: KEY, value: imageUrl ?? "", group: "site" },
+    update: { value: JSON.stringify(normalized), group: "site" },
+    create: { key: KEY, value: JSON.stringify(normalized), group: "site" },
   });
   revalidateFormationsContent();
-  return NextResponse.json({ imageUrl });
+  return NextResponse.json(normalized);
 }
